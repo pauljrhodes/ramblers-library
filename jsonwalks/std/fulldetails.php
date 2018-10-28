@@ -41,7 +41,7 @@ class RJsonwalksStdFulldetails extends RJsonwalksDisplaybase {
         echo '<script type="text/javascript">jQuery(function($) {$(\'#' . $id . '\').raAccordion({hidefirst: 1 });});</script>' . PHP_EOL;
         echo '<div id="' . $id . '" class="ra-accordion ra-accordion-style4 ">';
         foreach ($items as $walk) {
-            echo '<div class="ra-accordion-item ' . $this->walkClass . $walk->status . '">' . PHP_EOL;
+            echo '<div  id=W' . $walk->id . ' class="ra-accordion-item ' . $this->walkClass . $walk->status . '">' . PHP_EOL;
             if ($this->printOn) {
                 echo '<div class="printfulldetails">' . PHP_EOL;
             } else {
@@ -64,9 +64,45 @@ class RJsonwalksStdFulldetails extends RJsonwalksDisplaybase {
             echo '</div></div>' . PHP_EOL;
 
             echo "</div>" . PHP_EOL;
+			
+			$performer = new RJsonwalksStructuredperformer($walk->groupName); # Change to walk leader in future
+                $location = new RJsonwalksStructuredlocation($walk->startLocation->description, $walk->startLocation->postcode);
+				if ($walk->distanceMiles > 0) {
+					$potentialaction = new RJsonwalksStructuredaction($walk->distanceMiles, $walk->nationalGrade);
+				}
+				
+				$orgainzer = new RJsonwalksStructuredorganizer("#GroupInfo");
+                $schemawalk = new RJsonwalksStructuredevent($performer, $location, $potentialaction, $orgainzer);
+				$schemawalk->id = "#W" . $walk->id;
+				# if area listing refer to OurGroupsPage/#$walk->groupName
+                $schemawalk->name = $walk->title;
+                $schemawalk->url = "#W" . $walk->id;
+				$schemawalk->sameas = $walk->detailsPageUrl;
+				$schemawalk->startDate = $walk->startLocation->time->format(DateTime::ISO8601);
+				if ( $walk->finishTime != null) {
+				    $schemawalk->endDate = $walk->finishTime->format(DateTime::ISO8601);
+				}
+				$schemawalk->description = "A " .  $walk->nationalGrade . " " . $walk->distanceMiles . "mile / " . $walk->distanceKm . "km walk";
+				# Google don't like markup which doesn't appear on page as first viewed so description must be as on page and image should  be excluded from next walks summary listing
+				#if ($walk->description == "") {
+                #    $schemawalk->description = $desc;
+                #} else {
+                #    $schemawalk->description = $walk->description;  
+                #}
+                #$schemawalk->image = "http://www.ramblers-webs.org.uk/images/ra-images/logos/standard/logo92.png";
+                
+                $schemawalks[] = $schemawalk;
         }
         // echo "</div>" . PHP_EOL;
         echo '</div></div>' . PHP_EOL;
+		
+		$script = json_encode($schemawalks);
+        $script = str_replace('"context":', '"@context":', $script);
+        $script = str_replace('"type":', '"@type":', $script);
+		$script = str_replace('"id":', '"@id":', $script);
+        $script = str_replace('\/', '/', $script);
+        $doc = JFactory::getDocument();
+        $doc->addScriptDeclaration($script, "application/ld+json");
     }
 
     public function setWalksClass($class) {
