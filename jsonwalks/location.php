@@ -23,7 +23,7 @@ class RJsonwalksLocation {
     function __construct($value, $walkDate) {
         $this->description = RHtml::convertToText($value->description);
         $day = $walkDate->format('Ymd ');
-        $this->time = DateTime::createFromFormat('Ymd H:i:s', $day . $value->time);
+        $this->time = DateTime::createFromFormat('Ymd H:i:s', $day . $value->time,  new DateTimeZone('Europe/London'));
         If ($this->time === false) {
             $this->time = "";
             $this->timeHHMM = "No time";
