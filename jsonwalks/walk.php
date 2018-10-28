@@ -83,7 +83,7 @@ class RJsonwalksWalk extends REvent {
             $this->dateCreated = DateTime::createFromFormat(self::TIMEFORMAT, $item->dateCreated);
             $this->cancellationReason = $item->cancellationReason;
 // basic walk details
-            $this->walkDate = DateTime::createFromFormat(self::TIMEFORMAT, $item->date);
+            $this->walkDate = DateTime::createFromFormat(self::TIMEFORMAT, $item->date, new DateTimeZone('Europe/London'));
             $this->detailsPageUrl = $item->url;
             $this->title = RHtml::convertToText($item->title);
             $this->descriptionHtml = $item->description;
@@ -100,7 +100,7 @@ class RJsonwalksWalk extends REvent {
                     break;
                 default:
                     $day = $this->walkDate->format('Ymd ');
-                    $this->finishTime = DateTime::createFromFormat('Ymd H:i:s', $day . $item->finishTime);
+                    $this->finishTime = DateTime::createFromFormat('Ymd H:i:s', $day . $item->finishTime, new DateTimeZone('Europe/London'));
                     break;
             }
 
