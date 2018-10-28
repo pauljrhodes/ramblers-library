@@ -8,26 +8,32 @@
  * Description of structuredevent
  *
  * @author Chris
+ * @author Paul
  */
 class RJsonwalksStructuredevent {
-
-    //put your code here
     public $context;
     public $type;
+	public $id;
+	public $organizer;
     public $name;
-    public $startdate;
-    public $enddate;
+	public $url;
+	public $sameas;
+    public $startDate;
+    public $endDate;
     public $image;
     public $description;
-    public $url;
     public $location;
     public $performer;
-
-    public function __construct($performer, $location) {
+	public $potentialaction;
+	
+	
+    public function __construct($performer, $location, $potentialaction, $organizer) {
         $this->context = "http://schema.org/";
         $this->type = "Event";
         $this->performer = $performer;
         $this->location = $location;
+		$this->potentialaction = $potentialaction;
+		$this->organizer = $organizer;
     }
 
 }
