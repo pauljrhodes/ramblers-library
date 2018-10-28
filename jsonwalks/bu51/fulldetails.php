@@ -20,6 +20,7 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
     public $displayGroup = null;  // should the Group name be displayed
     private static $accordianId = 100;
 
+
     public function DisplayWalks($walks) {
         if ($this->displayGradesSidebar) {
             RJsonwalksWalk::gradeSidebar();
@@ -65,7 +66,7 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
 
             echo "</div>" . PHP_EOL;
 			
-			$performer = new RJsonwalksStructuredperformer($walk->groupName); # Change to walk leader
+			$performer = new RJsonwalksStructuredperformer($walk->groupName); # Change to walk leader in future
                 $location = new RJsonwalksStructuredlocation($walk->startLocation->description, $walk->startLocation->postcode);
 				if ($walk->distanceMiles > 0) {
 					$potentialaction = new RJsonwalksStructuredaction($walk->distanceMiles, $walk->nationalGrade);
@@ -268,9 +269,12 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
             echo "<div class='walkcontact'><b>Contact Leader</b>: ";
         }
         echo RHtml::withDiv("contactname", "<b>Name</b>: " . $walk->contactName, $this->printOn);
-        if ($walk->email != "" and !$this->printOn) {
-            $link = "http://www.ramblers.org.uk/go-walking/find-a-walk-or-route/contact-walk-organiser.aspx?walkId=";
-            echo RHtml::withDiv("email", "<b>Email: </b><a href='" . $link . $walk->id."' target='_blank'>Email Contact via ramblers.org.uk</a>", $this->printOn);
+//        if ($walk->email != "" and !$this->printOn) {
+//            $link = "http://www.ramblers.org.uk/go-walking/find-a-walk-or-route/contact-walk-organiser.aspx?walkId=";
+//            echo RHtml::withDiv("email", "<b>Email: </b><a href='" . $link . $walk->id."' target='_blank'>Email Contact via ramblers.org.uk</a>", $this->printOn);
+//        }
+        if ($walk->email != "" and ! $this->printOn) {
+            echo $walk->getEmail($this->emailDisplayFormat, true);
         }
         if ($walk->telephone1 . $walk->telephone2 != "") {
             $text = "<b>Telephone</b>: ";
