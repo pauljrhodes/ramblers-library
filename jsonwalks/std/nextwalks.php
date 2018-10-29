@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Description of WalksDisplay
  *
@@ -22,6 +21,7 @@ class RJsonwalksStdNextwalks extends RJsonwalksDisplaybase {
         $walks->sort(RJsonwalksWalk::SORT_DATE, RJsonwalksWalk::SORT_TIME, RJsonwalksWalk::SORT_DISTANCE);
         $items = $walks->allWalks();
         $no = 0;
+
         if (!$this->displayGradesIcon) {
             echo "<ul class='" . $this->feedClass . "' >" . PHP_EOL;
         }
@@ -46,35 +46,13 @@ class RJsonwalksStdNextwalks extends RJsonwalksDisplaybase {
             } 
             if ($walk->isCancelled()) {
                 echo "CANCELLED: " . $walk->cancellationReason;
-            } else {
-                $performer = new RJsonwalksStructuredperformer($walk->groupName);
-                $location = new RJsonwalksStructuredlocation($walk->startLocation->description, $walk->startLocation->postcode);
-                $schemawalk = new RJsonwalksStructuredevent($performer, $location);
-                if ($walk->description == "") {
-                    $schemawalk->description = $desc;
-                } else {
-                    $schemawalk->description = $walk->description;
-                }
-                $schemawalk->enddate = $walk->walkDate->format('Y-m-d');
-                $schemawalk->image = "http://www.ramblers-webs.org.uk/images/ra-images/logos/standard/logo92.png";
-                $schemawalk->name = $desc;
-                $schemawalk->startdate = $schemawalk->enddate;
-                $schemawalk->url = $walk->detailsPageUrl;
-
-                $schemawalks[] = $schemawalk;
-            }
+            }  
         }
 
         if (!$this->displayGradesIcon) {
             echo "<ul class='" . $this->feedClass . "' >" . PHP_EOL;
         }
         echo "</ul>" . PHP_EOL;
-        $script = json_encode($schemawalks);
-        $script = str_replace('"context":', '"@context":', $script);
-        $script = str_replace('"type":', '"@type":', $script);
-        $script = str_replace('\/', '/', $script);
-        $doc = JFactory::getDocument();
-        $doc->addScriptDeclaration($script, "application/ld+json");
     }
 
     public function noWalks($no) {
