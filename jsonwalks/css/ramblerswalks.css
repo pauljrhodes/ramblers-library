@@ -72,27 +72,15 @@ span.walksummary img:hover{
     text-decoration: line-through;
 }
 
-.ra-accordion-item.walkNew {
-    padding-left: 0px;
-    background: url('../../images/new.gif') no-repeat scroll 0 50% rgba(0, 0, 0, 0);
-    background-position: 60px 0px ;
-
-}
 .nextwalkNew::before {
     content: url('../../images/new.gif');
     padding-right:5px;
 }
-
 .walkNew.printon {
     background:none;
     padding-left: 0px;;
-
+    
 }
-.walkNew {
-    padding-left: 35px;
-    background: url(../../images/new.gif) no-repeat scroll 0 50% rgba(0,0,0,0);
-}
-
 span.walkerror {
     color: #C60C30;
 }
@@ -115,14 +103,6 @@ div.walkstdfulldetails div.group
 div.walkdates {
     font-size: 80%;
     font-style: italic;
-}
-
-div.walkstdfulldetails div.reason,
-div.walkstdfulldetails div.basics div.description,
-div.walkstdfulldetails div.meetplace div.place,
-div.walkstdfulldetails div.startplace div.place,
-div.walkstdfulldetails div.finishplace div.place{
-    font-size: 115%;
 }
 
 div.walkstdfulldetails div.reason,
