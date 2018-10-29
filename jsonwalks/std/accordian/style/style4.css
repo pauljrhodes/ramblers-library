@@ -9,17 +9,19 @@
 .ra-accordion.ra-accordion-style4 .toggler,.ra-accordion.ra-accordion-style4 .toggler span,.ra-accordion.ra-accordion-style4 .toggler span span{display:block;line-height:30px;cursor:pointer}
 .ra-accordion.ra-accordion-style4 .toggler span,.ra-accordion.ra-accordion-style4 .toggler span span{font-size:13px;font-weight:700}
 .delra-accordion.ra-accordion-style4 .toggler{background:url(style4/question.png) no-repeat 0 50%;border-bottom:1px dashed #1A1A1A}
-.ra-accordion.ra-accordion-style4 .toggler span span{background:url(style4/close.png) no-repeat 100% 50%;padding:0 24px}
-.ra-accordion.ra-accordion-style4 .active span span{background:url(style4/open.png) no-repeat 100% 50%}
+
+
+@media only screen and (min-width: 415px){
+.ra-accordion.ra-accordion-style4 .toggler span span{background:url(style4/close.png) no-repeat 100% 50%;padding:0 24px;}
 .ra-accordion.ra-accordion-style4 .ra-accordion-inner{background:url(style4/note.png) no-repeat 0 10px;padding:0 16px 0 24px}
 
 
-.ra-accordion.ra-accordion-style4 .printfulldetails,.ra-accordion.ra-accordion-style4 .printfulldetails span,.ra-accordion.ra-accordion-style4 .printfulldetails span span{display:block;line-height:30px;cursor:pointer}
-.ra-accordion.ra-accordion-style4 .printfulldetails span,.ra-accordion.ra-accordion-style4 .printfulldetails span span{font-size:13px;font-weight:700}
-.delSra-accordion.ra-accordion-style4 .printfulldetails{background:url(style4/question.png) no-repeat 0 50%;border-bottom:1px dashed #1A1A1A}
-.ra-accordion.ra-accordion-style4 .printfulldetails span span{padding:0 24px}
+@media only screen and (max-width: 414px){
+.ra-accordion.ra-accordion-style4 .toggler span span{background:url(style4/close.png) no-repeat 100% 50%;padding:0 28px 0 0;}
+.ra-accordion.ra-accordion-style4 .ra-accordion-inner{padding:0}	
+}	
 .ra-accordion.ra-accordion-style4 .active span span{background:url(style4/open.png) no-repeat 100% 50%}
-.ra-accordion.ra-accordion-style4 .ra-accordion-inner{background:url(style4/note.png) no-repeat 0 10px;padding:0 16px 0 24px}
+
  .ra-fulldetails-container {
     border-radius: 10px 10px 10px 10px;
 
