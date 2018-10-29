@@ -2,21 +2,27 @@
 /**
  * Description of WalksDisplay
  *
- * @author Chris Vaughan
+ * @author Chris Vaughan edited Paul Rhodes
  */
 // no direct access
 defined("_JEXEC") or die("Restricted access");
-class RJsonwalksBU51Nextwalks extends RJsonwalksDisplaybase {
-    public $walkClass = "walk";
+
+class RJsonwalksStdNextwalks extends RJsonwalksDisplaybase {
+
+    public $walkClass = "nextwalk";
     public $feedClass = "walksfeed";
-    private $nowalks = 4;
+    private $nowalks = 5;
+
     function DisplayWalks($walks) {
+        if ($this->displayGradesSidebar) {
+            RJsonwalksWalk::gradeSidebar();
+        }
         $schemawalks = array();
         $walks->sort(RJsonwalksWalk::SORT_DATE, RJsonwalksWalk::SORT_TIME, RJsonwalksWalk::SORT_DISTANCE);
         $items = $walks->allWalks();
         $no = 0;
 		$urlbase = "http://www.chilterns2030s.org.uk/walks/our-walks/";
-        echo "<ul class='" . $this->feedClass . "' >" . PHP_EOL;
+
         foreach ($items as $walk) {
             $no+=1;
             if ($no > $this->nowalks) {
@@ -35,7 +41,7 @@ class RJsonwalksBU51Nextwalks extends RJsonwalksDisplaybase {
                 echo "CANCELLED: " . $walk->cancellationReason;
             } else {
             	
-				$performer = new RJsonwalksStructuredperformer($walk->groupName); # Change to walk leader
+				$performer = new RJsonwalksStructuredperformer($walk->groupName); # Change to walk leader in future
                 $location = new RJsonwalksStructuredlocation($walk->startLocation->description, $walk->startLocation->postcode);
 				if ($walk->distanceMiles > 0) {
 					$potentialaction = new RJsonwalksStructuredaction($walk->distanceMiles, $walk->distanceKm, $walk->nationalGrade);
