@@ -263,28 +263,26 @@ div.groupA,div.groupG,div.groupS {
     visibility: visible;
 }
 
+div.walkstdfulldetails {
+border-radius: 10px 10px 10px 10px;
+background-color: #ffffff;
+}
+
+.ra-accordion-item.walkNew {
+    padding-left: 0px;
+    background: url(../../images/new.gif) no-repeat scroll 0 50% rgba(0, 0, 0, 0);
+	background-position: 60px 0px ;
+}
+
 @media only screen and (min-width: 769px){
     div.walkstdfulldetails {
         -webkit-column-count: 2; /* Chrome, Safari, Opera */
         -moz-column-count: 2; /* Firefox */
         column-count: 2;
-        border-radius: 10px 10px 10px 10px;
         padding: 5px;
         padding-right:10px;
-        background-color: #ffffff;
         min-width: 500px;
     }
-.ra-accordion-item.walkNew {
-    padding-left: 0px;
-    background: url(../../images/new.gif) no-repeat scroll 0 50% rgba(0, 0, 0, 0);
-    background-position: 60px 0px ;
-    }
-
-.walkNew {
-    padding-left: 35px;
-    background: url(../../images/new.gif) no-repeat scroll 0 50% rgba(0,0,0,0);
-    }
-	
 div.walkstdfulldetails div.reason,
 div.walkstdfulldetails div.basics div.description,
 div.walkstdfulldetails div.meetplace div.place,
@@ -296,29 +294,19 @@ div.walkstdfulldetails div.finishplace div.place{
 
 @media only screen and (min-width: 415px, max-width: 768px){
     div.walkstdfulldetails {
-        border-radius: 10px 10px 10px 10px;
         padding: 5px;
         padding-right:10px;
-        background-color: #5b491f;
         min-width: 380px;
     }
-	
-.ra-accordion-item.walkNew {
-    padding-left: 0px;
-    background: url(../../images/new.gif) no-repeat scroll 0 50% rgba(0, 0, 0, 0);
-    background-position: 60px 0px ;
-    }
+
 }
 
 @media only screen and (max-width: 414px){
     div.walkstdfulldetails {
         border-radius: 10px 10px 10px 10px;
-        background-color: #5b491f;
         min-width: 260px;
     }
 .ra-accordion-item.walkNew {
-    padding-left: 0px;
-    background: url(../../images/new.gif) no-repeat scroll 0 50% rgba(0, 0, 0, 0);
     background-position: 30px 0px ;
     }
 
