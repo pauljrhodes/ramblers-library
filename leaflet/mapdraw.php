@@ -33,7 +33,7 @@ class RLeafletMapdraw extends RLeafletMap {
         $this->options->displayElevation = true;
         $this->options->cluster = false;
         $this->options->draw = true;
-        $this->options->print = false;
+        $this->options->print = true;
         $this->options->ramblersPlaces = true;
         $text = "addDrawControl($this->lat,$this->long,$this->zoom)";
         parent::addContent($text);

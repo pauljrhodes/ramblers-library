@@ -33,5 +33,5 @@ Blurt popup
 Download saveas option
     https://github.com/eligrey/FileSaver.js
 
-Bing
+Bing/OS maps
 https://github.com/shramov/leaflet-plugins

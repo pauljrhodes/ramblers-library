@@ -83,7 +83,7 @@ class RJsonwalksStdFulldetails extends RJsonwalksDisplaybase {
 
         $text .= ", " . $walk->title;
         if ($walk->distanceMiles > 0) {
-            $text .= ", " . $walk->distanceMiles . "mile / " . $walk->distanceKm . "km";
+            $text .= ", " . $walk->distanceMiles . "mi / " . $walk->distanceKm . "km";
         }
         if ($this->addContacttoHeader) {
             if ($walk->contactName <> "") {
@@ -205,7 +205,7 @@ class RJsonwalksStdFulldetails extends RJsonwalksDisplaybase {
         }
         echo "<div class='difficulty'><b>Difficulty</b>: ";
         if ($walk->distanceMiles > 0) {
-            echo RHtml::withDiv("distance", "<b>Distance</b>: " . $walk->distanceMiles . "mile / " . $walk->distanceKm . "km", $this->printOn);
+            echo RHtml::withDiv("distance", "<b>Distance</b>: " . $walk->distanceMiles . "mi / " . $walk->distanceKm . "km", $this->printOn);
         }
         $link = $walk->nationalGrade;
         if ($this->nationalGradeHelp != "") {

@@ -34,6 +34,7 @@ class RGpxFile {
             $this->registered = true;
         }
         $gpxfile = new phpGPX\phpGPX();
+
         $gpx = $gpxfile->load($this->file);
         $meta = $gpx->metadata;
         if ($meta !== null) {
@@ -101,5 +102,4 @@ class RGpxFile {
             }
         }
     }
-
 }

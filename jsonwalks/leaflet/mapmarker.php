@@ -24,7 +24,8 @@ class RJsonwalksLeafletMapmarker extends RJsonwalksDisplaybase {
         $options->mouseposition = true;
         $options->postcodes = true;
         $options->fitbounds = true;
-        RLicense::BingMapKey(false);
+        $options->print = true;
+        //    RLicense::BingMapKey(false);
     }
 
     public function getMap() {

@@ -50,8 +50,8 @@ class RLeafletMap {
 
         $document = JFactory::getDocument();
         // Leaflet
-        $this->addStyleSheet("ramblers/vendors/leaflet1.3.1/leaflet.css", "text/css");
-        $this->addScript("ramblers/vendors/leaflet1.3.1/leaflet.js", "text/javascript");
+        $this->addStyleSheet("ramblers/vendors/leaflet1.3.4/leaflet.css", "text/css");
+        $this->addScript("ramblers/vendors/leaflet1.3.4/leaflet.js", "text/javascript");
         $this->addScript("ramblers/leaflet/ramblersleaflet.js", "text/javascript");
         $this->addStyleSheet("ramblers/leaflet/ramblersleaflet.css", "text/css");
         if ($options->search) {
@@ -130,7 +130,7 @@ class RLeafletMap {
         }
 
         if ($options->print) {
-            $path = "ramblers/vendors/leaflet.browser.print-0.6.6/src/";
+            $path = "ramblers/vendors/leaflet.browser.print-0.7/src/";
             $this->addScript($path . "leaflet.browser.print.js", "text/javascript");
             $this->addScript($path . "leaflet.browser.print.sizes.js", "text/javascript");
             $this->addScript($path . "leaflet.browser.print.utils.js", "text/javascript");

@@ -84,7 +84,7 @@ class RGpxStatistics {
         }
         $stat->author = $gpx->author;
         $stat->date = $gpx->date;
- //       $stat->copyright = $gpx->copyright;
+        //       $stat->copyright = $gpx->copyright;
         $stat->longitude = $gpx->longitude;
         $stat->latitude = $gpx->latitude;
         $stat->distance = $gpx->distance;

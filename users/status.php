@@ -117,7 +117,7 @@ class RUsersStatus {
         $feedTimeout = 5;
         $CacheTime = 60; // minutes
         $cacheLocation = $this->CacheLocation();
-        $rafeedurl = "http://members.theramblers.org.uk/index.php?id=" . $this->membershipno;
+        $rafeedurl = "https://members.theramblers.org.uk/index.php?id=" . $this->membershipno;
 
 // Fetch content
         $srfr = new RFeedhelper($cacheLocation, $CacheTime);
@@ -162,7 +162,7 @@ class RUsersStatus {
         $feedTimeout = 5;
         $CacheTime = 60; // minutes
         $cacheLocation = $this->CacheLocation();
-        $rafeedurl = "http://members.theramblers.org.uk/index.php?id=" . $this->membershipno;
+        $rafeedurl = "https://members.theramblers.org.uk/index.php?id=" . $this->membershipno;
 
 // Fetch content
         $this->srfr = new RFeedhelper($cacheLocation, $CacheTime);
