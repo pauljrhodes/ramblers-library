@@ -35,7 +35,14 @@ class RJsonwalksStdNextwalks extends RJsonwalksDisplaybase {
             if ($walk->distanceMiles > 0) {
                 $desc .= ", " . $walk->distanceMiles . "mi/" . $walk->distanceKm . "km";
             }
-            $out = "<span class='" . $this->walkClass . $walk->status . "' " . "><a href='" . $walk->detailsPageUrl . "' target='_blank' >" . $desc . "</a></span>";
+            $out = "<span class='" . $this->walkClass . $walk->status . "' " . ">";
+//            if ($this->dispArticle > 0) {
+//                $out.="index.php?option=com_content&view=article&id=" . $this->dispArticle . "&Itemid=" . $this->dispMenu . "&walk=" . $walk->id . "'";
+//            } else {
+//                $out .= $walk->detailsPageUrl . "' target='_blank' ";
+//            }
+            $out .= $this->getWalkHref($walk);
+            $out .=  $desc . "</a></span>";
 
             if ($this->displayGradesIcon) {
                 $image = $walk->getGradeImage();
@@ -43,7 +50,7 @@ class RJsonwalksStdNextwalks extends RJsonwalksDisplaybase {
                 echo "<div class='nextWalksWithGrade ntooltip'><img src=\"" . $image . "\" alt=\"" . $walk->nationalGrade . "\" />" . $tooltip . $out . "</div>" . PHP_EOL;
             } else {
                 echo "<li> " . $out . "</li>" . PHP_EOL;
-            } 
+            }
             if ($walk->isCancelled()) {
                 echo "CANCELLED: " . $walk->cancellationReason;
             } else {

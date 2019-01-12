@@ -90,9 +90,9 @@ class RJsonwalksLeafletMapmarker extends RJsonwalksDisplaybase {
         $class = $this->walkClass . $walk->status;
         $grade = $walk->getGradeImage();
         $grade = "<img src='" . JURI::base() . $grade . "' alt='" . $walk->nationalGrade . "' width='30px'>";
-        $details = "<div class='" . $class . "'>" . $grade . "<b><a href=&quot;javascript:walkdetails('" . $url . "')&quot; target=&quot;_blank&quot;>" . $date . "<br/>" . $title . "<br/>" . $dist . " " . $walk->nationalGrade . "</a></b></div>";
-        $map = "<a href=&quot;javascript:streetmap('" . $gr . "')&quot; target=&quot;_blank&quot;>[OS Map]</a>";
-        $directions = "<a href=&quot;javascript:directions(" . $lat . "," . $long . ")&quot; target=&quot;_blank&quot;>[Directions]</a>";
+        $details = "<div class='" . $class . "'>" . $grade . "<b><a href=&quot;javascript:walkdetails('" . $url . "')&quot; >" . $date . "<br/>" . $title . "<br/>" . $dist . " " . $walk->nationalGrade . "</a></b></div>";
+        $map = "<a href=&quot;javascript:streetmap('" . $gr . "')&quot; >[OS Map]</a>";
+        $directions = "<a href=&quot;javascript:directions(" . $lat . "," . $long . ")&quot; >[Directions]</a>";
         //  var $directions = "<a href='https://maps.google.com?saddr=Current+Location&daddr=" + $lat + "," + $long + "' target='_blank'>[Directions]</a>";
         $popup = $details . $map . $directions;
         // $popup = str_replace('"', "&quot;", $popup);

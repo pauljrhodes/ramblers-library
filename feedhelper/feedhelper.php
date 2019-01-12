@@ -23,22 +23,25 @@ class RFeedhelper {
     const FEEDFOPEN = 3;
 
     public function __construct($cacheLocation, $cacheTime) {
-
+        $this->cacheTime = $cacheTime * 60; // convert to seconds
+        $this->cacheFolderPath = JPATH_SITE . DS . $cacheLocation;
         if (isset($cacheLocation)) {
-            $this->cacheTime = $cacheTime * 60; // convert to seconds
-            $this->cacheFolderPath = JPATH_SITE . DS . $cacheLocation;
             $this->createCacheFolder();
         } else {
             die("Invalid call to RJsonwalksFeedhelper");
         }
     }
-    public function setReadTimeout($value){
+
+    public function setReadTimeout($value) {
         ini_set('default_socket_timeout', $value);
     }
 
     public function getFeed($feedurl) {
-        
+
         $url = trim($feedurl);
+        if ($this->startsWith($url, "http://www.ramblers.org.uk")) {
+            $url = str_replace("http://", "https://", $url);
+        }
         $contents = '';
         $this->status = self::OK;
         if (ini_get('allow_url_fopen') == false) {
@@ -71,20 +74,22 @@ class RFeedhelper {
         // Check if a cached copy exists otherwise create it
         if (file_exists($tmpFile) && is_readable($tmpFile) && (filemtime($tmpFile) + $this->cacheTime) > time()) {
             $this->status = self::OK;
+           // echo "<br/>" . $url . "<br/>Existing cache used<br/>";
             return $tmpFile;
         }
         // create cached file
         // check url exists
         if ($this->urlExists($url)) {
             // file_get_contents
-            $ctx = stream_context_create(array(
-                'http' => array(
-                    'timeout' => 1
-                )
-                    )
-            );
-            //  $fgcOutput = file_get_contents($url, 0, $ctx);
-            $fgcOutput = file_get_contents($url);
+            $options = [
+                "http" => [
+                    "header" => "Accept-language: en\r\n" .
+                    "Referer: " . JURI::base() . "\r\n",]
+            ];
+            $context = stream_context_create($options);
+            $fgcOutput = file_get_contents($url, false, $context);
+            // $fgcOutput = file_get_contents($url);
+            // echo "<br/>" . $url . "<br/>Read feed<br/>";
             if ($fgcOutput === false) {
                 $this->status = self::READFAILED;
             } else {
@@ -162,6 +167,11 @@ class RFeedhelper {
         } else {
             mkdir($this->cacheFolderPath);
         }
+    }
+
+    private function startsWith($string, $startString) {
+        $len = strlen($startString);
+        return (substr($string, 0, $len) === $startString);
     }
 
 }

@@ -15,6 +15,7 @@ class RGpxFile {
     public $maxAltitude = 0;
     public $tracks = 0;
     public $routes = 0;
+    public $segments = 0;
     public $name = "";
     public $description = "";
     public $date = '';
@@ -30,7 +31,7 @@ class RGpxFile {
 
     private function parse() {
         if (!$this->registered) {
-            JLoader::registerNamespace('phpGPX', "ramblers/vendors/phpGPX-1.0-RC5/src");
+            JLoader::registerNamespace('phpGPX', "ramblers/vendors/phpGPX-master2081220/src");
             $this->registered = true;
         }
         $gpxfile = new phpGPX\phpGPX();
@@ -59,26 +60,31 @@ class RGpxFile {
             }
         }
         // tracks
-        if (count($gpx->tracks) > 0) {
-            $track = $gpx->tracks[0];
-            if (count($track->segments) > 0) {
-                $segment = $track->segments[0];
-                if (count($segment->points) > 0) {
-                    $pt = $segment->points[0];
-                    $this->longitude = $pt->longitude;
-                    $this->latitude = $pt->latitude;
+        $firstpointset = false;
+        foreach ($gpx->tracks as $track) {
+       //     $s = $track->stats;
+            $this->tracks += 1;
+//            $this->distance += $s->distance;
+//            $this->cumulativeElevationGain += $s->cumulativeElevationGain;
+//            $this->minAltitude = $s->minAltitude;
+//            $this->maxAltitude = $s->maxAltitude;
+            foreach ($track->segments as $segment) {
+                $s = $segment->stats;
+                $this->distance += $s->distance;
+                $this->cumulativeElevationGain += $s->cumulativeElevationGain;
+                $this->minAltitude = $s->minAltitude;
+                $this->maxAltitude = $s->maxAltitude;
+                $this->segments += 1;
+                foreach ($segment->points as $pt) {
+                    if ($firstpointset === false) {
+                        $this->longitude = $pt->longitude;
+                        $this->latitude = $pt->latitude;
+                        $firstpointset = true;
+                    }
                 }
             }
         }
-        foreach ($gpx->tracks as $track) {
-            $s = $track->stats;
-            $this->tracks += 1;
-            $this->distance += $s->distance;
-            $this->cumulativeElevationGain += $s->cumulativeElevationGain;
-            $this->minAltitude = $s->minAltitude;
-            $this->maxAltitude = $s->maxAltitude;
-        }
-        // roues
+        // routes
 
         foreach ($gpx->routes as $route) {
             $this->routes += 1;
@@ -102,4 +108,5 @@ class RGpxFile {
             }
         }
     }
+
 }

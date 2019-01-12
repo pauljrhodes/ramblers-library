@@ -9,19 +9,22 @@ class RGpxJsonlog {
 
     private $file;
     private $items;
-    private $items_processed;
+    private $items_processed = false;
 
     public function __construct($file) {
         $this->file = $file;
-        if (file_exists($file)) {
+        $this->items = [];
+    }
+
+    public function readFile() {
+        $this->items = [];
+        if (file_exists($this->file)) {
             $string = file_get_contents($file);
         } else {
             $string = false;
         }
 
-        if ($string === false) {
-            $this->items = [];
-        } else {
+        if ($string !== false) {
             $this->items = json_decode($string, true);
             if ($this->items === null) {
                 // error
@@ -36,9 +39,9 @@ class RGpxJsonlog {
         $this->items_processed = true;
     }
 
-        Public function storeItems() {
+    Public function writeFile() {
         if ($this->items_processed) {
-          //  $myJSON = json_encode($this->items, JSON_PRETTY_PRINT);
+            //  $myJSON = json_encode($this->items, JSON_PRETTY_PRINT);
             $myJSON = json_encode($this->items);
             //echo $myJSON;
             file_put_contents($this->file, $myJSON);

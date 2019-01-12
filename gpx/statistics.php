@@ -26,7 +26,7 @@ class RGpxStatistics {
         if ($lastModFile !== self::JSONFILE) {
             $this->jsonfile = new RGpxJsonlog($this->folder . "/" . self::JSONFILE);
             $this->processFolder();
-            $this->jsonfile->storeItems();
+            $this->jsonfile->writeFile();
         }
     }
 
@@ -56,13 +56,18 @@ class RGpxStatistics {
         $files = scandir($this->folder, SCANDIR_SORT_ASCENDING);
         // for each GPX file
         //       get stats and create new record
-
+        echo "<h2>Processing GPX files</h2>";
+        echo "<p>Diagnostics while generating file: " . self::JSONFILE . "</p>";
+        echo "<p>The diagnostics only appear when the file is generated. They will be displayed until the Joomla Cache expires (usually 15 mins), clearing the cache manually will also remove them.</p>";
+        echo "<table>";
+        echo RHtml::addTableHeader(['Filename/<b>Title</b>', 'Longitude', 'Latitude', 'Distance', 'Elevation Gain', 'min Alt', 'max Alt', 'Tracks,Segments', 'Routes']);
         foreach ($files as $file) {
             if ($this->endsWith($file, ".gpx")) {
                 $stat = $this->processGPXFile($file);
                 $this->jsonfile->addItem("id" . $stat->id, $stat);
             }
         }
+        echo "</table>";
     }
 
     private function processGPXFile($file) {
@@ -99,6 +104,17 @@ class RGpxStatistics {
         }
         $stat->tracks = $gpx->tracks;
         $stat->routes = $gpx->routes;
+        $cols = [];
+        $cols[] = $stat->filename . "<br/><b>" . $stat->title . "</b>";
+        $cols[] = round($stat->longitude, 4);
+        $cols[] = round($stat->latitude, 4);
+        $cols[] = round($stat->distance, 0) . " m";
+        $cols[] = round($stat->cumulativeElevationGain, 1);
+        $cols[] = round($stat->minAltitude, 0);
+        $cols[] = round($stat->maxAltitude, 0);
+        $cols[] = $stat->tracks . "(" . $gpx->segments . ")";
+        $cols[] = $stat->routes;
+        echo RHtml::addTableRow($cols);
         return $stat;
     }
 
