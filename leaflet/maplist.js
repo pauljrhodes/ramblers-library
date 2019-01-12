@@ -8,6 +8,7 @@ var L, ramblersMap, ramblersGpx, markerRoute;
 function RamblersLeafletGpx() {
     this.routes = null;
     this.folder = null;
+    this.linecolour = "#782327";
     this.dateorder = false;
     this.authororder = false;
     this.distorder = false;
@@ -261,7 +262,7 @@ function updateGPXid(id) {
     header += "</p></div>";
     path = ramblersGpx.folder + "/" + route.filename;
     document.getElementById('gpxheader').innerHTML = header;
-    displayGPX(path, "#782327", 0);
+    displayGPX(path, ramblersGpx.linecolour, 0);
     location.hash = '#gpxheader';
 }
 function getRoutefromID(id) {

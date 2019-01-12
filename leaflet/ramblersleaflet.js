@@ -3,6 +3,7 @@ function RamblersLeafletMap(base) {
     this.base = base;
     this.map = null;
     this.mapLayers = null;
+    this.currentLayer = null;
     this.bingkey = null;
     this.googlekey = null;
     this.gridsquare10 = null;
@@ -68,7 +69,8 @@ function raLoadLeaflet() {
 //  var bingkey = 'AjtUzWJBHlI3Ma_Ke6Qv2fGRXEs0ua5hUQi54ECwfXTiWsitll4AkETZDihjcfeI';
         ramblersMap.mapLayers["Bing Aerial"] = new L.BingLayer(ramblersMap.bingkey, {type: 'Aerial'});
         ramblersMap.mapLayers["Bing Aerial (Labels)"] = new L.BingLayer(ramblersMap.bingkey, {type: 'AerialWithLabels'});
-        ramblersMap.mapLayers["Ordnance Survey"] = new L.BingLayer(ramblersMap.bingkey, {type: 'ordnanceSurvey'});
+        ramblersMap.mapLayers["Ordnance Survey"] = new L.BingLayer(ramblersMap.bingkey, {type: 'ordnanceSurvey',
+            attribution: 'Bing/OS Crown Copyright'});
     }
     if (ramblersMap.options.google) {
         ramblersMap.mapLayers["Google"] = L.gridLayer.googleMutant({
@@ -105,7 +107,7 @@ function raLoadLeaflet() {
         if (ramblersMap.options.cluster) {
 // calc bounds from marker as cluster still loading
             var bounds = getBounds(ramblersMap.markerList);
-            ramblersMap.map.fitBounds(bounds);
+            ramblersMap.map.fitBounds(bounds, {padding: [150, 150]});
         } else {
 
         }
@@ -153,9 +155,27 @@ function raLoadLeaflet() {
     if (ramblersMap.options.print) {
         L.control.browserPrint({
             title: 'The Ramblers - working for walkers',
-            printModes: ["Portrait", "Landscape", "Auto", "Custom"]
+            documentTitle: 'The Ramblers - working for walkers',
+            printModes: ["Portrait", "Landscape"],
+            closePopupsOnPrint: false
         }).addTo(ramblersMap.map);
+        if (ramblersMap.options.bing) {
+            L.Control.BrowserPrint.Utils.registerLayer(
+                    L.BingLayer,
+                    "L.BingLayer",
+                    function (layer) {
+                        var bing = L.bingLayer(layer.key, layer.options);
+                        // fix as above object fails to set url
+                        bing._url = ramblersMap.currentLayer._url;
+                        return bing;
+                    }
+            );
+        }
     }
+    ramblersMap.map.on('baselayerchange', function (e) {
+        ramblersMap.currentLayer = e.layer;
+        //alert('Changed to ' + e.name);
+    });
     if (ramblersMap.options.ramblersPlaces) {
         createPlaceMarkers();
     }
@@ -184,7 +204,6 @@ function raLoadLeaflet() {
         alert(ev.latlng); // ev is an event object (MouseEvent in this case)
     });
 }
-
 
 function updateClusterProgressBar(processed, total, elapsed) {
     if (elapsed > 1000) {
@@ -370,25 +389,25 @@ function getBounds(list) {
 
 function walkdetails($url) {
     var page = $url;
-    open(page, "_blank", "scrollbars=yes,width=990,height=480,menubar=yes,resizable=yes,status=yes");
+    window.open(page, "_blank", "scrollbars=yes,width=990,height=480,menubar=yes,resizable=yes,status=yes");
 }
 
 function photos($gr) {
     var page = "http://www.geograph.org.uk/gridref/" + $gr;
-    open(page, "_blank", "scrollbars=yes,width=990,height=480,menubar=yes,resizable=yes,status=yes");
+    window.open(page, "_blank", "scrollbars=yes,width=990,height=480,menubar=yes,resizable=yes,status=yes");
 }
 function streetmap($gr) {
     var page = "http://www.streetmap.co.uk/grid/" + $gr + "&z=115";
-    open(page, "_blank", "scrollbars=yes,width=900,height=580,menubar=yes,resizable=yes,status=yes");
+    window.open(page, "_blank", "scrollbars=yes,width=900,height=580,menubar=yes,resizable=yes,status=yes");
 }
 function directions($lat, $long) {
 //  var $directions = "<a href='https://maps.google.com?saddr=Current+Location&daddr=" + $lat + "," + $long + "' target='_blank'>[Directions]</a>";
     var page = "https://maps.google.com?saddr=Current+Location&daddr=" + $lat.toString() + "," + $long.toString();
-    open(page, "_blank", "scrollbars=yes,width=900,height=580,menubar=yes,resizable=yes,status=yes");
+    window.open(page, "_blank", "scrollbars=yes,width=900,height=580,menubar=yes,resizable=yes,status=yes");
 }
 function googlemap($lat, $long) {
     var page = "https://www.google.com/maps/place/" + $lat.toString() + "+" + $long.toString() + "/@" + $lat.toString() + "," + $long.toString() + ",15z";
-    open(page, "Google Map", "scrollbars=yes,width=900,height=580,menubar=yes,resizable=yes,status=yes");
+    window.open(page, "Google Map", "scrollbars=yes,width=900,height=580,menubar=yes,resizable=yes,status=yes");
 }
 
 function kFormatter(num) {

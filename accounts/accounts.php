@@ -84,6 +84,18 @@ class RAccounts {
     }
 
     public function addMapMarkers($map) {
+        $map->options->fullscreen = true;
+        $map->options->search = true;
+        $map->options->locationsearch = true;
+        $map->options->osgrid = true;
+        $map->options->mouseposition = true;
+        $map->options->postcodes = true;
+        $map->options->fitbounds = true;
+        $map->options->displayElevation = false;
+        $map->options->cluster = true;
+        $map->options->draw = false;
+        $map->options->print = true;
+        $map->options->ramblersPlaces = true;
         $this->readAccounts();
         $text = "";
         foreach ($this->dbresults as $item) :

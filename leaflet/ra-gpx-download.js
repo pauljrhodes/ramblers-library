@@ -14,6 +14,7 @@ L.Control.GpxDownload = L.Control.extend({
             desc: "",
             author: "",
             copyright: "",
+            gpxTrack: false,
             date: ""
         };
         var containerAll = L.DomUtil.create('div', 'leaflet-control-gpx-download ra-download-toolbar-button-disabled');
@@ -109,16 +110,19 @@ L.Control.GpxDownload = L.Control.extend({
         var gpxDesc = this._info.desc;
         var gpxAuthor = this._info.author;
         var gpxDate = this._info.date;
-        // var gpxCopyright = this._info.copyright;
+        var gpxTrack = this._info.gpxTrack;
         var content = '<form><span><b>File Name/Title</b></span><br/><input id="gpxName" type="text"/ value="' + gpxName + '" /><br/>';
         content += '<span><b>File Description<b/></span><br/><textarea id="gpxDesc" >' + gpxDesc + '</textarea><br/>';
         content += '<span><b>Author/Leader</b></span><br/><input id="gpxAuthor" type="text"/ value="' + gpxAuthor + '" /><br/>';
         content += '<span><b>Date</b></span><br/><input type="date" id="gpxDate" name="trip" value=' + gpxDate + ' min="1970-01-01" max="2100-12-31" /><br/>';
-        //    content += '<span><b>Copyright</b></span><br/><input id="gpxCopyright" type="text"/ value="' + gpxCopyright + '" /><br/>';
+        content += 'Save As GPX Track rather than GPX Route<br/><input type="checkbox" id="gpxTrack" name="route" />';
         content += '</form>';
+
         this.popup.setLatLng([lat, lng]);
         this.popup.setContent(content);
-        this.popup.openOn(this._map);
+        this.popup.openOn(this._map)
+        var ele = document.getElementById('gpxTrack');
+        ele.checked = gpxTrack;
 
     },
     _popupclose: function (e) {
@@ -128,6 +132,9 @@ L.Control.GpxDownload = L.Control.extend({
             this._info.desc = this.getElementValue('gpxDesc');
             this._info.author = this.getElementValue('gpxAuthor');
             //        this._info.copyright = this.getElementValue('gpxCopyright');
+            //this._info.gpxTrack = this.getElementValue('gpxTrack').checked;
+            var ele = document.getElementById('gpxTrack');
+            this._info.gpxTrack = ele.checked;
             this._info.date = this.getElementValue('gpxDate');
         }
     },
@@ -140,6 +147,7 @@ L.Control.GpxDownload = L.Control.extend({
     },
     _save: function (e) {
         if (this.enabled) {
+            this.holder.style.display = "none";
             var drawnItems = this._itemsCollection;
             var hasItems = drawnItems.getLayers().length !== 0;
             if (!hasItems) {
@@ -148,9 +156,9 @@ L.Control.GpxDownload = L.Control.extend({
                 var data = this._createGPXdata();
                 try {
                     var blob = new Blob([data], {type: "application/gpx+xml;charset=utf-8"});
-                    var name =this._info.name+".gpx";
-                    if (name===""){
-                        name="route.gpx";
+                    var name = this._info.name + ".gpx";
+                    if (name === ".gpx") {
+                        name = "route.gpx";
                     }
                     saveAs(blob, name);
                 } catch (e) {
@@ -174,7 +182,7 @@ L.Control.GpxDownload = L.Control.extend({
                 gpxData += ra_gpx_download_this._addMarker(layer);
             }
             if (layer instanceof L.Polyline) {
-                gpxData += ra_gpx_download_this._addTrack(layer);
+                gpxData += ra_gpx_download_this._addPolyline(layer);
             }
         });
 
@@ -195,7 +203,7 @@ L.Control.GpxDownload = L.Control.extend({
         if (ra_gpx_download_this._info.date !== "") {
             out += "<time>" + ra_gpx_download_this._info.date + "</time>";
         }
-        out += "</metadata>";
+        out += "</metadata>\n";
         return out;
     },
     _addMarker: function (marker) {
@@ -212,17 +220,24 @@ L.Control.GpxDownload = L.Control.extend({
         data += '</wpt>\n';
         return data;
     },
-    _addTrack: function (track) {
-        var data = '<trk>' + "\n";
-        data += '<trkseg>' + "\n";
-        latlngs = track.getLatLngs();
-        data += ra_gpx_download_this._listpath(latlngs);
+    _addPolyline: function (polyline) {
+        if (this._info.gpxTrack === true) {
+            var data = '<trk>' + "\n";
+            data += '<trkseg>' + "\n";
+            latlngs = polyline.getLatLngs();
+            data += ra_gpx_download_this._listtrack(latlngs);
 
-        data += '</trkseg>' + "\n";
-        data += '</trk>' + "\n";
+            data += '</trkseg>' + "\n";
+            data += '</trk>' + "\n";
+        } else {
+            var data = '<rte>' + "\n";
+            latlngs = polyline.getLatLngs();
+            data += ra_gpx_download_this._listroute(latlngs);
+            data += '</rte>' + "\n";
+        }
         return data;
     },
-    _listpath: function (latlngs) {
+    _listtrack: function (latlngs) {
         var i, len;
         i = 0;
         var text = "";
@@ -230,16 +245,28 @@ L.Control.GpxDownload = L.Control.extend({
         for (i = 0, len = latlngs.length; i < len; i++) {
             text += '<trkpt lat="' + latlngs[i].lat + '" lon="' + latlngs[i].lng + '">\n';
             if (latlngs[i].alt !== -999) {
-                elev = ' <ele>' + latlngs[i].alt + '</ele>';
-                text += elev + '\n';
+                text+= ' <ele>' + latlngs[i].alt + '</ele>\n';
             }
             text += '</trkpt>\n';
+        }
+        return text;
+    },
+    _listroute: function (latlngs) {
+        var i, len;
+        i = 0;
+        var text = "";
+        //var elev = '';
+        for (i = 0, len = latlngs.length; i < len; i++) {
+            text += '<rtept lat="' + latlngs[i].lat + '" lon="' + latlngs[i].lng + '">\n';
+            if (latlngs[i].alt !== -999) {
+                text += ' <ele>' + latlngs[i].alt + '</ele>\n';
+            }
+             text += ' </rtept>\n';
         }
         return text;
     }
 
 });
-
 L.control.gpxdownload = function (options) {
     return new L.Control.GpxDownload(options);
 };

@@ -19,6 +19,12 @@ class RJsonwalksSx05Programme extends RJsonwalksDisplaybase {
 
     const BR = "<br />";
 
+    //public $PLAN_WALKS_SUM = "        TIME TO START PLANNING YOUR WALKS FOR THE SUMMER PROGRAMME";
+    //   public $PLAN_WALKS_WIN = "        TIME TO START PLANNING YOUR WALKS FOR THE WINTER PROGRAMME";
+    //  public $SUBMIT_WALKS_SUM = "        TIME TO SUBMIT YOUR WALKS FOR THE SUMMER PROGRAMME";
+    //   public $SUBMIT_WALKS_WIN = "        TIME TO SUBMIT YOUR WALKS FOR THE WINTER PROGRAMME";
+
+
     function DisplayWalks($walks) {
         echo "</p>";
         $walks->sort(RJsonwalksWalk::SORT_DATE, RJsonwalksWalk::SORT_TIME, RJsonwalksWalk::SORT_DISTANCE);
@@ -31,7 +37,36 @@ class RJsonwalksSx05Programme extends RJsonwalksDisplaybase {
                     echo "</table>" . PHP_EOL;
                 }
                 $this->lastValue = $thismonth;
-                echo "<h2>" . $thismonth . "</h2>" . PHP_EOL;
+                switch ($thismonth) {
+                    case "December":
+                        $outdate = "<h2>";
+                        $outdate.= $thismonth . "<h4>" . "        TIME TO START PLANNING YOUR WALKS FOR THE SUMMER PROGRAMME";
+                        $outdate.= "</h2>" . PHP_EOL;
+                        echo $outdate;
+                        break;
+                    case "June":
+                        $outdate = "<h2>";
+                        $outdate.= $thismonth . "</h2>" . "<h4>" . "        TIME TO START PLANNING YOUR WALKS FOR THE WINTER PROGRAMME";
+                        $outdate.= "</h4>" . PHP_EOL;
+                        echo $outdate;
+                        break;
+                    case "July":
+                        $outdate = "<h2>";
+                        $outdate.= $thismonth . "</h2>" . "<h4>" . "        TIME TO SUBMIT YOUR WALKS FOR THE WINTER PROGRAMME";
+                        $outdate.= "</h4>" . PHP_EOL;
+                        echo $outdate;
+
+                        break;
+                    case "January":
+                        $outdate = "<h2>";
+                        $outdate.= $thismonth . "</h2>" . "<h4>" . "        TIME TO SUBMIT YOUR WALKS FOR THE SUMMER PROGRAMME";
+                        $outdate.= "</h4>" . PHP_EOL;
+                        echo $outdate;
+                        break;
+                    default:
+                        echo "<h2>" . $thismonth . "</h2>" . PHP_EOL;
+                        break;
+                }
                 echo "<table width='95%'>" . PHP_EOL;
             }
 

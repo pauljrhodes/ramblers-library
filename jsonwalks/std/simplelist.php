@@ -75,10 +75,18 @@ class RJsonwalksStdSimplelist extends RJsonwalksDisplaybase {
             }
         }
         $text .= ", " . $walk->distanceMiles . "mi/" . $walk->distanceKm . "km";
-        if ($walk->isLeader) {
-            $text.=", Leader " . $walk->contactName . " " . $walk->telephone1;
+           if ($walk->isLeader) {
+            $text.=", Leader ";
         } else {
-            $text.=", Contact " . $walk->contactName . " " . $walk->telephone1;
+            $text.=", Contact ";
+        }
+        $text.= $walk->contactName;
+        if ($walk->telephone1 != "") {
+            $text.= " " . $walk->telephone1;
+        } else {
+            if ($walk->telephone2 != "") {
+                $text.= " " . $walk->telephone2;
+            }
         }
         echo "<div class='" . $this->walkClass . $walk->status . "' >" . PHP_EOL;
         echo "<p>" . $text . "</p>" . PHP_EOL;

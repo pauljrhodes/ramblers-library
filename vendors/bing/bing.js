@@ -7,7 +7,7 @@ L.BingLayer = L.TileLayer.extend({
 	},
 
 	initialize: function (key, options) {
-		L.Util.setOptions(this, options);
+                L.Util.setOptions(this, options);
 
 		this._key = key;
 		this._url = null;

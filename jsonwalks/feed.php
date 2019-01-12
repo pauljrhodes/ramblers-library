@@ -20,7 +20,7 @@ class RJsonwalksFeed {
     public function __construct($rafeedurl) {
         $this->rafeedurl = trim($rafeedurl);
         $this->walks = new RJsonwalksWalks(NULL);
-        $CacheTime = 5; // minutes
+        $CacheTime = 15; // minutes
         $cacheLocation = $this->CacheLocation();
         $this->srfr = new RFeedhelper($cacheLocation, $CacheTime);
         $this->srfr->setReadTimeout(30);
@@ -170,8 +170,9 @@ class RJsonwalksFeed {
         if ($this->walks->totalWalks() == 0) {
             return;
         }
-        $doc = JFactory::getDocument();
-        $doc->addStyleSheet('ramblers/jsonwalks/css/ramblerswalks.css');
+        $document = JFactory::getDocument();
+        $document->addStyleSheet('ramblers/jsonwalks/css/ramblerswalks.css');
+        $document->addScript("ramblers/js/ramblerswalks.js", "text/javascript");
         $printOn = JRequest::getVar('print') == 1;
         if ($printOn) {
 
@@ -181,9 +182,6 @@ class RJsonwalksFeed {
         if ($this->displayLimit == 0 OR $printOn) {
             $displayclass->DisplayWalks($this->walks);
         } else {
-            $document = JFactory::getDocument();
-            $document->addScript("ramblers/js/racalendar.js", "text/javascript");
-
             $groups = $this->createGroupsOfWalks();
             $numItems = count($groups);
             $i = 1;
@@ -218,6 +216,7 @@ class RJsonwalksFeed {
         $display->setLinkText($linktext);
         $display->setPostText($posttext);
         $display->Display("de02walks", $events); // display walks information
+        // is this line correct and is function used
     }
 
     private function getTogglePair($one, $two) {
