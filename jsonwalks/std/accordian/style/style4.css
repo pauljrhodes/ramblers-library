@@ -6,8 +6,8 @@
 # @license - http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
 # Websites: http://www.joomshaper.com
 -------------------------------------------------------------------------*/
-.ra-accordion.ra-accordion-style4 .toggler,.ra-accordion.ra-accordion-style4 .toggler span,.ra-accordion.ra-accordion-style4 .toggler span span{display:block;line-height:30px;cursor:pointer}
-.ra-accordion.ra-accordion-style4 .toggler span,.ra-accordion.ra-accordion-style4 .toggler span span{font-size:13px;font-weight:700}
+.ra-accordion.ra-accordion-style4 .toggler,.ra-accordion.ra-accordion-style4 .toggler span,.ra-accordion.ra-accordion-style4 .toggler span span{display:block;cursor:pointer}
+.ra-accordion.ra-accordion-style4 .toggler span,.ra-accordion.ra-accordion-style4 .toggler span span{}
 .delra-accordion.ra-accordion-style4 .toggler{background:url(style4/question.png) no-repeat 0 50%;border-bottom:1px dashed #1A1A1A}
 
 
@@ -23,8 +23,6 @@
 .ra-accordion.ra-accordion-style4 .active span span{background:url(style4/open.png) no-repeat 100% 50%}
 
  .ra-fulldetails-container {
-    border-radius: 10px 10px 10px 10px;
-
     background-color: #ffffff;
     min-width: 500px;
     padding-right:10px;
