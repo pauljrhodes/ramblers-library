@@ -67,7 +67,8 @@ span.walksummary img:hover{
 .ra-accordion-item.walkCancelled div.startplace,
 .ra-accordion-item.walkCancelled div.nostartplace,
 .ra-accordion-item.walkCancelled div.finishplace,
-.ra-accordion-item.walkCancelled div.difficulty{
+.ra-accordion-item.walkCancelled div.difficulty,
+.ra-accordion-item.walkCancelled div.additionalNotes{
     text-decoration: line-through;
 }
 
@@ -111,7 +112,8 @@ div.walkstdfulldetails div.startplace,
 div.walkstdfulldetails div.nostartplace,
 div.walkstdfulldetails div.finishplace,
 div.walkstdfulldetails div.difficulty,
-div.walkstdfulldetails div.walkcontact {
+div.walkstdfulldetails div.walkcontact,
+div.walkstdfulldetails div.additionalNotes {
     margin: 2px;
     padding: 5px;
     -webkit-column-break-inside: avoid; /* Chrome, Safari */
