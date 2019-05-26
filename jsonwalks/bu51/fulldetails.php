@@ -115,15 +115,30 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
 
     private function displayWalkSummary($walk) {
         $text = $this->addGradeImage($walk);
-        $text .= "<b> " . $walk->walkDate->format('l, jS F Y') . "</b>";
-
-        $text .= ", " . $walk->title;
-        if ($walk->distanceMiles > 0) {
-            $text .= ", " . $walk->distanceMiles . "mile / " . $walk->distanceKm . "km";
+	$text .= "<b> " . $walk->title . "</b> ";    
+        $text .= "<br /> " . $walk->walkDate->format('l, jS F Y');
+	if ($walk->hasMeetPlace) {
+            $text .= " meet at " . $walk->meetLocation->timeHHMMshort . " ";
         }
+	if ($walk->startLocation->exact) {
+            $text .= "starting at " . $walk->startLocation->timeHHMMshort . " ";
+        }
+        if ($walk->finishTime != null) {
+            $text .= "approx. finish time " . $this->getShortTime($walk->finishTime);
+        }   
+	    
+        if ($walk->distanceMiles > 0) {
+            $text .= "<br /> " . $walk->distanceMiles . " miles / " . $walk->distanceKm . " km" . $walk->nationalGrade;
+            if ($walk->isLinear) {
+                $text .= " Linear Walk";
+                } else {
+                $text .= " Circular walk";
+                }
+            }
+    
         if ($this->addContacttoHeader) {
             if ($walk->contactName <> "") {
-                $text .= ", " . $walk->contactName;
+                $text .= "<br /> " . $walk->contactName;
             }
             if ($walk->telephone1 <> "") {
                 $text .= ", " . $walk->telephone1;
@@ -180,38 +195,16 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
             echo "<div class='reason'>WALK CANCELLED: " . $walk->cancellationReason . "</div>" . PHP_EOL;
         }
         echo "<div class='basics'>" . PHP_EOL;
-        if ($this->printOn) {
-            
-        } else {
-            echo "<div class='description'><b>" . $walk->walkDate->format('l, jS F Y') . PHP_EOL;
-            echo "<br/>" . $walk->title . "</b></div>" . PHP_EOL;
-        }
-
-
+        
         if ($walk->description != "") {
             echo "<div class='description'> " . $walk->descriptionHtml . "</div>" . PHP_EOL;
         }
-        if ($walk->additionalNotes != "") {
+	echo "</div>";
+	
+	    if ($walk->additionalNotes != "") {
             echo "<div class='additionalnotes'><b>Additional Notes</b>: " . $walk->additionalNotes . "</div>" . PHP_EOL;
         }
-        if ($walk->isLinear) {
-            echo "<b>Linear Walk</b>";
-        } else {
-            echo "<b>Circular walk</b>";
-        }
-        if ($walk->hasMeetPlace) {
-            $out = "<div><b>Meeting time " . $walk->meetLocation->timeHHMMshort . "</b></div>";
-            echo $out . PHP_EOL;
-        }
-        if ($walk->startLocation->exact) {
-            $out = "<div><b>Start time " . $walk->startLocation->timeHHMMshort . "</b></div>";
-            echo $out . PHP_EOL;
-        }
-        if ($walk->finishTime != null) {
-            $out = "<div>(Estimated finish time " . $this->getShortTime($walk->finishTime) . ")</div>";
-            echo $out . PHP_EOL;
-        }
-        echo "</div>";
+	    
         if ($walk->hasMeetPlace) {
             echo "<div class='meetplace'>";
             $out = $this->addLocationInfo("Meeting", $walk->meetLocation, $walk->detailsPageUrl);
@@ -221,6 +214,7 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
             //echo "<div class='nomeetplace'><b>No meeting place specified</b>";
             //echo "</div>";
         }
+	    
         if ($walk->startLocation->exact) {
             echo "<div class='startplace'>";
         } else {
@@ -239,16 +233,16 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
             }
             echo "</div>" . PHP_EOL;
         }
-        echo "<div class='difficulty'><b>Difficulty</b>: ";
+	    
+        echo "<div class='difficulty' " . $this->gradeCSS($walk) "><b>Difficulty</b>: ";
         if ($walk->distanceMiles > 0) {
-            echo RHtml::withDiv("distance", "<b>Distance</b>: " . $walk->distanceMiles . "mile / " . $walk->distanceKm . "km", $this->printOn);
+            echo RHtml::withDiv("distance", "<b>Distance</b>: " . $walk->distanceMiles . " miles / " . $walk->distanceKm . "km", $this->printOn);
         }
         $link = $walk->nationalGrade;
         if ($this->nationalGradeHelp != "") {
             $link = "<a href='" . $this->nationalGradeHelp . "' target='" . $this->nationalGradeTarget . "'>" . $link . "</a>";
         }
-        echo RHtml::withDiv("nationalgrade", "<b>National Grade</b>: " . $link, $this->printOn);
-
+        echo RHtml::withDiv("nationalgrade", "<b>Ramblers Grade</b>: " . $link, $this->printOn);
         if ($walk->localGrade != "") {
             $link = $walk->localGrade;
             if ($this->localGradeHelp != "") {
@@ -263,10 +257,11 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
             echo RHtml::withDiv("ascent", "<b>Ascent</b>: " . $walk->ascentFeet . " ft " . $walk->ascentMetres . " ms", $this->printOn);
         }
         echo "</div>" . PHP_EOL;
+	    
         if ($walk->isLeader == false) {
             echo "<div class='walkcontact'><b>Contact</b>: ";
         } else {
-            echo "<div class='walkcontact'><b>Contact Leader</b>: ";
+            echo "<div class='walkcontact'><b>Lead by</b>: ";
         }
         echo RHtml::withDiv("contactname", "<b>Name</b>: " . $walk->contactName, $this->printOn);
 //        if ($walk->email != "" and !$this->printOn) {
@@ -305,7 +300,7 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
         echo "<div class='walkdates'>" . PHP_EOL;
 
         if (!$this->printOn) {
-            echo "<div class='updated'><a href='" . $walk->detailsPageUrl . "' target='_blank' >View walk on Walks Finder</a></div>" . PHP_EOL;
+            echo "<div class='updated'><a href='" . $walk->detailsPageUrl . "' target='_blank' >View walk on Ramblers Website</a></div>" . PHP_EOL;
         }
         $class = "";
         if ($this->printOn) {
