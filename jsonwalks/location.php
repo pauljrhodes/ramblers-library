@@ -163,9 +163,8 @@ class RJsonwalksLocation {
             $note2 = $dist . " metres " . RGeometryGreatcircle::directionAbbr($direction);
             $link = $this->getPostcodeMap($note2, $detailsPageUrl);
         }
-        $pc = "<abbr title='" . $note . "'><b>Postcode</b>: " . $this->postcode . " ";
+        $pc = "<b>Postcode</b>: " . $this->postcode . " ";
         $pc.=$link;
-        $pc.= "</abbr>";
         $out = RHtml::withDiv("postcode " . $distclass, $pc, JRequest::getVar('print') == 1);
         return $out;
     }
@@ -175,8 +174,7 @@ class RJsonwalksLocation {
             $code = "https://www.google.com/maps/dir/Current+Location/[lat],[long]";
             $code = str_replace("[lat]", $this->latitude, $code);
             $code = str_replace("[long]", $this->longitude, $code);
-
-            $out = "<span class='mappopup' onClick=\"javascript:window.open('" . $code . "', '_blank','toolbar=yes,scrollbars=yes,left=50,top=50,width=800,height=600');\">[" . $text . "]</span>";
+            $out = "<a href=\"" . $code . "\" target='_blank'><button class=\"button button-4 button-block button-square button-xsmall\">" . $text . "</button></a>";
             return $out;
         } else {
             return "";
@@ -188,7 +186,7 @@ class RJsonwalksLocation {
             $code = "http://streetmap.co.uk/loc/[lat],[long]&amp;Z=115";
             $code = str_replace("[lat]", $this->latitude, $code);
             $code = str_replace("[long]", $this->longitude, $code);
-            $out = "<span class='mappopup' onClick=\"javascript:window.open('" . $code . "', '_blank','toolbar=yes,scrollbars=yes,left=50,top=50,width=800,height=600');\">[" . $text . "]</span>";
+            $out = "<a href=\"" . $code . "\" target='_blank'> [" . $text . "]</span>";
             return $out;
         } else {
             return "";
@@ -210,7 +208,7 @@ class RJsonwalksLocation {
             $code = "http://maps.google.com/maps?z=13&amp;t=h&amp;ll=[lat],[long]";
             $code = str_replace("[lat]", $this->latitude, $code);
             $code = str_replace("[long]", $this->longitude, $code);
-            $out = "<span class='mappopup' onClick=\"javascript:window.open('" . $code . "', '_blank','toolbar=yes,scrollbars=yes,left=50,top=50,width=800,height=600');\">[" . $text . "]</span>";
+            $out = "<a href=\"" . $code . "\" target='_blank'><button class=\"button button-4 button-block button-square button-xsmall\">" . $text . "</button></a>";
             return $out;
         } else {
             return "";
