@@ -28,7 +28,6 @@ span.walksummary img:hover{
 }
 /* Ramblers additions */
 .cancelledWalks { background-color: #8BA69C;
-                  border-radius: 10px 10px 10px 10px;
                   padding: 10px;
                   border-width: 2px;
                   border-style: solid;
@@ -86,19 +85,18 @@ span.walkerror {
 }
 
 div.walkstdfulldetails div.description p{
-    margin: 0px;
+    margin: 0 0 0.5rem 0;
 }
 div.walkstdfulldetails div.group
 {
     font-size: 115%;
     margin: 2px;
-    border-radius: 10px 10px 10px 10px;
     padding: 5px;
     display: table;
     width:97%;
     border: 0px;
     background-color: #782327;
-    color: #eeeeee;
+    color: #f0f0f0;
 }
 div.walkdates {
     font-size: 80%;
@@ -115,15 +113,13 @@ div.walkstdfulldetails div.finishplace,
 div.walkstdfulldetails div.difficulty,
 div.walkstdfulldetails div.walkcontact {
     margin: 2px;
-    border-radius: 10px 10px 10px 10px;
     padding: 5px;
     -webkit-column-break-inside: avoid; /* Chrome, Safari */
     page-break-inside: avoid;           /* Theoretically FF 20+ */
     break-inside: avoid-column;         /* IE 11 */
     display:table;                      /* Actually FF 20+ */
     width:97%;
-    border: 2px solid #cccccc  ;
-    background-color: #dddddd;
+    background-color: #f0f0f0;
     line-height: 1.5em;
 }
 div.walkstdfulldetails div.festivals,
@@ -134,17 +130,14 @@ div.walkstdfulldetails div.theme,
 div.walkstdfulldetails div.specialStatus,
 div.walkstdfulldetails div.facilities{
     margin: 2px;
-    border-radius: 10px 10px 10px 10px;
     padding: 5px;
     -webkit-column-break-inside: avoid; /* Chrome, Safari */
     page-break-inside: avoid;           /* Theoretically FF 20+ */
     break-inside: avoid-column;         /* IE 11 */
     display:table;                      /* Actually FF 20+ */
     width:97%;
-    border: 2px solid #cccccc  ;
-    background-color: #eeeeee;
+    background-color: #f0f0f0;
     line-height: 1.5em;
-
 }
 div.walkstdfulldetails div.festivals > ul,
 div.walkstdfulldetails div.strands > ul,
@@ -153,15 +146,13 @@ div.walkstdfulldetails div.surroundings > ul,
 div.walkstdfulldetails div.theme > ul,
 div.walkstdfulldetails div.specialStatus > ul,
 div.walkstdfulldetails div.facilities > ul {
-    margin-bottom: 0px;
+    margin: 0 0 1rem 1rem;
 }
 div.walkstdfulldetails div.walkdates{
     margin: 2px;
-    border-radius: 10px 10px 10px 10px;
     padding: 5px;
     display: table;
     width:97%;
-    border: 2px solid #cccccc  ;
     background-color: #f0f0f0;
     line-height: 1.5em;
 }
@@ -264,8 +255,8 @@ div.groupA,div.groupG,div.groupS {
 }
 
 div.walkstdfulldetails {
-border-radius: 10px 10px 10px 10px;
-background-color: #ffffff;
+
+background-color: #f0f0f0;
 }
 
 .ra-accordion-item.walkNew {
@@ -281,6 +272,7 @@ background-color: #ffffff;
         column-count: 2;
         padding: 5px;
         padding-right:10px;
+        background-color: #f0f0f0;
         min-width: 500px;
     }
 div.walkstdfulldetails div.reason,
@@ -323,7 +315,7 @@ div.walkstdfulldetails div.finishplace div.place{
 .gradeSidebar {
     position: fixed;
     top: 160px;
-    left: -125px;
+    left: -110px;
     height:auto;
     width:130px;
     padding: 10px;
