@@ -121,14 +121,14 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
             $text .= " meet at " . $walk->meetLocation->timeHHMMshort . " ";
         }
 	if ($walk->startLocation->exact) {
-            $text .= "starting at " . $walk->startLocation->timeHHMMshort . " ";
+            $text .= " start at " . $walk->startLocation->timeHHMMshort . " ";
         }
         if ($walk->finishTime != null) {
-            $text .= "approx. finish time " . $this->getShortTime($walk->finishTime);
+            $text .= "finish at" . $this->getShortTime($walk->finishTime) . " (estimated)";
         }   
 	    
         if ($walk->distanceMiles > 0) {
-            $text .= "<br /> " . $walk->distanceMiles . " miles / " . $walk->distanceKm . " km" . $walk->nationalGrade;
+            $text .= ", " . $walk->distanceMiles . " miles / " . $walk->distanceKm . " km " . $walk->nationalGrade;
             if ($walk->isLinear) {
                 $text .= " Linear Walk";
                 } else {
@@ -138,7 +138,7 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
     
         if ($this->addContacttoHeader) {
             if ($walk->contactName <> "") {
-                $text .= "<br /> " . $walk->contactName;
+                $text .= ", " . $walk->contactName;
             }
             if ($walk->telephone1 <> "") {
                 $text .= ", " . $walk->telephone1;
@@ -234,9 +234,9 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
             echo "</div>" . PHP_EOL;
         }
 	    
-        echo "<div class='difficulty' " . $this->gradeCSS($walk) "><b>Difficulty</b>: ";
+        echo "<div class='difficulty " . $this->gradeCSS($walk) "'><b>Difficulty</b>: ";
         if ($walk->distanceMiles > 0) {
-            echo RHtml::withDiv("distance", "<b>Distance</b>: " . $walk->distanceMiles . " miles / " . $walk->distanceKm . "km", $this->printOn);
+            echo RHtml::withDiv("distance", "<b>Distance</b>: " . $walk->distanceMiles . " miles / " . $walk->distanceKm . " km", $this->printOn);
         }
         $link = $walk->nationalGrade;
         if ($this->nationalGradeHelp != "") {
@@ -264,12 +264,9 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
             echo "<div class='walkcontact'><b>Lead by</b>: ";
         }
         echo RHtml::withDiv("contactname", "<b>Name</b>: " . $walk->contactName, $this->printOn);
-//        if ($walk->email != "" and !$this->printOn) {
-//            $link = "http://www.ramblers.org.uk/go-walking/find-a-walk-or-route/contact-walk-organiser.aspx?walkId=";
-//            echo RHtml::withDiv("email", "<b>Email: </b><a href='" . $link . $walk->id."' target='_blank'>Email Contact via ramblers.org.uk</a>", $this->printOn);
-//        }
-        if ($walk->email != "" and ! $this->printOn) {
-            echo $walk->getEmail($this->emailDisplayFormat, true);
+        if ($walk->email != "" and !$this->printOn) {
+            $link = "http://www.ramblers.org.uk/go-walking/find-a-walk-or-route/contact-walk-organiser.aspx?walkId=";
+            echo RHtml::withDiv("email", "<b>Email: </b><a href='" . $link . $walk->id."' target='_blank'>Email Contact via ramblers.org.uk</a>", $this->printOn);
         }
         if ($walk->telephone1 . $walk->telephone2 != "") {
             $text = "<b>Telephone</b>: ";
