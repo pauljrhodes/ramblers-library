@@ -6,7 +6,7 @@
 # @license - http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
 # Websites: http://www.joomshaper.com
 -------------------------------------------------------------------------*/
-.ra-accordion.ra-accordion-style4 .toggler,.ra-accordion.ra-accordion-style4 .toggler span,.ra-accordion.ra-accordion-style4 .toggler span span{display:block;cursor:pointer}
+.ra-accordion.ra-accordion-style4 .toggler,.ra-accordion.ra-accordion-style4 .toggler span,.ra-accordion.ra-accordion-style4 .toggler span span{display:block;cursor:pointer;line-height: 1.2rem;}
 .ra-accordion.ra-accordion-style4 .toggler span,.ra-accordion.ra-accordion-style4 .toggler span span{}
 .delra-accordion.ra-accordion-style4 .toggler{background:url(style4/question.png) no-repeat 0 50%;border-bottom:1px dashed #1A1A1A}
 
