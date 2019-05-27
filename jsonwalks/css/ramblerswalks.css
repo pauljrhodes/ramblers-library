@@ -68,7 +68,7 @@ span.walksummary img:hover{
 .ra-accordion-item.walkCancelled div.nostartplace,
 .ra-accordion-item.walkCancelled div.finishplace,
 .ra-accordion-item.walkCancelled div.difficulty,
-.ra-accordion-item.walkCancelled div.additionalNotes{
+.ra-accordion-item.walkCancelled div.additionalnotes{
     text-decoration: line-through;
 }
 
@@ -113,7 +113,7 @@ div.walkstdfulldetails div.nostartplace,
 div.walkstdfulldetails div.finishplace,
 div.walkstdfulldetails div.difficulty,
 div.walkstdfulldetails div.walkcontact,
-div.walkstdfulldetails div.additionalNotes {
+div.walkstdfulldetails div.additionalnotes {
     margin: 2px;
     padding: 5px;
     -webkit-column-break-inside: avoid; /* Chrome, Safari */
@@ -261,10 +261,12 @@ div.walkstdfulldetails {
 background-color: #f0f0f0;
 }
 
+.ra-accordion-item{padding-top: 5px;}
+
 .ra-accordion-item.walkNew {
     padding-left: 0px;
     background: url(../../images/new.gif) no-repeat scroll 0 50% rgba(0, 0, 0, 0);
-	background-position: 60px 0px ;
+	background-position: 59px 26px ;
 }
 
 @media only screen and (min-width: 769px){
@@ -301,7 +303,7 @@ div.walkstdfulldetails div.finishplace div.place{
         min-width: 260px;
     }
 .ra-accordion-item.walkNew {
-    background-position: 30px 0px ;
+    background-position: 35px 26px ;
     }
 
 div.walkstdfulldetails div.reason,
