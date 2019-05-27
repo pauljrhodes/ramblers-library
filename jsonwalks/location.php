@@ -186,7 +186,7 @@ class RJsonwalksLocation {
             $code = "http://streetmap.co.uk/loc/[lat],[long]&amp;Z=115";
             $code = str_replace("[lat]", $this->latitude, $code);
             $code = str_replace("[long]", $this->longitude, $code);
-            $out = "<a href=\"" . $code . "\" target='_blank'> [" . $text . "]</span>";
+            $out = "<a href=\"" . $code . "\" target='_blank'> [" . $text . "]</a>";
             return $out;
         } else {
             return "";
@@ -217,7 +217,7 @@ class RJsonwalksLocation {
 
     public function getPostcodeMap($text, $detailsPageUrl) {
         if ($this->exact) {
-            $out = "<span class='mappopup' onClick=\"javascript:window.open('" . $detailsPageUrl . "', '_blank','toolbar=yes,scrollbars=yes,left=50,top=50,width=900,height=600');\">[" . $text . "]</span>";
+            $out = "<href=\"" . $detailsPageUrl . "\" target='_blank'> [" . $text . "]</a>";
             return $out;
         } else {
             return "";
