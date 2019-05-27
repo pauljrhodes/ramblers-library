@@ -234,7 +234,7 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
             echo "</div>" . PHP_EOL;
         }
 	    
-        echo "<div class='difficulty " . $this->gradeCSS($walk) "'><b>Difficulty</b>: ";
+        echo "<div class='difficulty walksummary " . $this->gradeCSS($walk) "'><b>Difficulty</b>: ";
         if ($walk->distanceMiles > 0) {
             echo RHtml::withDiv("distance", "<b>Distance</b>: " . $walk->distanceMiles . " miles / " . $walk->distanceKm . " km", $this->printOn);
         }
