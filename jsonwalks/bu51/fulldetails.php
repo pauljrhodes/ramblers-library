@@ -124,7 +124,7 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
             $text .= " start at " . $walk->startLocation->timeHHMMshort . " ";
         }
         if ($walk->finishTime != null) {
-            $text .= "finish at" . $this->getShortTime($walk->finishTime) . " (estimated)";
+            $text .= "finish at " . $this->getShortTime($walk->finishTime) . " (estimated)";
         }   
 	    
         if ($walk->distanceMiles > 0) {
@@ -234,7 +234,7 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
             echo "</div>" . PHP_EOL;
         }
 	    
-        echo "<div class='difficulty walksummary " . $this->gradeCSS($walk) "'><b>Difficulty</b>: ";
+        echo "<div class='difficulty walksummary " . $this->gradeCSS($walk) . "'><b>Difficulty</b>: ";
         if ($walk->distanceMiles > 0) {
             echo RHtml::withDiv("distance", "<b>Distance</b>: " . $walk->distanceMiles . " miles / " . $walk->distanceKm . " km", $this->printOn);
         }
@@ -317,7 +317,8 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
 
         if ($location->exact) {
             $note = "Click Google Directions to see map and directions from your current location";
-            $out = "<div class='place'><b>" . $title . " Place</b>:<abbr title='" . $note . "'> " . $location->description . " ";
+            $out = "<div class='place'><b>" . $title . " Place</b>: " . $location->description . " ";
+            $out.= "</div>";
             if (!$this->printOn) {
                 $out.=$location->getDirectionsMap("Google directions");
             }
@@ -326,17 +327,11 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
                     $out.= RHtml::withDiv("time", "<b>Time</b>: " . $location->timeHHMMshort, $this->printOn);
                 }
             }
-            $out.= "</abbr></div>";
-            if (!$this->printOn) {
-                if ($location->time <> "") {
-                    $out.= RHtml::withDiv("time", "<b>Time</b>: " . $location->timeHHMMshort, $this->printOn);
-                }
-            }
-            $gr = "<abbr title='Click Map to see Ordnance Survey map of location'><b>Grid Ref</b>: " . $location->gridref . " ";
+            
+            $gr = "<b>Grid Ref</b>: " . $location->gridref . " ";
             if (!$this->printOn) {
                 $gr.=$location->getOSMap("OS Map");
             }
-            $gr.= "</abbr>";
             $out.= RHtml::withDiv("gridref", $gr, $this->printOn);
             $out.= RHtml::withDiv("latlong", "<b>Latitude</b>: " . $location->latitude . " , <b>Longitude</b>: " . $location->longitude, $this->printOn);
 
