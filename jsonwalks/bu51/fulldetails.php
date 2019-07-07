@@ -63,7 +63,6 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
             }
             $this->displayWalkDetails($walk);
             echo '</div></div>' . PHP_EOL;
-
             echo "</div>" . PHP_EOL;
 			
 			$performer = new RJsonwalksStructuredperformer($walk->groupName); # Change to walk leader in future
@@ -115,12 +114,12 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
 
     private function displayWalkSummary($walk) {
         $text = $this->addGradeImage($walk);
-	$text .= "<b> " . $walk->title . "</b> ";    
+	    $text .= "<b> " . $walk->title . "</b> ";    
         $text .= "<br /> " . $walk->walkDate->format('l, jS F Y');
-	if ($walk->hasMeetPlace) {
+	    if ($walk->hasMeetPlace) {
             $text .= " meet at " . $walk->meetLocation->timeHHMMshort . " ";
         }
-	if ($walk->startLocation->exact) {
+	    if ($walk->startLocation->exact) {
             $text .= " start at " . $walk->startLocation->timeHHMMshort . " ";
         }
         if ($walk->finishTime != null) {
@@ -186,10 +185,13 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
     }
 
     function displayWalkDetails($walk) {
-
+        $homeGroupCode = "BU51";
         echo "<div class='walkstdfulldetails'>" . PHP_EOL;
         if ($this->displayGroup === true) {
             echo "<div class='group " . $this->gradeCSS($walk) . "'><b>Group</b>: " . $walk->groupName . "</div>" . PHP_EOL;
+        }
+       if ($walk->groupCode != $homeGroupCode ) {
+            echo "<div class='group " . $this->gradeCSS($walk) . "'><b>Joint Walk</b>: Hosted by " . $walk->groupName . "</div>" . PHP_EOL;
         }
         if ($walk->isCancelled()) {
             echo "<div class='reason'>WALK CANCELLED: " . $walk->cancellationReason . "</div>" . PHP_EOL;
@@ -316,18 +318,13 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
             function addLocationInfo($title, $location, $detailsPageUrl) {
 
         if ($location->exact) {
-            $note = "Click Google Directions to see map and directions from your current location";
             $out = "<div class='place'><b>" . $title . " Place</b>: " . $location->description . " ";
             $out.= "</div>";
             if (!$this->printOn) {
-                $out.=$location->getDirectionsMap("Google directions");
-            }
-            if ($this->printOn) {
-                if ($location->time <> "") {
+                if ($location->timeHHMMshort != "") {
                     $out.= RHtml::withDiv("time", "<b>Time</b>: " . $location->timeHHMMshort, $this->printOn);
                 }
             }
-            
             $gr = "<b>Grid Ref</b>: " . $location->gridref . " ";
             if (!$this->printOn) {
                 $gr.=$location->getOSMap("OS Map");
@@ -338,21 +335,18 @@ class RJsonwalksBU51Fulldetails extends RJsonwalksDisplaybase {
             if ($location->postcode != "") {
                 $out.= $location->displayPostcode($detailsPageUrl);
             }
+			if (!$this->printOn) {
+                $out.=$location->getDirectionsMap("Google directions");
+            }
         } else {
             $out = "<div class='place'>";
-            $out .= "Location shown is an indication of where the walk will be and <b>NOT</b> the start place: ";
-            if (!$this->printOn) {
+            $out .= "An indication of where the walk will be (<b>NOT</b> the start place): " . $location->description . "</div>"; 
+            if ($location->timeHHMMshort != "") {
+                    $out.= RHtml::withDiv("time", "<b>Time</b>: " . $location->timeHHMMshort, $this->printOn);
+                } 
+			if (!$this->printOn) {
                 $out.=$location->getAreaMap("Map of area");
             }
-            if ($location->type == "Start") {
-                if ($this->displayStartTime) {
-                    $out .= "<div class='starttime'>Start time: " . $location->timeHHMMshort . "</div>";
-                }
-                if ($this->displayStartDescription) {
-                    $out .= "<div class='startdescription'>" . $location->description . "</div>";
-                }
-            }
-            $out.= "</div>";
         }
 
         return $out;
