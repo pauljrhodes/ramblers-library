@@ -22,37 +22,26 @@ class RJsonwalksStdFulldetails extends RJsonwalksDisplaybase {
     private static $accordianId = 100;
 
     public function DisplayWalks($walks) {
-        if ($this->displayGradesSidebar) {
-            RJsonwalksWalk::gradeSidebar();
-        }
-        if ($this->displayGradesIcon) {
-            RJsonwalksWalk::gradeToolTips();
-        }
 
         self::$accordianId +=1;
+
         $document = JFactory::getDocument();
         JHtml::_('jquery.framework');
-        $document->addStyleSheet(JURI::base() . 'ramblers/jsonwalks/std/accordian/style/style4.css');
-        $document->addScript(JURI::base() . 'ramblers/jsonwalks/std/accordian/js/ra-accordion.js', "text/javascript");
+        $document->addStyleSheet(JURI::base() . 'libraries/ramblers/jsonwalks/std/accordian/style/style4.css');
+        $document->addScript(JURI::base() . 'libraries/ramblers/jsonwalks/std/accordian/js/ra-accordion.js', "text/javascript");
         $walks->sort(RJsonwalksWalk::SORT_DATE, RJsonwalksWalk::SORT_TIME, RJsonwalksWalk::SORT_DISTANCE);
         $items = $walks->allWalks();
         $id = "accordion_ra1_id" . self::$accordianId;
-        echo "<div class='" . $this->walksClass . "' >";
+        echo "<div class='" . $this->walksClass . "' >" . PHP_EOL;
         echo '<script type="text/javascript">jQuery(function($) {$(\'#' . $id . '\').raAccordion({hidefirst: 1 });});</script>' . PHP_EOL;
-        echo '<div id="' . $id . '" class="ra-accordion ra-accordion-style4 ">';
+        echo '<div id="' . $id . '" class="ra-accordion ra-accordion-style4 ">' . PHP_EOL;
+        $odd = true;
         foreach ($items as $walk) {
             echo '<div class="ra-accordion-item ' . $this->walkClass . $walk->status . '">' . PHP_EOL;
-            if ($this->printOn) {
-                echo '<div class="printfulldetails">' . PHP_EOL;
-            } else {
-                echo '<div class="toggler">' . PHP_EOL;
-            }
-            echo '<span><span class="walksummary">' . PHP_EOL;
 
-            $this->displayWalkSummary($walk);
-            echo '</span></span>' . PHP_EOL;
-            echo '</div>' . PHP_EOL;
-            echo '<div class="clr"></div>' . PHP_EOL;
+            $this->displayWalkSummary($walk, $odd);
+
+            // echo '<div class="clr"></div>' . PHP_EOL;
             if ($this->printOn) {
                 echo '<div class="ra-fulldetails-container style="display: block;">' . PHP_EOL;
                 echo '<div class="ra-fulldetails-inner">' . PHP_EOL;
@@ -64,9 +53,11 @@ class RJsonwalksStdFulldetails extends RJsonwalksDisplaybase {
             echo '</div></div>' . PHP_EOL;
 
             echo "</div>" . PHP_EOL;
+            $odd = !$odd;
         }
         // echo "</div>" . PHP_EOL;
         echo '</div></div>' . PHP_EOL;
+        $this->addGotoWalk();
     }
 
     public function setWalksClass($class) {
@@ -77,8 +68,23 @@ class RJsonwalksStdFulldetails extends RJsonwalksDisplaybase {
         $this->walkClass = $class;
     }
 
-    private function displayWalkSummary($walk) {
-        $text = $this->addGradeImage($walk);
+    private function displayWalkSummary($walk, $odd) {
+        $text = "";
+        if ($this->printOn) {
+            $text.= '<div class="printfulldetails">' . PHP_EOL;
+        } else {
+            $text.= '<div class="toggler" id="w' . $walk->id . '">' . PHP_EOL;
+        }
+        if ($odd) {
+            $text.='<span class="walksummary odd" >' . PHP_EOL;
+        } else {
+            $text.='<span class="walksummary even" >' . PHP_EOL;
+        }
+
+        $text .= $walk->getGradeSpan("middle");
+
+
+
         $text .= "<b> " . $walk->walkDate->format('l, jS F Y') . "</b>";
 
         $text .= ", " . $walk->title;
@@ -93,16 +99,17 @@ class RJsonwalksStdFulldetails extends RJsonwalksDisplaybase {
                 $text .= ", " . $walk->telephone1;
             }
         }
-
+        $text.= '</span>' . PHP_EOL;
+        $text.= '</div>' . PHP_EOL;
         echo $text . PHP_EOL;
     }
 
-    private function addGradeImage($walk) {
+    private function addGradeImageXXXX($walk) {
         $out = '';
         if ($this->displayGradesIcon) {
-            $out .= ' <img src="' . $walk->getGradeImage() . '" alt="' . $walk->nationalGrade . '" onmouseover="dispGrade(this)" onmouseout="noGrade(this)">';
+            $out .= ' <img src="' . $walk->getGradeImage() . '" alt="' . $walk->nationalGrade . '" onclick="javascript:dGH()" onmouseover="dispGrade(this)" onmouseout="noGrade(this)">';
         } else {
-            $out .= ' <img src="ramblers/images/grades/base.jpg" alt="' . $walk->nationalGrade . '" onmouseover="dispGrade(this)" onmouseout="noGrade(this)">';
+            $out .= ' <img src="libraries/ramblers/images/grades/base.jpg" alt="' . $walk->nationalGrade . '" onclick="javascript:dGH()" onmouseover="dispGrade(this)" onmouseout="noGrade(this)">';
         }
         return $out;
     }
@@ -233,11 +240,7 @@ class RJsonwalksStdFulldetails extends RJsonwalksDisplaybase {
             echo "<div class='walkcontact'><b>Contact Leader</b>: ";
         }
         echo RHtml::withDiv("contactname", "<b>Name</b>: " . $walk->contactName, $this->printOn);
-//        if ($walk->email != "" and !$this->printOn) {
-//            $link = "http://www.ramblers.org.uk/go-walking/find-a-walk-or-route/contact-walk-organiser.aspx?walkId=";
-//            echo RHtml::withDiv("email", "<b>Email: </b><a href='" . $link . $walk->id."' target='_blank'>Email Contact via ramblers.org.uk</a>", $this->printOn);
-//        }
-        if ($walk->email != "" and ! $this->printOn) {
+        if ($walk->getEmail() != "" and ! $this->printOn) {
             echo $walk->getEmail($this->emailDisplayFormat, true);
         }
         if ($walk->telephone1 . $walk->telephone2 != "") {
@@ -284,8 +287,7 @@ class RJsonwalksStdFulldetails extends RJsonwalksDisplaybase {
         echo "</div>" . PHP_EOL;
     }
 
-    private
-            function addLocationInfo($title, $location, $detailsPageUrl) {
+    private function addLocationInfo($title, $location, $detailsPageUrl) {
 
         if ($location->exact) {
             $note = "Click Google Directions to see map and directions from your current location";
@@ -356,6 +358,19 @@ class RJsonwalksStdFulldetails extends RJsonwalksDisplaybase {
             $timeHHMMshort = "No time";
         }
         return $timeHHMMshort;
+    }
+
+    private function addGotoWalk() {
+        if (array_key_exists("walk", $_GET)) {
+            $walk = $_GET["walk"];
+            if ($walk != null) {
+                if (is_numeric($walk)) {
+                    $add = "<script type=\"text/javascript\">window.onload = function () {
+                gotoWalk($walk);};</script>";
+                    echo $add;
+                }
+            }
+        }
     }
 
 }

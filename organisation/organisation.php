@@ -27,11 +27,11 @@ class ROrganisation {
     }
 
     public function load() {
-        $url = "http://www.ramblers.org.uk/api/lbs/groups/";
-        $CacheTime = 3 * 4 * 7 * 60 * 24; // three months in minutes
+        $url = "https://groups.theramblers.org.uk/";
+        $CacheTime = 60; // 60 minutes
         $cacheLocation = $this->CacheLocation();
         $this->srfr = new RFeedhelper($cacheLocation, $CacheTime);
-        $this->srfr->setReadTimeout(60);
+        // $this->srfr->setReadTimeout(60);
         $this->readFeed($url);
     }
 
@@ -45,24 +45,24 @@ class ROrganisation {
             case RFeedhelper::OK:
                 break;
             case RFeedhelper::READFAILED:
-                $application = JFactory::getApplication();
-                $application->enqueueMessage(JText::_('Unable to fetch organisation data, data may be out of date: ' . $rafeedurl), 'warning');
+                $app = JApplicationCms::getInstance('site');
+                $app->enqueueMessage(JText::_('Unable to fetch organisation data, data may be out of date: ' . $rafeedurl), 'warning');
                 break;
             case RFeedhelper::FEEDERROR;
-                $application = JFactory::getApplication();
-                $application->enqueueMessage(JText::_('Feed must use HTTP protocol: ' . $rafeedurl), 'error');
+                $app = JApplicationCms::getInstance('site');
+                $app->enqueueMessage(JText::_('Feed must use HTTP protocol: ' . $rafeedurl), 'error');
                 break;
             case RFeedhelper::FEEDFOPEN:
-                $application = JFactory::getApplication();
-                $application->enqueueMessage(JText::_('Not able to read feed using fopen: ' . $rafeedurl), 'error');
+                $app = JApplicationCms::getInstance('site');
+                $app->enqueueMessage(JText::_('Not able to read feed using fopen: ' . $rafeedurl), 'error');
                 break;
             default:
                 break;
         }
         switch ($contents) {
             case NULL:
-                $application = JFactory::getApplication();
-                $application->enqueueMessage(JText::_('Groups feed: Unable to read feed: ' . $rafeedurl), 'error');
+                $app = JApplicationCms::getInstance('site');
+                $app->enqueueMessage(JText::_('Groups feed: Unable to read feed: ' . $rafeedurl), 'error');
                 break;
             case "":
                 echo '<b>Groups feed: No Groups found</b>';
@@ -80,51 +80,16 @@ class ROrganisation {
                         $error+=$ok;
                     }
                     if ($error > 0) {
-                        $application = JFactory::getApplication();
-                        $application->enqueueMessage(JText::_('Groups feed: Json file format not supported: ' . $rafeedurl), 'error');
+                        $app = JApplicationCms::getInstance('site');
+                        $app->enqueueMessage(JText::_('Groups feed: Json file format not supported: ' . $rafeedurl), 'error');
                     } else {
                         $this->convert($json);
                     }
                     unset($json);
                     break;
                 } else {
-                    $application = JFactory::getApplication();
-                    $application->enqueueMessage(JText::_('Groups feed: feed is not in Json format: ' . $rafeedurl), 'error');
-                }
-        }
-    }
-
-    private function readFeedDELETE($rafeedurl) {
-
-        $contents = $srfr->getFeed($rafeedurl);
-        switch ($contents) {
-            case NULL:
-                echo '<b>Groups feed: Unable to read feed: ' . $rafeedurl . '</b>';
-                break;
-            case "":
-                echo '<b>Groups feed: No Groups found</b>';
-                break;
-            case "[]":
-                echo '<b>Groups feed empty: No Groups found</b>';
-                break;
-            default:
-                $json = json_decode($contents);
-                unset($contents);
-                $error = 0;
-                if (json_last_error() == JSON_ERROR_NONE) {
-                    foreach ($json as $value) {
-                        $ok = $this->checkJsonProperties($value);
-                        $error+=$ok;
-                    }
-                    if ($error > 0) {
-                        echo '<br/><b>Groups feed: Json file format not supported</b>';
-                    } else {
-                        $this->convert($json);
-                    }
-                    unset($json);
-                    break;
-                } else {
-                    echo '<br/><b>Groups feed: feed is not in Json format</b>';
+                    $app = JApplicationCms::getInstance('site');
+                    $app->enqueueMessage(JText::_('Groups feed: feed is not in Json format: ' . $rafeedurl), 'error');
                 }
         }
     }
@@ -158,6 +123,41 @@ class ROrganisation {
     }
 
     public function listAreas() {
+        echo "<table>";
+        echo RHtml::addTableHeader(["Area", "Group", "Hosted Web Site", "Status"]);
+        foreach ($this->areas as $area) {
+            $code = "";
+            if ($this->showCodes) {
+                $code = "Area " . $area->code . ": ";
+            }
+
+            echo RHtml::addTableRow([ $code . $area->getLink($this->showLinks), " ", $area->website, $area->status]);
+
+            if ($this->showGroups) {
+                $code = "";
+                foreach ($area->groups as $group) {
+                    if ($this->showCodes) {
+                        switch ($group->scope) {
+                            case "G":
+                                $code = "Group " . $group->code . ":  ";
+                                break;
+                            case "S":
+                                $code = "Special Group " . $group->code . ":  ";
+                                break;
+                            default:
+                                $code = "Other Group " . $group->code . ":  ";
+                                break;
+                        }
+                    }
+                    //    Echo "<div class='ra_group'>" . $code . $group->getLink($this->showLinks) . "</div>";
+                    echo RHtml::addTableRow([ "", $code . $group->getLink($this->showLinks), $group->website, $group->status]);
+                }
+            }
+        }
+        echo "</table>";
+    }
+
+    public function listAreasOLD() {
         foreach ($this->areas as $area) {
             $code = "";
             if ($this->showCodes) {
@@ -191,6 +191,7 @@ class ROrganisation {
     public function addMapMarkers($map) {
         if (isset($map)) {
             $map->addBounds();
+            $map->options->cluster = true;
             $text = "";
             foreach ($this->groups as $key => $group) {
                 $areatext = "";

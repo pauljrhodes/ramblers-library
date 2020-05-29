@@ -99,7 +99,7 @@ class RJsonwalksDe02Programme extends RJsonwalksDisplaybase {
 //        }
 //        if ($image == "")
 //            return $grade;
-//        return '<img border="0" src="ramblers/jsonwalks/de02/images/' . $image . '" width="20" height="20">';
+//        return '<img border="0" src="libraries/ramblers/jsonwalks/de02/images/' . $image . '" width="20" height="20">';
 //    }
 //    function contains_substr($mainStr, $str, $loc = false) {
 //        if ($loc === false)

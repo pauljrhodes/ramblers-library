@@ -284,15 +284,15 @@ function addDrawControl(lat, long, zoom) {
         var mapSize = ramblersMap.map.getSize();
 
         if (mousePos.y <= 20) {
-            ramblersMap.map.panBy([0, -20]);
+            ramblersMap.map.panBy([0, -40]);
         } else if (mousePos.y + 20 > mapSize.y) {
-            ramblersMap.map.panBy([0, 20]);
+            ramblersMap.map.panBy([0, 40]);
         }
 
         if (mousePos.x <= 20) {
-            ramblersMap.map.panBy([-20, 0]);
+            ramblersMap.map.panBy([-40, 0]);
         } else if (mousePos.x + 20 > mapSize.x) {
-            ramblersMap.map.panBy([20, 0]);
+            ramblersMap.map.panBy([40, 0]);
         }
     };
     disableMapMoveDrawing = function () {

@@ -3,6 +3,9 @@ Ramblers library to process and display json walks feeds
 See wiki for details https://github.com/ramblerswebs/ramblers-library/wiki
 
 Updates
+3.0.0
+
+    Convert into Joomla Library
 
 2.0.0 
 

@@ -11,7 +11,7 @@ defined('_JEXEC') or die('Restricted access');
 class RJsonwalksItem {
 
     //put your code here
-    Private $name;
+    public $name;
 
     function __construct($value) {
         if (isset($value)) {
@@ -20,7 +20,6 @@ class RJsonwalksItem {
             }
         }
     }
-
     public function getName() {
         return $this->name;
     }

@@ -1,44 +1,34 @@
 <html>
     <head>
-        <script src="../jsonwalks/std/accordian/js/ra-accordion.js" type="text/javascript"></script>
         <style type="text/css">
             body {
                 font-family: Helvetica, Arial, FreeSans, sans-serif;
             }
-            h1 {color:#782327;font-size:28px;text-align: center;
-                border-bottom: 1px solid #d1d1d1;
-                -webkit-box-shadow: 0 1px 0 #ffffff;
-                -moz-box-shadow: 0 1px 0 #ffffff;
-                box-shadow: 0 1px 0 #ffffff;
-                padding-bottom: 15px;
-                margin-bottom: 15px;
+            h1 {color:#782327;font-size:24px;text-align: center;
+                padding-bottom: 5px;
+                margin-bottom: 5px;
             }
-            h2 {color:#782327;font-size:22px;text-align: center;}
+            h2 {color:#782327;font-size:20px;text-align: center;}
             p {font-size:14px;}
-            img{
-                height:30px;
-                width:30px;
-                padding: 2px;
-                vertical-align:middle;
-            }
-            img:hover{
-                height:40px;
-                width:40px;
-                padding: 5px 5px 5px 0px;
-            </style> </head>
+            </style> 
+    </head>
         <body>
-            <h1>Walks difficulty - National Grades
-            </h1>
-
+            <h1>Walks difficulty - National Grades </h1>
             <h2>How easy is this walk?</h2>
-            <p>Our walks are graded for difficulty as follows:</p><br/>
+            <p>Our walks are graded for difficulty as follows:</p>
             <div style='padding-left:40px;'>
-                <div><img src="../images/grades/grade-ea.jpg" alt="Easy Access" onmouseover="dispGrade(this)" onmouseout="noGrade(this)"> <strong>Easy Access</strong> - walks for everyone, including people with conventional wheelchairs and pushchairs, using easy access paths. Comfortable shoes or trainers can be worn. Assistance may be needed to push wheelchairs on some sections, please contact the group running the walk for details.</div>
-                <div><img src="../images/grades/grade-e.jpg" alt="Easy" onmouseover="dispGrade(this)" onmouseout="noGrade(this)"> <strong>Easy</strong> - walks for anyone who does not have a mobility difficulty, a specific health problem or is seriously unfit. Suitable for pushchairs if they can be lifted over occasional obstructions. Comfortable shoes or trainers can be worn.</div>
-                <div><img src="../images/grades/grade-l.jpg" alt="Leisurely" onmouseover="dispGrade(this)" onmouseout="noGrade(this)"> <strong>Leisurely</strong> - walks for reasonably fit people with at least a little country walking experience. May include unsurfaced rural paths. Walking boots and warm, waterproof clothing are recommended.</div>
-                <div><img src="../images/grades/grade-m.jpg" alt="Moderate" onmouseover="dispGrade(this)" onmouseout="noGrade(this)"> <strong>Moderate</strong> - walks for people with country walking experience and a good level of fitness. May include some steep paths and open country, and may be at a brisk pace. Walking boots and warm, waterproof clothing are essential.</div>
-                <div><img src="../images/grades/grade-s.jpg" alt="Strenuous" onmouseover="dispGrade(this)" onmouseout="noGrade(this)"> <strong>Strenuous</strong> - walks for experienced country walkers with an above average fitness level. May include hills and rough country, and may be at a brisk pace. Walking boots and warm, waterproof clothing are essential. People in doubt about their fitness should contact the organiser or leader in advance.</div>
-                <div><img src="../images/grades/grade-t.jpg" alt="Technical" onmouseover="dispGrade(this)" onmouseout="noGrade(this)"> <strong>Technical</strong> - walks for experienced and very fit walkers with additional technical skills. May require scrambling and use of&nbsp;ice axes or crampons. You must contact the organiser or leader in advance for further details. </div>
+                <div><span data-descr="Easy Access" ><span class="grade easy-access left" ><img src="https://ramblers-webs.org.uk/libraries/ramblers/images/grades/grade-ea.jpg" alt="easy-access" width="30" height="30"></span></span><strong>Easy Access</strong> - walks for everyone, including people with conventional wheelchairs and pushchairs, using easy access paths. Comfortable shoes or trainers can be worn. Assistance may be needed to push wheelchairs on some sections, please contact the group running the walk for details.</div>
+                <div class="clear"> </div>   
+                <div><span data-descr="Easy" ><span class="grade easy left" ><img src="https://ramblers-webs.org.uk//libraries/ramblers/images/grades/grade-e.jpg" alt="easy" width="30" height="30"></span></span><strong>Easy</strong> - walks for anyone who does not have a mobility difficulty, a specific health problem or is seriously unfit. Suitable for pushchairs if they can be lifted over occasional obstructions. Comfortable shoes or trainers can be worn.</div>
+                 <div class="clear"> </div>  
+                <div><span data-descr="Leisurely" ><span class="grade leisurely left" ><img src="https://ramblers-webs.org.uk/libraries/ramblers/images/grades/grade-l.jpg" alt="leisurely" width="30" height="30"></span></span><strong>Leisurely</strong> - walks for reasonably fit people with at least a little country walking experience. May include unsurfaced rural paths. Walking boots and warm, waterproof clothing are recommended.</div>
+                 <div class="clear"> </div> 
+                <div><span data-descr="Moderate" ><span class="grade moderate left" ><img src="https://ramblers-webs.org.uk/libraries/ramblers/images/grades/grade-m.jpg" alt="moderate" width="30" height="30"></span></span><strong>Moderate</strong> - walks for people with country walking experience and a good level of fitness. May include some steep paths and open country, and may be at a brisk pace. Walking boots and warm, waterproof clothing are essential.</div>
+                 <div class="clear"> </div> 
+                <div><span data-descr="Strenuous" ><span class="grade strenuous left" ><img src="https://ramblers-webs.org.uk/libraries/ramblers/images/grades/grade-s.jpg" alt="Leisurely" width="30" height="30"></span></span><strong>Strenuous</strong> - walks for experienced country walkers with an above average fitness level. May include hills and rough country, and may be at a brisk pace. Walking boots and warm, waterproof clothing are essential. People in doubt about their fitness should contact the organiser or leader in advance.</div>
+                 <div class="clear"> </div> 
+                <div><span data-descr="Technical" ><span class="grade technical left" ><img src="https://ramblers-webs.org.uk/libraries/ramblers/images/grades/grade-t.jpg" alt="technical" width="30" height="30"></span></span><strong>Technical</strong> - walks for experienced and very fit walkers with additional technical skills. May require scrambling and use of&nbsp;ice axes or crampons. You must contact the organiser or leader in advance for further details. </div>
+                 <div class="clear"> </div> 
             </div>
             <h2>Important additional advice</h2>
             <ul>

@@ -91,7 +91,7 @@ L.Control.Locationsearch = L.Control.extend({
         if (this._LocationsearchMarker) {
             this._map.removeLayer(this._LocationsearchMarker);
         }
-        this._LocationsearchMarker = new L.Marker(result.center, {icon: redmarkericon})
+        this._LocationsearchMarker = new L.Marker(result.center, {icon: ramblersMap.redmarkericon})
                 .bindPopup(result.html || result.name)
                 .addTo(this._map)
                 .openPopup();
@@ -158,6 +158,9 @@ L.Control.Locationsearch = L.Control.extend({
         L.DomUtil.addClass(this._container, 'leaflet-control-locationsearch-expanded');
         this._input.select();
         this.fire('expand');
+        if (this._LocationsearchMarker) {
+            this._map.removeLayer(this._LocationsearchMarker);
+        }
     },
     _collapse: function () {
         this._container.className = this._container.className.replace(' leaflet-control-locationsearch-expanded', '');

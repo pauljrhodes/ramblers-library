@@ -1,0 +1,14 @@
+/*------------------------------------------------------------------------
+# JoomShaper Accordion Module by JoomShaper.com
+# ------------------------------------------------------------------------
+# author    JoomShaper http://www.joomshaper.com
+# Copyright (C) 2010 - 2014 JoomShaper.com. All Rights Reserved.
+# @license - http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
+# Websites: http://www.joomshaper.com
+-------------------------------------------------------------------------*/
+.ra-accordion.ra-accordion-style3 {border:1px solid #ccc}
+.ra-accordion.ra-accordion-style3 .toggler {border-bottom:1px dotted #ccc}
+.ra-accordion.ra-accordion-style3 .toggler,.ra-accordion.ra-accordion-style3 .toggler span,.ra-accordion.ra-accordion-style3 .toggler span span{display:block;line-height:30px;cursor:pointer}
+.ra-accordion.ra-accordion-style3 .toggler span,.ra-accordion.ra-accordion-style3 .toggler span span{background:none;font-size:13px;font-weight:700}
+.ra-accordion.ra-accordion-style3 .toggler span span{padding:0 16px}
+.ra-accordion.ra-accordion-style3 .ra-accordion-inner{padding:0 16px}

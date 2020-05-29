@@ -52,7 +52,10 @@ class RIcsOutput {
         $date = new DateTime('2010-01-01');
         $interval = $date->diff($dateUpdated);
         $days = $interval->days;
-        $this->sequence = strval($days);
+        // Fix added to include number of seconds since midnight, forcing an update on each download. 
+        // Otherwise, the event would only update daily. 
+        $this->sequence = strval($days) . strval(time() % 86400);
+        //$this->sequence = strval($days);
         $this->addRecord("SEQUENCE:" . $this->sequence);
     }
 

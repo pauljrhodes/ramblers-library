@@ -26,7 +26,7 @@ class RJsonwalksStdCancelledwalks extends RJsonwalksDisplaybase {
             echo "<div class='" . $this->walksClass . "' >" . PHP_EOL;
             echo $this->message;
             echo $walkslist;
-            echo "</div>" . PHP_EOL;
+            echo "</div><p></p>" . PHP_EOL;
         }
     }
 

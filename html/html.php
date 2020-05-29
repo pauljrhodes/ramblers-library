@@ -55,4 +55,10 @@ class RHtml {
         return $out;
     }
 
+    static function displayTitle($title, $display) {
+        If ($display == "Yes") {
+            echo "<h2>" . $title . "</h2>";
+        }
+    }
+
 }

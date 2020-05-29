@@ -20,6 +20,7 @@ class RGpxFile {
     public $description = "";
     public $date = '';
     public $author = '';
+    public $duration = 0;
     //   public $copyright = '';
     private $file = null;
     private $registered = false;
@@ -31,7 +32,7 @@ class RGpxFile {
 
     private function parse() {
         if (!$this->registered) {
-            JLoader::registerNamespace('phpGPX', "ramblers/vendors/phpGPX-master2081220/src");
+            JLoader::registerNamespace('phpGPX', "libraries/ramblers/vendors/phpGPX-master2081220/src");
             $this->registered = true;
         }
         $gpxfile = new phpGPX\phpGPX();
@@ -53,16 +54,15 @@ class RGpxFile {
             //   if ($meta->copyright !== null) {
             //       $this->copyright = $meta->copyright->year . $meta->copyright->license;
             //   }
-            if ($meta->time !== null) {
-                if ($meta->time->date !== null) {
-                    $this->date = substr($meta->time->date, 0, 10);
-                }
-            }
+            $this->date = "...";
+            if (isset($meta->time)) {
+                $this->date = $meta->time->format("Y-m-d");
+            } 
         }
         // tracks
         $firstpointset = false;
         foreach ($gpx->tracks as $track) {
-       //     $s = $track->stats;
+            //     $s = $track->stats;
             $this->tracks += 1;
 //            $this->distance += $s->distance;
 //            $this->cumulativeElevationGain += $s->cumulativeElevationGain;
@@ -74,6 +74,7 @@ class RGpxFile {
                 $this->cumulativeElevationGain += $s->cumulativeElevationGain;
                 $this->minAltitude = $s->minAltitude;
                 $this->maxAltitude = $s->maxAltitude;
+                $this->duration = $s->duration;
                 $this->segments += 1;
                 foreach ($segment->points as $pt) {
                     if ($firstpointset === false) {

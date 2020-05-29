@@ -1,14 +1,15 @@
+var L;
 L.Control.GpxSimplify = L.Control.extend({
     options: {
-        title: 'Simplify - reduce number of point defining walking route',
+        title: 'Simplify - reduce number of points defining walking route',
         titledisabled: 'No routes defined',
         position: 'bottomright',
         options: ["Save", "Cancel"]
     },
     onAdd: function (map) {
         this._map = map;
-        this.enabled = true;
-        this.factor=1000000000;
+        simplify2D = false;
+        this.factor = 111000; // One degree is 111Km
         this._simplifylayer = null;
         _simplify_this = this;
         this._simplifylayer = L.featureGroup([]);
@@ -22,6 +23,7 @@ L.Control.GpxSimplify = L.Control.extend({
         L.DomEvent.on(this.link, 'click', this._simplifyGpx, this);
         this._appendButtons(containerAll);
         this.holder.style.display = "none";
+        this.setStatus("off");
         return containerAll;
     },
     _appendButtons: function (container) {
@@ -30,11 +32,16 @@ L.Control.GpxSimplify = L.Control.extend({
         this.status = L.DomUtil.create('div', 'points', this.holder);
         this.status.innerHTML = "Points";
 
-        element = L.DomUtil.create('div', 'slider', this.holder);
-        element.innerHTML = "<input type=\"range\" min=\"1\" max=\"1000000\" value=\"49\" class=\"slider\" id=\"gpxsimplify\">";
+    var    element = L.DomUtil.create('div', 'slider', this.holder);
+        element.innerHTML = "<input type=\"range\" min=\"1\" max=\"100\" value=\"49\" class=\"slider\" id=\"gpxsimplify\">";
         this.slider = element.childNodes[0];
+        L.DomEvent.addListener(this.slider, 'change', this._simplify, this);
 
-        var element = L.DomUtil.create('div', 'save', this.holder);
+        element = L.DomUtil.create('div', 'elevation', this.holder);
+        element.innerHTML = "Maintain elevation";
+        L.DomEvent.addListener(element, 'click', this._elevation, this);
+
+        element = L.DomUtil.create('div', 'save', this.holder);
         element.innerHTML = "Save";
         L.DomEvent.addListener(element, 'click', this._save, this);
 
@@ -42,24 +49,29 @@ L.Control.GpxSimplify = L.Control.extend({
         element.innerHTML = "Cancel";
         L.DomEvent.addListener(element, 'click', this._cancel, this);
 
-        this.slider.oninput = function () {
-            var tolerance = _simplify_this.slider.value / _simplify_this.factor;
-            _simplify_this._simplifylayer.clearLayers();
-            var text = "Pts: ";
-            var sub = "";
-            _simplify_this._itemsCollection.eachLayer(function (layer) {
 
-                if (layer instanceof L.Polyline) {
-                    var points = layer.getLatLngs();
-                    var newPoints = simplify(points, tolerance, true);
-                    var polyline = L.polyline(newPoints, {color: 'red', opacity: '0.7'});
-                    _simplify_this._simplifylayer.addLayer(polyline);
-                    text += sub + newPoints.length;
-                    sub = "/";
-                }
-                _simplify_this.status.innerHTML = text;
-            });
-        };
+        this.slider.oninput = function () {
+            _simplify_this._simplify();
+        }
+    },
+    _simplify: function () {
+        var tolerance = _simplify_this.slider.value / _simplify_this.factor;
+        _simplify_this._simplifylayer.clearLayers();
+        var text = "Pts: ";
+        var sub = "";
+        _simplify_this._itemsCollection.eachLayer(function (layer) {
+
+            if (layer instanceof L.Polyline) {
+                var points = layer.getLatLngs();
+                var newPoints = simplify(points, tolerance, true);
+                var polyline = L.polyline(newPoints, {color: 'red', opacity: '0.5'});
+                _simplify_this._simplifylayer.addLayer(polyline);
+                text += sub + newPoints.length;
+                sub = "/";
+            }
+            _simplify_this.status.innerHTML = text;
+        });
+
     },
     triggerEvent: function (el, type) {
         if ('createEvent' in document) {
@@ -109,13 +121,13 @@ L.Control.GpxSimplify = L.Control.extend({
         }
     },
     _save: function (evt) {
-        var tolerance = this.slider.value /  _simplify_this.factor;
+        var tolerance = this.slider.value / _simplify_this.factor;
         this._itemsCollection.eachLayer(function (layer) {
             if (layer instanceof L.Polyline) {
                 var points = layer.getLatLngs();
                 var newPoints = simplify(points, tolerance);
                 layer.setLatLngs(newPoints);
-                //  following line ensures the new points are noticed byLeaflet.Draw
+                //  following line ensures the new points are noticed by Leaflet.Draw
                 layer.fire('revert-edited', {layer: layer});
             }
         });
@@ -130,7 +142,25 @@ L.Control.GpxSimplify = L.Control.extend({
         this._map.fire('simplify:cancelled');
         this.holder.style.display = "none";
         //  alert("cancel");
+    },
+    _elevation: function (evt) {
+        var element =evt.currentTarget;
+         switch (simplify2D) {
+            case "3D":
+                simplify2D="2D";
+                element.innerHTML="2D simplify Lat/Long";
+                break;
+            case "2D":
+                simplify2D="elev";
+                element.innerHTML="Maintain elevation";
+                break;
+            default:
+               simplify2D="3D";
+               element.innerHTML="3D simplify Lat/long and Alt";
+        }
+         _simplify_this._simplify();
     }
+
 
 });
 L.control.gpxsimplify = function (options) {

@@ -1,0 +1,16 @@
+/*------------------------------------------------------------------------
+# JoomShaper Accordion Module by JoomShaper.com
+# ------------------------------------------------------------------------
+# author    JoomShaper http://www.joomshaper.com
+# Copyright (C) 2010 - 2014 JoomShaper.com. All Rights Reserved.
+# @license - http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
+# Websites: http://www.joomshaper.com
+-------------------------------------------------------------------------*/
+.ra-accordion.ra-accordion-style2 .toggler,.ra-accordion.ra-accordion-style2 .toggler span,.ra-accordion.ra-accordion-style2 .toggler span span{display:block;font-size:13px;font-weight:700;line-height:30px;background-image:url(style2.png);cursor:pointer;margin-bottom:10px}
+.ra-accordion.ra-accordion-style2 .toggler{background-repeat:no-repeat;background-position:0 0;padding:0 0 0 10px}
+.ra-accordion.ra-accordion-style2 .toggler span{background-repeat:no-repeat;background-position:100% -60px;padding:0 10px 0 0}
+.ra-accordion.ra-accordion-style2 .toggler span span{background-repeat:repeat-x;background-position:0 -120px;padding:0 4px}
+.ra-accordion.ra-accordion-style2 .toggler:hover,.ra-accordion.ra-accordion-style2 .active{background-position:0 -30px}
+.ra-accordion.ra-accordion-style2 .toggler span:hover,.ra-accordion.ra-accordion-style2 .active span{background-position:100% -90px}
+.ra-accordion.ra-accordion-style2 .toggler span span:hover,.ra-accordion.ra-accordion-style2 .active span span{background-position:0 -150px}
+.ra-accordion.ra-accordion-style2 .ra-accordion-inner{padding:0 10px}

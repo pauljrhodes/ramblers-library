@@ -21,9 +21,9 @@ class RJsonwalksStdWalktable extends RJsonwalksDisplaybase {
 
     function DisplayWalks($walks) {
         echo "</p>";
-        if ($this->displayGradesSidebar) {
-            RJsonwalksWalk::gradeSidebar();
-        }
+//        if ($this->displayGradesSidebar) {
+//            RJsonwalksWalk::gradeSidebar();
+//        }
         $printOn = JRequest::getVar('print') == 1;
         if ($printOn) {
             $doc = JFactory::getDocument();
@@ -114,7 +114,7 @@ class RJsonwalksStdWalktable extends RJsonwalksDisplaybase {
         if ($walk->contactName <> "") {
             $contact .= self::BR . "<strong>" . $walk->contactName . "</strong>";
         }
-        if ($walk->email <> "") {
+        if ($walk->getEmail() <> "") {
             $contact .= self::BR . $walk->getEmail($this->emailDisplayFormat);
         }
         if ($walk->telephone1 <> "") {
@@ -125,7 +125,7 @@ class RJsonwalksStdWalktable extends RJsonwalksDisplaybase {
         }
         $grade = $walk->nationalGrade . self::BR . $walk->localGrade;
         if ($this->displayGradesIcon AND ! $this->printOn) {
-            $grade = "<div class='" . str_replace(' ', '', $walk->nationalGrade) . "'>" . $walk->nationalGrade . self::BR . $walk->localGrade . "</div>";
+            $grade = "<div>".$walk->getGradeSpan("middle"). $walk->nationalGrade . self::BR . $walk->localGrade."</div>" ;
         }
         $class = $this->tableClass;
         if ($hasMeet) {

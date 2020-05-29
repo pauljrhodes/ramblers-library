@@ -21,6 +21,10 @@ class RJsonwalksFeed {
         $this->rafeedurl = trim($rafeedurl);
         $this->walks = new RJsonwalksWalks(NULL);
         $CacheTime = 15; // minutes
+        $time = getdate();
+        if ($time["hours"] < 6) {
+            $CacheTime = 7200; // 12 hours, rely on cache between midnight and 6am
+        }
         $cacheLocation = $this->CacheLocation();
         $this->srfr = new RFeedhelper($cacheLocation, $CacheTime);
         $this->srfr->setReadTimeout(30);
@@ -28,61 +32,18 @@ class RJsonwalksFeed {
     }
 
     private function readFeed($rafeedurl) {
+        $properties = array("id", "status", "difficulty", "strands", "linkedEvent", "festivals",
+            "walkContact", "linkedWalks", "linkedRoute", "title", "description", "groupCode", "groupName",
+            "additionalNotes", "date", "distanceKM", "distanceMiles", "finishTime", "suitability",
+            "surroundings", "theme", "specialStatus", "facilities", "pace", "ascentMetres", "ascentFeet",
+            "gradeLocal", "attendanceMembers", "attendanceNonMembers", "attendanceChildren", "cancellationReason",
+            "dateUpdated", "dateCreated", "media", "points", "groupInvite", "isLinear", "url");
 
         $result = $this->srfr->getFeed($rafeedurl);
-        $status = $result["status"];
-        $contents = $result["contents"];
-
-        switch ($status) {
-            case RFeedhelper::OK:
-                break;
-            case RFeedhelper::READFAILED:
-                $application = JFactory::getApplication();
-                $application->enqueueMessage(JText::_('Unable to fetch walks, data may be out of date: ' . $rafeedurl), 'warning');
-                break;
-            case RFeedhelper::FEEDERROR;
-                $application = JFactory::getApplication();
-                $application->enqueueMessage(JText::_('Feed must use HTTP protocol: ' . $rafeedurl), 'error');
-                break;
-            case RFeedhelper::FEEDFOPEN:
-                $application = JFactory::getApplication();
-                $application->enqueueMessage(JText::_('Not able to read feed using fopen: ' . $rafeedurl), 'error');
-                break;
-            default:
-                break;
-        }
-        switch ($contents) {
-            case NULL:
-                $application = JFactory::getApplication();
-                $application->enqueueMessage(JText::_('Walks feed: Unable to read feed: ' . $rafeedurl), 'error');
-                break;
-            case "":
-                echo '<b>Walks feed: No walks found</b>';
-                break;
-            case "[]":
-                echo '<b>Walks feed empty: No walks found</b>';
-                break;
-            default:
-                $json = json_decode($contents);
-                unset($contents);
-                $error = 0;
-                if (json_last_error() == JSON_ERROR_NONE) {
-                    foreach ($json as $value) {
-                        $ok = $this->checkJsonProperties($value);
-                        $error+=$ok;
-                    }
-                    if ($error > 0) {
-                        $application = JFactory::getApplication();
-                        $application->enqueueMessage(JText::_('Walks feed: Json file format not supported: ' . $rafeedurl), 'error');
-                    } else {
-                        $this->walks = new RJsonwalksWalks($json);
-                    }
-                    unset($json);
-                    break;
-                } else {
-                    $application = JFactory::getApplication();
-                    $application->enqueueMessage(JText::_('Walks feed: feed is not in Json format: ' . $rafeedurl), 'error');
-                }
+        $json = RErrors::checkJsonFeed($rafeedurl, "Walks", $result, $properties);
+        If ($json !== null) {
+            $this->walks = new RJsonwalksWalks($json);
+            unset($json);
         }
     }
 
@@ -96,6 +57,10 @@ class RJsonwalksFeed {
 
     public function filterDistanceFrom($easting, $northing, $distanceKm) {
         $this->walks->filterDistanceFrom($easting, $northing, $distanceKm);
+    }
+
+    public function filterDistanceFromLatLong($lat, $lon, $distanceKm) {
+        $this->walks->filterDistanceFromLatLong($lat, $lon, $distanceKm);
     }
 
     public function filterGroups($filter) {
@@ -165,20 +130,26 @@ class RJsonwalksFeed {
 
     public function display($displayclass) {
         if ($this->walks == null) {
+            echo "No walks found";
             return;
         }
         if ($this->walks->totalWalks() == 0) {
-            return;
+           // echo "No walks found";
+          //  return;
         }
         $document = JFactory::getDocument();
-        $document->addStyleSheet('ramblers/jsonwalks/css/ramblerswalks.css');
-        $document->addScript("ramblers/js/ramblerswalks.js", "text/javascript");
+        $document->addStyleSheet('libraries/ramblers/jsonwalks/css/ramblerswalks.css');
+        $document->addScript("libraries/ramblers/js/ramblerswalks.js", "text/javascript");
         $printOn = JRequest::getVar('print') == 1;
         if ($printOn) {
-
             $style = 'BODY {color: #000000;}';
-            $doc->addStyleDeclaration($style);
+            $document->addStyleDeclaration($style);
         }
+        $folder = "ramblersBase.folderbase='" . JURI::base(true) . "';";
+        $out = "window.addEventListener('load', function(event) {
+            ramblersBase = new RamblersBase();" . $folder .
+                "  });";
+        $document->addScriptDeclaration($out, "text/javascript");
         if ($this->displayLimit == 0 OR $printOn) {
             $displayclass->DisplayWalks($this->walks);
         } else {
@@ -216,7 +187,7 @@ class RJsonwalksFeed {
         $display->setLinkText($linktext);
         $display->setPostText($posttext);
         $display->Display("de02walks", $events); // display walks information
-        // is this line correct and is function used
+// is this line correct and is function used
     }
 
     private function getTogglePair($one, $two) {
@@ -229,32 +200,8 @@ class RJsonwalksFeed {
 
     public function clearCache() {
         $this->srfr->clearCache();
-        // reread feed
+// reread feed
         $this->readFeed($this->rafeedurl);
-    }
-
-    private function checkJsonProperties($item) {
-        $properties = array("id", "status", "difficulty", "strands", "linkedEvent", "festivals",
-            "walkContact", "linkedWalks", "linkedRoute", "title", "description", "groupCode", "groupName",
-            "additionalNotes", "date", "distanceKM", "distanceMiles", "finishTime", "suitability",
-            "surroundings", "theme", "specialStatus", "facilities", "pace", "ascentMetres", "ascentFeet",
-            "gradeLocal", "attendanceMembers", "attendanceNonMembers", "attendanceChildren", "cancellationReason",
-            "dateUpdated", "dateCreated", "media", "points", "groupInvite", "isLinear", "url");
-
-        foreach ($properties as $value) {
-            if (!$this->checkJsonProperty($item, $value)) {
-                return 1;
-            }
-        }
-
-        return 0;
-    }
-
-    private function checkJsonProperty($item, $property) {
-        if (property_exists($item, $property)) {
-            return true;
-        }
-        return false;
     }
 
     private function CacheLocation() {
@@ -280,6 +227,39 @@ class RJsonwalksFeed {
             }
         }
         return $groups;
+    }
+
+    
+    public function filterFeed($filter) { // filter by component filter subform
+        if ($filter->titlecontains !== '') {
+            $this->filterTitleContains($filter->titlecontains, "keep");
+        }
+        if ($filter->titledoesntcontains !== '') {
+            $this->filterTitleContains($filter->titledoesntcontains, "remove");
+        }
+        if ($filter->titleequals !== '') {
+            $this->filterTitle($filter->titleequals, "keep");
+        }
+        if ($filter->titledoesntequal !== '') {
+            $this->filterTitle($filter->titledoesntequal, "remove");
+        }
+        $limit = intval($filter->limit);
+        if ($limit > 0) {
+            $this->noWalks($limit);
+        }
+        $dist = floatval($filter->filterdistance);
+        if ($dist > 0) {
+            $this->filterDistanceFromLatLong(floatval($filter->filtercentrelatitude), floatval($filter->filtercentrelongitude), $dist);
+        }
+        if (count($filter->filternationalgrades) > 0) {
+            $this->filterNationalGrade($filter->filternationalgrades);
+        }
+        if (count($filter->filterdaysofweek) > 0) {
+            $this->filterDayofweek($filter->filterdaysofweek);
+        }
+        if ($filter->filterstrand !== '') {
+            $this->filterStrands($filter->filterstrand);
+        }
     }
 
 }

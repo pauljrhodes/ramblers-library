@@ -20,6 +20,8 @@ class ROrganisationGroup {
     public $description;
     public $latitude;
     public $longitude;
+    public $website = "";
+    public $status = "";
 
     public function __construct($item) {
         $this->scope = $item->scope;
@@ -29,6 +31,12 @@ class ROrganisationGroup {
         $this->description = $item->description;
         $this->latitude = $item->latitude;
         $this->longitude = $item->longitude;
+        if (property_exists($item, "website")) {
+            $this->website = $item->website;
+        }
+        if (property_exists($item, "status")) {
+            $this->status = $item->status;
+        }
     }
 
     public function getLink($showLink) {
@@ -41,30 +49,35 @@ class ROrganisationGroup {
 
     public function addMapMarker($areatext) {
 
-        $title = str_replace("'", "", $this->name);
+        $title = str_replace("'", "&apos;", $this->name);
         $text = "Unknown group";
         $long = $this->longitude;
         $lat = $this->latitude;
         $url = $this->url;
+        $desc = "<br/>" . htmlentities($this->description);
+        $desc = str_replace("\n", '<br />', $desc);
+        $desc = str_replace("\r", '', $desc);
+
         switch ($this->scope) {
             case "A":
-                $icon = "walkingarea";
-                $text = "Ramblers Area";
+                $iclass = "group-icon a";
+                $text = "Ramblers Area [" . $this->code . "]";
                 break;
             case "G":
-                $icon = "walkinggroup";
-                $text = $areatext."Group [".$this->code."]";
+                $iclass = "group-icon g";
+                $text = $areatext . "Group [" . $this->code . "]";
                 break;
             default:
-                $icon = "walkingspecial";
-                $text = $areatext."Special Group [".$this->code."]";
+                $iclass = "group-icon s";
+                $text = $areatext . "Special Group [" . $this->code . "]";
                 break;
         }
         $class = "group" . $this->scope;
-        $popup = "<div class='" . $class . "'>" . $text . "<br/><a href='" . $url . "' target='_blank'>" .  $title .  "</a></div>";
-        $marker = "addMarker(\"" . $popup . "\", " . $lat . ", " . $long . ", " . $icon . ");";
+        $popup = "<div class='" . $class . "'>" . $text . "<br/><a href='" . $url . "' target='_blank'>" . $title . "</a>" . $desc . "</div>";
+        $icon = "myicon=L.divIcon({className: '" . $iclass . "', iconSize: null, html: '" . $title . "'});  ";
+        $marker = "addMarker(\"" . $popup . "\", " . $lat . ", " . $long . ", myicon);";
 
-        return $marker;
+        return $icon . $marker;
     }
 
 }

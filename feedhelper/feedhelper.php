@@ -74,30 +74,27 @@ class RFeedhelper {
         // Check if a cached copy exists otherwise create it
         if (file_exists($tmpFile) && is_readable($tmpFile) && (filemtime($tmpFile) + $this->cacheTime) > time()) {
             $this->status = self::OK;
-           // echo "<br/>" . $url . "<br/>Existing cache used<br/>";
+            // echo "<br/>" . $url . "<br/>Existing cache used<br/>";
             return $tmpFile;
         }
         // create cached file
         // check url exists
-        if ($this->urlExists($url)) {
-            // file_get_contents
-            $options = [
-                "http" => [
-                    "header" => "Accept-language: en\r\n" .
-                    "Referer: " . JURI::base() . "\r\n",]
-            ];
-            $context = stream_context_create($options);
-            $fgcOutput = file_get_contents($url, false, $context);
-            // $fgcOutput = file_get_contents($url);
-            // echo "<br/>" . $url . "<br/>Read feed<br/>";
-            if ($fgcOutput === false) {
-                $this->status = self::READFAILED;
-            } else {
-                JFile::write($tmpFile, $fgcOutput);
-            }
-        } else {
+        //     if ($this->urlExists($url)) {
+        $options = [
+            "http" => [
+                "header" => "Accept-language: en\r\n" .
+                "Referer: " . JURI::base() . "\r\n",]
+        ];
+        $context = stream_context_create($options);
+        $fgcOutput = file_get_contents($url, false, $context);
+        if ($fgcOutput === false) {
             $this->status = self::READFAILED;
+        } else {
+            JFile::write($tmpFile, $fgcOutput);
         }
+        //    } else {
+        //        $this->status = self::READFAILED;
+        //    }
         // if cached file exists (new or old) then return it.
         if (file_exists($tmpFile) && is_readable($tmpFile)) {
             $result = $tmpFile;
@@ -105,21 +102,21 @@ class RFeedhelper {
         return $result;
     }
 
-    private function urlExists($url) {
-        $exists = true;
-        $file_headers = @get_headers($url);
-        if ($file_headers == false) {
-            return false;
-        }
-        $InvalidHeaders = array('404', '403', '500');
-        foreach ($InvalidHeaders as $HeaderVal) {
-            if (strstr($file_headers[0], $HeaderVal)) {
-                $exists = false;
-                break;
-            }
-        }
-        return $exists;
-    }
+//    private function urlExists($url) {
+//        $exists = true;
+//        $file_headers = @get_headers($url);
+//        if ($file_headers == false) {
+//            return false;
+//        }
+//        $InvalidHeaders = array('404', '403', '500');
+//        foreach ($InvalidHeaders as $HeaderVal) {
+//            if (strstr($file_headers[0], $HeaderVal)) {
+//                $exists = false;
+//                break;
+//            }
+//        }
+//        return $exists;
+//    }
 
     public function clearCache() {
 

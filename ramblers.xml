@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="library"  version="3.0" client="site" method="upgrade">
+    <name>RamblersLibrary</name>
+   <libraryname>ramblers</libraryname>
+   <author>Chris Vaughan Derby and South Derbyshire</author>
+    <creationDate>15 May 2020</creationDate>
+    <copyright>Copyright (C) 2016/2020</copyright>
+    <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+    <authorEmail>webmaster@ramblers-webs.org.uk</authorEmail>
+    <authorUrl>https://github.com/ramblerswebs/ramblers-library/wiki</authorUrl>
+    <version>3.0.1</version>
+    <description>Ramblers classes to process, JSON Walks feeds, Retrieve CB membership information</description>
+    
+        <files>
+            <filename>ramblers.xml</filename>
+            <filename>readme.md</filename>
+            <folder>accounts</folder>
+            <folder>calendar</folder>
+            <folder>conf</folder>
+            <folder>conf/htaccess</folder>
+            <folder>conf/phpini</folder>
+            <folder>conf/userini</folder>
+            <folder>directory</folder>
+            <folder>event</folder>
+            <folder>errors</folder>
+            <folder>feedhelper</folder>
+            <folder>geometry</folder>
+            <folder>gpx</folder>
+            <folder>gpxsymbols</folder>
+            <folder>html</folder>
+            <folder>ics</folder>
+            <folder>images</folder>
+            <folder>images/grades</folder>
+            <folder>js</folder>
+            <folder>jsonwalks</folder>
+            <folder>jsonwalks/av01</folder>
+            <folder>jsonwalks/css</folder>
+            <folder>jsonwalks/de02</folder>
+            <folder>jsonwalks/leaflet</folder>
+            <folder>jsonwalks/sr02</folder>
+            <folder>jsonwalks/sr02/accordian</folder>
+            <folder>jsonwalks/sr02/accordian/js</folder>
+            <folder>jsonwalks/sr02/accordian/style</folder>
+            <folder>jsonwalks/std</folder>
+            <folder>jsonwalks/sx05</folder>
+            <folder>leaflet</folder>
+            <folder>leaflet/csv</folder>
+            <folder>leaflet/gpx</folder>
+            <folder>leaflet/images</folder>
+            <folder>license</folder>
+            <folder>organisation</folder>
+            <folder>osmap</folder>
+            <folder>pages</folder>
+            <folder>sql</folder>
+            <folder>users</folder>
+            <folder>vendors</folder>
+            <folder>watchful</folder>
+        </files>
+    
+    <updateservers>
+        <server type="extension" priority="1" name="Ramblers-webs Update Site">https://raw.githubusercontent.com/ramblerswebs/updates/master/updates/ramblerslibrary.xml</server>
+    </updateservers>
+</extension>

@@ -23,8 +23,8 @@ abstract class RJsonwalksDisplaybase {
     // 2 link to ramblers.org.uk form to email contact 
     // 3 do not display
     // 4 display as name (at) domain
-    protected static $dispMenu = 0;
-    protected static $dispArticle = 0;
+    protected $dispMenu = 0;
+    protected $dispArticle = 0;
 
     // 0 display walk via ramblers.org.uk
     // >0 display via local site article
@@ -44,39 +44,29 @@ abstract class RJsonwalksDisplaybase {
     }
 
     public function displayArticle($menu, $article) {
-        self::$dispMenu = $menu;
-        self::$dispArticle = $article;
+        $this->dispMenu = $menu;
+        $this->dispArticle = $article;
     }
 
-    public function getWalkHref($walk) {
-        $out = "<a href='";
-        if (self::$dispArticle > 0) {
-            // $out.="index.php?option=com_content&view=article&id=" . $this->dispArticle . "&Itemid=" . $this->dispMenu . "&walk=" . $walk->id . "'";
-            $out .= self::getWalkUrl($walk->id) . "'";
+    public function getWalkHref($walk, $desc) {
+        $out = "<a href=";
+        if ($this->dispArticle > 0) {
+            $out .= "\"javascript:gotoURL(" . $this->dispArticle . "," . $this->dispMenu . "," . $walk->id . ");\" >";
         } else {
-            $out .= $walk->detailsPageUrl . " target='_blank' ";
+            $out .= "'" . $walk->detailsPageUrl . "' target='_blank'>";
         }
-
-        $out .= ">";
+        $out.=$desc . "</a>";
         return $out;
     }
-
-    private static function getWalkUrl($id) {
-        return "index.php?option=com_content&view=article&id=" . self::$dispArticle . "&Itemid=" . self::$dispMenu . "&walk=" . $id;
-    }
-
-    public function getPrintButton($id) {
-        $isModal = JRequest::getVar('print') == 1; // 'print=1' will only be present in the url of the modal window, not in the presentation of the page
-        if ($isModal) {
-            $href = '"#" onclick="window.print(); return false;"';
+       public function getWalkMapHref($walk, $desc) {
+        $out = "<a href=";
+        if ($this->dispArticle > 0) {
+            $out .= "'javascript:gotoURL(" . $this->dispArticle . "," . $this->dispMenu . "," . $walk->id . ");' >";
         } else {
-            $href = 'status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=640,height=480,directories=no,location=no';
-            $url = self::getWalkUrl($id) . "&print=1";
-            //  $href = "\"javascript:window.open('$url','win2','" . $href . "'); return false;\"";
-            $href = "\"javascript:window.open('$url','win2');\"";
-            $href = $href;
+            $out .= "'" . $walk->detailsPageUrl . "' target='_blank'>";
         }
-        echo "<a href=$href;>Click for Printing</a>";
+        $out.=$desc . "</a>";
+        return $out;
     }
 
 }

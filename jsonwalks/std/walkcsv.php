@@ -17,9 +17,9 @@ class RJsonwalksStdWalkcsv extends RJsonwalksDisplaybase {
     public $removeHTML = false;
     public $convertToASCII = false;
 
-    public function __construct($filename = "tmp/walks-download.csv") {
+    public function __construct($filename = "tmp/walks-download") {
         parent::__construct();
-        $this->filename = $filename;
+        $this->filename = $filename. (new DateTime())->format('YmdHis').".csv";
     }
 
     public function DisplayWalks($walks) {
@@ -152,7 +152,7 @@ class RJsonwalksStdWalkcsv extends RJsonwalksDisplaybase {
         $array[] = ""; //forename
         $array[] = ""; //surname
         $array[] = $walk->contactName;
-        $array[] = $walk->email;
+        $array[] = $walk->getEmail();
         $array[] = $walk->telephone1;
         $array[] = $walk->telephone2;
         if ($walk->isLeader) {

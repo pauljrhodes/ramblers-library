@@ -22,7 +22,7 @@ class RLeafletMapdraw extends RLeafletMap {
     }
 
     public function display() {
-        //$this->help_page = "somepage.html";
+        $this->help_page = "https://maphelp.ramblers-webs.org.uk/draw-walking-route.html";
         $this->options->fullscreen = true;
         $this->options->search = true;
         $this->options->locationsearch = true;

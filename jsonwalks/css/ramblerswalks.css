@@ -13,7 +13,8 @@
 /* ============================== TYPOGRAPHY ============================== */
 
 /* Ramblers additions */
-.cancelled {color:#C60C30; text-decoration: line-through;}
+.cancelled {color:#C60C30;}
+.oldBrowser {color:#C60C30;}
 
 /* css code to handle json walk feeds */
 span.walksummary img{
@@ -21,11 +22,7 @@ span.walksummary img{
     width:30px;
     padding:2px;
 }
-span.walksummary img:hover{
-    height:40px;
-    width:40px;
-    padding: 5px 5px 5px 0px;
-}
+
 /* Ramblers additions */
 .cancelledWalks { background-color: #8BA69C;
                   border-radius: 10px 10px 10px 10px;
@@ -45,20 +42,20 @@ span.walksummary img:hover{
 .cancelreason {
     margin-left: 30px;
     color:#C60C30; 
-    font-size: 110%;}
+    font-size: 110%;
+}
 
-.nextwalkCancelled,
+.nextwalkCancelled a,
 .walkCancelled {
     color:#C60C30; 
-    text-decoration: line-through;
 }
 
 .ra-accordion-item.walkCancelled{
     color:#C60C30; 
-    text-decoration: none;
+    text-decoration-line: none;
 }
 
-.ra-accordion-item.walkCancelled div.reason{
+.ra-accordion-item.walkCancelled div.walkCancelled div.reason{
     font-weight: bold;
 }
 
@@ -69,18 +66,20 @@ span.walksummary img:hover{
 .ra-accordion-item.walkCancelled div.nostartplace,
 .ra-accordion-item.walkCancelled div.finishplace,
 .ra-accordion-item.walkCancelled div.difficulty{
-    text-decoration: line-through;
+    color:#C60C30;
+    text-decoration-line: line-through;
 }
 
-.ra-accordion-item.walkNew {
-    padding-left: 0px;
-    background: url('../../images/new.gif') no-repeat scroll 0 50% rgba(0, 0, 0, 0);
-    background-position: 60px 0px ;
-
+div.ra-accordion-item.walkNew div span b{
+    padding-left: 30px;
+    background: url(../../images/new.gif) no-repeat scroll 0 50% transparent;
 }
-.nextwalkNew::before {
-    content: url('../../images/new.gif');
-    padding-right:5px;
+.ra-accordion-container {
+    color:black;
+}
+.nextwalkNew {
+    background: url('../../images/new.gif') no-repeat scroll 0 0%;
+    padding-top: 7px;
 }
 
 .walkNew.printon {
@@ -88,9 +87,14 @@ span.walksummary img:hover{
     padding-left: 0px;;
 
 }
-.walkNew {
+.updated.walkNew {
     padding-left: 35px;
     background: url(../../images/new.gif) no-repeat scroll 0 50% rgba(0,0,0,0);
+
+}
+.gradeNew::after {
+    content: url('../../images/newsq.gif');
+    padding-left:5px;
 }
 
 span.walkerror {
@@ -105,7 +109,7 @@ div.walkstdfulldetails div.group
     font-size: 115%;
     margin: 2px;
     border-radius: 10px 10px 10px 10px;
-    padding: 5px;
+    padding: 7px;
     display: table;
     width:97%;
     border: 0px;
@@ -133,19 +137,7 @@ div.walkstdfulldetails div.startplace,
 div.walkstdfulldetails div.nostartplace,
 div.walkstdfulldetails div.finishplace,
 div.walkstdfulldetails div.difficulty,
-div.walkstdfulldetails div.walkcontact {
-    margin: 2px;
-    border-radius: 10px 10px 10px 10px;
-    padding: 5px;
-    -webkit-column-break-inside: avoid; /* Chrome, Safari */
-    page-break-inside: avoid;           /* Theoretically FF 20+ */
-    break-inside: avoid-column;         /* IE 11 */
-    display:table;                      /* Actually FF 20+ */
-    width:97%;
-    border: 2px solid #cccccc  ;
-    background-color: #dddddd;
-    line-height: 1.5em;
-}
+div.walkstdfulldetails div.walkcontact,
 div.walkstdfulldetails div.festivals,
 div.walkstdfulldetails div.strands,
 div.walkstdfulldetails div.suitability,
@@ -184,6 +176,23 @@ div.walkstdfulldetails div.walkdates{
     border: 2px solid #cccccc  ;
     background-color: #f0f0f0;
     line-height: 1.5em;
+}
+div.walkstdfulldetails.walkCancelled div.reason{
+    text-decoration-line: none;
+    color:black;
+}
+/*div.walkstdfulldetails.walkCancelled.stdfulldetails {
+        color:#C60C30;
+}*/
+div.walkstdfulldetails.walkCancelled.stdfulldetails div.basics,
+div.walkstdfulldetails.walkCancelled.stdfulldetails div.nomeetplace,
+div.walkstdfulldetails.walkCancelled.stdfulldetails div.meetplace,
+div.walkstdfulldetails.walkCancelled.stdfulldetails div.startplace,
+div.walkstdfulldetails.walkCancelled.stdfulldetails div.nostartplace,
+div.walkstdfulldetails.walkCancelled.stdfulldetails div.finishplace,
+div.walkstdfulldetails.walkCancelled.stdfulldetails div.difficulty {
+    text-decoration-line: line-through;
+
 }
 
 /* Popups */
@@ -224,7 +233,7 @@ div.ra_walks_more a{
     display: inline-block;
     font-size: 1.1em;
     padding: 5px 12px;
-    text-decoration: none;
+    text-decoration-line: none;
     position: absolute;
     right: 50px;
 }
@@ -236,52 +245,7 @@ div.groupA,div.groupG,div.groupS {
     font-weight: bold;
 }
 
-/* Tooltip container */
-.walktooltip {
-    display: inline;
 
-}
-
-/* Tooltip text */
-.walktooltip .walktooltiptext {
-    color:#206C49;
-    font-size: 13px;
-    font-weight: 900;
-    display: none;
-}
-
-/* Show the tooltip text when you mouse over the tooltip container */
-.walktooltip:hover .walktooltiptext {
-    display: inline;
-    padding-left:5px;
-
-}
-
-.ntooltip {
-    position: relative;
-    display: inline-block;
-    border-bottom: 0px solid white;
-}
-
-.ntooltip .ntooltiptext {
-    visibility: hidden;
-    width: auto;
-    background-color: grey;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px ;
-
-    /* Position the tooltip */
-    position: absolute;
-    z-index: 1;
-    bottom: 100%;
-
-}
-
-.ntooltip:hover .ntooltiptext {
-    visibility: visible;
-}
 
 @media only screen and (min-width: 769px){
     div.walkstdfulldetails {
@@ -292,7 +256,7 @@ div.groupA,div.groupG,div.groupS {
         padding: 5px;
         padding-right:10px;
         background-color: #ffffff;
-        min-width: 500px;
+        min-width: 200px;
     }
 }
 
@@ -302,61 +266,10 @@ div.groupA,div.groupG,div.groupS {
         padding: 5px;
         padding-right:10px;
         background-color: #ffffff;
-        min-width: 500px;
+        min-width: 200px;
 
     }
-}
-
-/* Grade sidebar formatting */
-
-.gradeSidebar {
-    position: fixed;
-    top: 160px;
-    left: -125px;
-    height:auto;
-    width:130px;
-    padding: 10px;
-    z-index: 10000;
-    font-size: 14px;
-    border-radius:  0px 5px 5px 0px;
-    color: black;
-    font-weight: bold;
-    background-color:#D7A900;
-}
-.gradeSidebar a{
-    color: black;
-}
-.gradeSidebar a:hover{
-    color: white;
-}
-.gradeSidebar:hover {
-    color:white;
-    left:0px;
-    -webkit-transition:  .5s; /* Safari */
-    transition:  .5s;
-    background-color:#007A87;
-    background: #D7A900; /* For browsers that do not support gradients */
-    background: -webkit-linear-gradient(left, #C75B12 , #D7A900); /* For Safari 5.1 to 6.0 */
-    background: -o-linear-gradient(right, #C75B12, #D7A900); /* For Opera 11.1 to 12.0 */
-    background: -moz-linear-gradient(right, #C75B12, #D7A900); /* For Firefox 3.6 to 15 */
-    background: linear-gradient(to right, #C75B12 , #D7A900); /* Standard syntax */
-}
-
-
-.gradeBar{
-    position: fixed;
-    padding: 0px;
-    padding-left:5px;
-    padding-right:5px;
-    z-index: 10000;
-    text-decoration: none;
-    border-radius: 5px 5px 5px 5px ;
-    color: white;
-    font-size: 12px;
-    left: 0px;
-    bottom:50px;
-    visibility : hidden;
-}               
+}         
 
 #grade-ea {  
     background-color: #8BA69C;
@@ -404,8 +317,6 @@ div.leaflet-popup-content div.walkNew img{
 }
 div.leaflet-popup-content div.walkCancelled img{
     display:none;
-
-
 }
 
 table.gradeTable  div.EasyAccess {
@@ -452,20 +363,387 @@ table.gradeTable  div.Technical  {
 }
 
 
-div.nextWalksWithGrade{
+div.nextWalksWithGrade,
+span.nextWalksWithGrade{
+    display:inline-block;
     min-height: 30px;
-    display: block;
     line-height: 1.2em;
 }
-div.nextWalksWithGrade img{
-    float:left;
-    margin-right:10px;
-    margin-top:0px;
-    width:25px;
-    height:25px;
-}
+
 span.mappopup:hover{
     content:' ';
     background: url(../../images/new-win.png) no-repeat right ;
     padding-right:15px;
+}
+div.ra_filter  ul li input {
+    float:right;
+
+}
+div.ra_filter ul li  {
+    list-style-type: none;
+}
+h3.ra_openclose {
+    background-color:#DDDDDD;
+    border-radius: 5px;
+    font-size:115%;
+    cursor: pointer;
+    padding-left:10px;
+}
+h3.ra_openclose:hover {
+    background-color:#CCCCCC;
+}
+
+/* The Modal (background) */
+#js-raModal.ramodal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 999999; /* Sit on top */
+    padding-top: 30px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+}
+.modal-header {
+    content: "";
+    display: table;
+    clear: both;
+    float:right;
+}
+/* Modal Content */
+.modal-content {
+    margin: auto;
+    width: 85%;
+    max-height:85%;
+    background-color:#ffffff;
+    border-radius: 25px;
+    padding: 20px; 
+    content: "";
+    display: table;
+    clear: both;
+}
+.modal-content {
+    /* Add Animation - Zoom in the Modal */
+    animation-name: zoom;
+    animation-duration: 2s;
+
+}
+
+#modal-data {
+    overflow-y: auto;
+    max-height:85%;
+}
+@keyframes zoom {
+    from {opacity:0;}
+    to {opacity:1;}
+}
+/* The Close Button */
+#btnClose, #btnPrint{
+    margin-right:15px;
+}
+
+#rapagination-1 {
+    padding-bottom: 20px;
+}
+#rapagination-2{
+    padding-top: 20px;
+}
+
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px){
+    .modal-content {
+        /*   width: 100%;*/
+    }
+}
+
+.odd {
+    background-color:#FFFFFF !important;
+}
+.even {
+    background-color:#EEEEEE !important;
+}
+div.odd ,
+div.even {
+    padding:2px;
+    clear:both;
+}
+.odd:hover {
+    background-color:#DDDDDD !important;
+}
+.even:hover {
+    background-color:#DDDDDD !important;
+}
+#rapotions {
+
+    background-color:green;
+}
+div#rainner {
+    padding-top:25px;
+    padding-left:10px;
+    padding-bottom:10px;
+    padding-right:10px;
+    background-color: #D8D8D8;
+    border-radius: 0px 10px 10px 10px;
+    border: 0px;
+    border-color:#C0C0C0;
+    border-style: solid;
+}
+div#raoptions table {
+    table-layout: auto;
+    border-width: 0px;
+    margin-bottom:0px; 
+    background-color:rgba(0, 0, 0, 0);
+}
+table tr td.ra-tab { 
+    cursor: pointer;
+    font-weight: bold;
+    font-size:115%;
+    background-color: #E1E1E1;
+    border-width: 0px !important;
+    padding-left:30px !important;
+    padding-right:30px !important;
+    border-radius: 10px 10px 0px 0px;
+}
+
+table tr td.active {
+    background-color: #D8D8D8;
+} 
+table tr td.ra-tab:hover {
+    background-color: #BBBBBB;
+} 
+.pointer {
+    cursor: pointer;
+}
+span.ra-details {
+    width:100%;
+    top:-5px;
+}
+span.ra-detailsXXX:after {
+    float:right;
+    content: url("../../images/close.png");
+    padding-top:3px;
+}
+img.ra-detailsimg {
+    float:right;
+
+    overflow:auto;
+}
+span.ra-detailsimgXXXXX {
+    float:right;
+    content: url("../../images/close.png");
+    overflow: auto;
+}
+
+div.ra-detailsXXXX {
+    overflow: auto;
+    padding-top:0px;
+    padding-bottom:0px;
+}
+
+.jplist-selected {
+    background-color: #AAAAAA;
+    border-color: #AAAAAA;
+}
+.jplist-disabled {
+    opacity: 0.3;
+    filter: alpha(opacity=30); /* For IE8 and earlier */
+    cursor: default;
+}
+[data-page] {
+    min-height: 30px;
+    min-width: 30px;
+}
+img.ra-grade.pointer {
+    padding-right:10px;
+}
+#rawalks table{
+    width:100%;
+}
+#rawalks table.contacts{
+    width:auto;
+}
+#rawalks table.contacts td{
+    width:25%;
+}
+
+#ra_filter_dates span input[type="date"] {
+    margin-left:30px !important;   
+}
+
+span.ra-closed {
+    margin-top:7px;
+    padding-top:7px;
+    float: right;
+    width:35px;
+    height:26px;
+    background-image:url("../std/accordian/style/style4/close.png");
+    background-size: 35px 26px;
+    background-repeat: no-repeat;
+    clear:both;
+}
+span.ra-open {
+    margin-top:7px;
+    padding-top:7px;
+    float: right;
+    width:35px;
+    height:26px;
+    background-image:url("../std/accordian/style/style4/open.png");
+    background-size:  35px 26px;
+    background-repeat: no-repeat;
+    overflow:auto;
+}
+span.ra-rightopen {
+    float: right;
+    width:35px;
+    height:26px;
+    background-image:url("../std/accordian/style/style4/close.png");
+    background-size:  35px 26px;
+    background-repeat: no-repeat;
+}
+span.walksummary  {
+    padding-top:2px !important;
+    padding-bottom:2px !important;
+    width:100%;
+}
+span.walkdetail  {
+    width:100%;
+    height: auto;
+    display:inline-block;
+}
+@media only screen and (min-width: 960px) {
+    [data-jplist-control]{
+        display: flex;
+        justify-content: space-between;
+    }
+    .ra-route-filter button {
+        padding-top:4px;
+        padding-bottom:4px;
+        margin-bottom:9px;
+        display:inline;
+    }
+    .ra-route-filter {
+        float: right;
+    }
+}
+
+divDDD#ra-grade-modal  h1 {color:#782327;font-size:22px;text-align: center;
+                           border-bottom: 1px solid #d1d1d1;
+                           -webkit-box-shadow: 0 1px 0 #ffffff;
+                           -moz-box-shadow: 0 1px 0 #ffffff;
+                           box-shadow: 0 1px 0 #ffffff;
+                           padding-bottom: 15px;
+                           margin-bottom: 15px;
+}
+span.map{
+    top:10px;
+    height:30px;
+    width:30px;
+}
+span.map.help {
+    content:url(../../leaflet/images/help.png);
+}
+span.maphelp[data-descr]:hover::after {
+    width:150px;
+}
+
+span.grade{
+    padding-right:10px;
+}
+span.grade.details{
+    float:left;
+}
+span.middle.grade {
+    height:30px;
+    vertical-align: middle;
+    padding-right:10px;
+    display: inline;
+}
+span.left.grade {
+    float:left;
+    padding-right:10px;
+    padding-bottom:5px;
+
+}
+span.right.grade {
+    float:right;
+    padding-left:10px;
+    padding-top:5px;
+    margin-left:10px;
+    margin-bottom:5px;
+}
+
+
+span.grade.easy-accessXXX {
+    content:url(../../images/grades/grade-ea30.jpg);
+}
+span.grade.easyXXX {
+    content:url(../../images/grades/grade-e30.jpg);
+}
+span.grade.leisurelyXXX {
+    content: url(../../images/grades/grade-l30.jpg);
+}
+span.grade.moderateXXX {
+    content: url(../../images/grades/grade-m30.jpg);
+}
+span.grade.strenuousXXX {
+    content:url(../../images/grades/grade-s30.jpg);
+}
+span.grade.technicalXXX {
+    content:url(../../images/grades/grade-t30.jpg);
+}
+
+span[data-descr] {
+    position: relative;
+    cursor: pointer;
+}
+
+span[data-descr]:hover::after {
+    content: attr(data-descr);
+    position: absolute;
+    top: -30px;
+    width: 100px;
+    border: 2px #ffffff solid;
+    border-radius: 10px;
+    background-color: #206C49;
+    padding: 5px;
+    color: #eeeeee;
+    font-size: 14px;
+    line-height: 14px;
+    z-index: 9999;
+}
+span.middle[data-descr]:hover::after{
+    left:40px;
+    top:-25px;
+}
+span.left[data-descr]:hover::after{
+    top:-15px;
+}
+span.XXXXwalkNew[data-descr] {
+    color: #206C49;
+}
+span[data-descr="Technical"]:hover::after {
+    background-color: #5B491F;
+}
+span[data-descr="Strenuous"]:hover::after {
+    background-color: #782327;
+}
+span[data-descr="Moderate"]:hover::after {
+    background-color: #C75B12;
+}
+span[data-descr="Leisurely"]:hover::after {
+    background-color: #007A87;
+}
+span[data-descr="Easy"]:hover::after {
+    background-color: #A8B400;
+}
+span[data-descr="Easy Access"]:hover::after {
+    background-color: #8BA69C;
+}
+span.ra_select span{
+    cursor:pointer;
+    color: #782327;
+    font-weight: bold;
 }

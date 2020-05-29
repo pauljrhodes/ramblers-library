@@ -1,11 +1,10 @@
-var L, ramblersMap, OsGridRef, Element;
+var L, ramblersMap, OsGridRef, Element, OpenLocationCode;
 function RamblersLeafletMap(base) {
     this.base = base;
     this.map = null;
     this.mapLayers = null;
     this.currentLayer = null;
     this.bingkey = null;
-    this.googlekey = null;
     this.gridsquare10 = null;
     this.gridsquare100 = null;
     this.postcodes = null;
@@ -23,6 +22,7 @@ function RamblersLeafletMap(base) {
     this.options = {cluster: false,
         fullscreen: false,
         google: false,
+        bing: false,
         search: false,
         locationsearch: false,
         osgrid: false,
@@ -44,18 +44,14 @@ function raLoadLeaflet() {
             zoom: 5,
             zoomSnap: 0.25,
             maxZoom: 18,
-            fullscreenControl: true}
-        );
+            fullscreenControl: true
+        });
     } else {
         ramblersMap.map = new L.Map("leafletmap", {
             center: new L.LatLng(54.221592, -3.355007),
             zoom: 5,
             zoomSnap: 0.25,
             maxZoom: 18});
-    }
-    if (ramblersMap.maphelppage != "") {
-        var helpbutton = new L.Control.DisplayHelp();
-        ramblersMap.map.addControl(helpbutton);
     }
 
     ramblersMap.mapLayers = new Object();
@@ -72,27 +68,27 @@ function raLoadLeaflet() {
         ramblersMap.mapLayers["Ordnance Survey"] = new L.BingLayer(ramblersMap.bingkey, {type: 'ordnanceSurvey',
             attribution: 'Bing/OS Crown Copyright'});
     }
-    if (ramblersMap.options.google) {
-        ramblersMap.mapLayers["Google"] = L.gridLayer.googleMutant({
-            type: "roadmap" // valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
-        });
-        ramblersMap.mapLayers["Google Satellite"] = L.gridLayer.googleMutant({
-            type: "satellite" // valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
-        });
-        ramblersMap.mapLayers["Google Hybrid"] = L.gridLayer.googleMutant({
-            type: "hybrid" // valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
-        });
-        ramblersMap.mapLayers["Google Terrain"] = L.gridLayer.googleMutant({
-            type: "terrain" // valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
-        });
-    }
+//    if (ramblersMap.options.google) {
+//        ramblersMap.mapLayers["Google"] = L.gridLayer.googleMutant({
+//            type: "roadmap" // valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
+//        });
+//        ramblersMap.mapLayers["Google Satellite"] = L.gridLayer.googleMutant({
+//            type: "satellite" // valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
+//        });
+//        ramblersMap.mapLayers["Google Hybrid"] = L.gridLayer.googleMutant({
+//            type: "hybrid" // valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
+//        });
+//        ramblersMap.mapLayers["Google Terrain"] = L.gridLayer.googleMutant({
+//            type: "terrain" // valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
+//        });
+//    }
     createMouseMarkers();
     createPlaceMarkers();
     createWalkMarkers();
     if (ramblersMap.options.cluster) {
 // progress bar for cluster
         ramblersMap.progressBar = document.getElementById("ra-cluster-progress-bar");
-        ramblersMap.markersCG = L.markerClusterGroup({chunkedLoading: true, chunkProgress: updateClusterProgressBar});
+        ramblersMap.markersCG = L.markerClusterGroup({chunkedLoading: true, chunkProgress: updateClusterProgressBar, disableClusteringAtZoom: 12, maxClusterRadius: 50});
         ramblersMap.markerList = [];
     }
 
@@ -106,17 +102,19 @@ function raLoadLeaflet() {
 // [FitBounds]   
         if (ramblersMap.options.cluster) {
 // calc bounds from marker as cluster still loading
-            var bounds = getBounds(ramblersMap.markerList);
-            ramblersMap.map.fitBounds(bounds, {padding: [150, 150]});
+            if (ramblersMap.markerList.length !== 0) {
+                var bounds = getBounds(ramblersMap.markerList);
+                ramblersMap.map.fitBounds(bounds, {padding: [150, 150]});
+            }
         } else {
 
         }
     }
 
     if (ramblersMap.options.osgrid) {
-        osgrid = L.layerGroup([]);
+        var osgrid = L.layerGroup([]);
         osMapGrid(osgrid);
-        overlayGraphics = {
+        var overlayGraphics = {
             "OS 100km Grid": osgrid
         };
         osgrid.addTo(ramblersMap.map);
@@ -125,6 +123,9 @@ function raLoadLeaflet() {
     ramblersMap.mapControl = L.control.layers(ramblersMap.mapLayers, overlayGraphics, {collapsed: true}).addTo(ramblersMap.map);
     if (ramblersMap.options.topoMapDefault) {
         ramblersMap.map.addLayer(ramblersMap.mapLayers["Open Topo Map"]);
+    } else {
+        ramblersMap.map.addLayer(ramblersMap.mapLayers["Open Street Map"]);
+        //ramblersMap.mapLayers["Open Street Map"].addTo(ramblersMap.map.addLayer);
     }
     if (ramblersMap.options.search) {
         try {
@@ -203,6 +204,11 @@ function raLoadLeaflet() {
     ramblersMap.map.on('LayersControlEvent', function (ev) {
         alert(ev.latlng); // ev is an event object (MouseEvent in this case)
     });
+    // help button
+    if (ramblersMap.maphelppage !== "") {
+        var helpbutton = new L.Control.DisplayHelp();
+        ramblersMap.map.addControl(helpbutton);
+    }
 }
 
 function updateClusterProgressBar(processed, total, elapsed) {
@@ -228,56 +234,56 @@ function addClusterMarkers() {
 }
 
 function createWalkMarkers() {
-    markerRoute = L.icon({
-        iconUrl: ramblersMap.base + "ramblers/images/marker-route.png",
+    ramblersMap.markerRoute = L.icon({
+        iconUrl: ramblersMap.base + "libraries/ramblers/images/marker-route.png",
         iconSize: [33, 50],
         iconAnchor: [16, 45]
     });
-    markerStart = L.icon({
-        iconUrl: ramblersMap.base + "ramblers/images/marker-start.png",
+    ramblersMap.markerStart = L.icon({
+        iconUrl: ramblersMap.base + "libraries/ramblers/images/marker-start.png",
         iconSize: [35, 35]
     });
-    markerArea = L.icon({
-        iconUrl: ramblersMap.base + "ramblers/images/marker-area.png",
+    ramblersMap.markerArea = L.icon({
+        iconUrl: ramblersMap.base + "libraries/ramblers/images/marker-area.png",
         iconSize: [35, 35]
     });
-    markerCancelled = L.icon({
-        iconUrl: ramblersMap.base + "ramblers/images/marker-cancelled.png",
+    ramblersMap.markerCancelled = L.icon({
+        iconUrl: ramblersMap.base + "libraries/ramblers/images/marker-cancelled.png",
         iconSize: [35, 35]
     });
-    walkingarea = L.icon({
-        iconUrl: ramblersMap.base + "ramblers/images/area.png",
+    ramblersMap.walkingarea = L.icon({
+        iconUrl: ramblersMap.base + "libraries/ramblers/images/area.png",
         iconSize: [40, 35]
     });
-    walkinggroup = L.icon({
-        iconUrl: ramblersMap.base + "ramblers/images/group.png",
+    ramblersMap.walkinggroup = L.icon({
+        iconUrl: ramblersMap.base + "libraries/ramblers/images/group.png",
         iconSize: [40, 35]
     });
-    walkingspecial = L.icon({
-        iconUrl: ramblersMap.base + "ramblers/images/specialgroup.png",
+    ramblersMap.walkingspecial = L.icon({
+        iconUrl: ramblersMap.base + "libraries/ramblers/images/specialgroup.png",
         iconSize: [40, 35]
     });
 }
 function createMouseMarkers() {
 // add marker and layer group to contain postcode markers
-    postcodeIcon = L.icon({
-        iconUrl: ramblersMap.base + 'ramblers/leaflet/images/postcode-icon.png',
+    ramblersMap.postcodeIcon = L.icon({
+        iconUrl: ramblersMap.base + 'libraries/ramblers/leaflet/images/postcode-icon.png',
         iconSize: [24, 18], // size of the icon
         shadowSize: [26, 20], // size of the shadow
         iconAnchor: [12, 9], // point of the icon which will correspond to marker's location
         shadowAnchor: [0, 0], // the same for the shadow
         popupAnchor: [0, -12] // point from which the popup should open relative to the iconAnchor
     });
-    postcodeIconClosest = L.icon({
-        iconUrl: ramblersMap.base + 'ramblers/leaflet/images/postcode-icon-closest.png',
+    ramblersMap.postcodeIconClosest = L.icon({
+        iconUrl: ramblersMap.base + 'libraries/ramblers/leaflet/images/postcode-icon-closest.png',
         iconSize: [24, 18], // size of the icon
         shadowSize: [26, 20], // size of the shadow
         iconAnchor: [12, 9], // point of the icon which will correspond to marker's location
         shadowAnchor: [0, 0], // the same for the shadow
         popupAnchor: [0, -12] // point from which the popup should open relative to the iconAnchor
     });
-    redmarkericon = L.icon({
-        iconUrl: ramblersMap.base + 'ramblers/leaflet/images/redmarker.png',
+    ramblersMap.redmarkericon = L.icon({
+        iconUrl: ramblersMap.base + 'libraries/ramblers/leaflet/images/redmarker.png',
         iconSize: [32, 32], // size of the icon
         shadowSize: [26, 20], // size of the shadow
         iconAnchor: [16, 32], // point of the icon which will correspond to marker's location
@@ -291,47 +297,47 @@ function createMouseMarkers() {
             {color: "#884000", weight: 1}).addTo(ramblersMap.map);
 }
 function createPlaceMarkers() {
-    s0 = L.icon({
-        iconUrl: ramblersMap.base + 'ramblers/leaflet/images/rejected.png',
+    ramblersMap.s0 = L.icon({
+        iconUrl: ramblersMap.base + 'libraries/ramblers/leaflet/images/rejected.png',
         iconSize: [15, 15]
     });
-    s1 = L.icon({
-        iconUrl: ramblersMap.base + 'ramblers/leaflet/images/1star.png',
+    ramblersMap.s1 = L.icon({
+        iconUrl: ramblersMap.base + 'libraries/ramblers/leaflet/images/1star.png',
         iconSize: [19, 19]
     });
-    s2 = L.icon({
-        iconUrl: ramblersMap.base + 'ramblers/leaflet/images/2star.png',
+    ramblersMap.s2 = L.icon({
+        iconUrl: ramblersMap.base + 'libraries/ramblers/leaflet/images/2star.png',
         iconSize: [21, 21]
     });
-    s3 = L.icon({
-        iconUrl: ramblersMap.base + 'ramblers/leaflet/images/3star.png',
+    ramblersMap.s3 = L.icon({
+        iconUrl: ramblersMap.base + 'libraries/ramblers/leaflet/images/3star.png',
         iconSize: [23, 23]
     });
-    s4 = L.icon({
-        iconUrl: ramblersMap.base + 'ramblers/leaflet/images/4star.png',
+    ramblersMap.s4 = L.icon({
+        iconUrl: ramblersMap.base + 'libraries/ramblers/leaflet/images/4star.png',
         iconSize: [25, 25]
     });
-    s5 = L.icon({
-        iconUrl: ramblersMap.base + 'ramblers/leaflet/images/5star.png',
+    ramblersMap.s5 = L.icon({
+        iconUrl: ramblersMap.base + 'libraries/ramblers/leaflet/images/5star.png',
         iconSize: [27, 27]
     });
 }
 
 function addMarker($popup, $lat, $long, $icon) {
     var marker = L.marker([$lat, $long], {icon: $icon});
-    $pop = $popup.replace(/&quot;/g, '"'); // replace quots in popup text
+    var $pop = $popup.replace(/&quot;/g, '"'); // replace quots in popup text
     marker.bindPopup($pop);
     ramblersMap.markerList.push(marker);
 }
 
 function addMarkerToLayer($layer, $popup, $lat, $long, $icon) {
     var marker = L.marker([$lat, $long], {icon: $icon});
-    $pop = $popup.replace(/&quot;/g, '"'); // replace quots in popup text 
+    var $pop = $popup.replace(/&quot;/g, '"'); // replace quots in popup text 
     marker.bindPopup($pop);
     $layer.add.push(marker);
 }
-function addPlace($gr, $no, $lat, $long, $icon)
-{
+function addPlace($gr, $no, $lat, $long, $icon) {
+    var $grdisp;
     var marker = L.marker([$lat, $long], {icon: $icon, gridref: $gr, no: $no, lat: $lat, long: $long});
     if ($gr.length === 8) {
         $grdisp = $gr.substr(0, 2) + " " + $gr.substr(2, 3) + " " + $gr.substr(5, 3);
@@ -346,22 +352,22 @@ function addPlaceMarker($gr, $no, $lat, $long) {
     var $icon, $grdisp;
     switch ($no) {
         case 0:
-            $icon = s0;
+            $icon = ramblersMap.s0;
             break;
         case 1:
-            $icon = s1;
+            $icon = ramblersMap.s1;
             break;
         case 2:
-            $icon = s2;
+            $icon = ramblersMap.s2;
             break;
         case 3:
-            $icon = s3;
+            $icon = ramblersMap.s3;
             break;
         case 4:
-            $icon = s4;
+            $icon = ramblersMap.s4;
             break;
         case 5:
-            $icon = s5;
+            $icon = ramblersMap.s5;
             break;
     }
 
@@ -415,7 +421,7 @@ function kFormatter(num) {
 }
 
 function getBrowserStatus() {
-    out = "";
+    var out = "";
     out += "<br/>Mobile: " + L.Browser.mobile.toString();
     out += "<br/>Touch: " + L.Browser.touch.toString();
     out += "<br/>Pointer : " + L.Browser.pointer.toString();
@@ -430,6 +436,7 @@ var getJSON = function (url, callback) {
     xhr.responseType = "json";
     xhr.onload = function () {
         var status = xhr.status;
+        var items;
         if (status === 200) {
             if (typeof xhr.response === 'string') {
                 items = JSON.parse(xhr.response);
@@ -450,6 +457,7 @@ var postJSON = function (url, data, callback) {
     xhr.responseType = "json";
     xhr.onload = function () {
         var status = xhr.status;
+        var items;
         if (status === 200) {
             if (typeof xhr.response === 'string') {
                 items = JSON.parse(xhr.response);
@@ -499,9 +507,57 @@ function getMouseMoveAction(e) {
     var lng = e.latlng.lng.toFixed(5);
     var lat = e.latlng.lat.toFixed(5);
     var value = "Lat/long: " + lat + ", " + lng; //+" z"+ zoom;
+    //  value += '<br/>' + getMapCode(e.latlng.lat, e.latlng.lng, true);
+    //  value += '<br/>' + getPlusCode(e.latlng.lat, e.latlng.lng, true);
     return  gridref + value;
 }
 
+function getPlusCode(lat, lng, link) {
+    var pluscode = OpenLocationCode.encode(lat, lng);
+    if (link) {
+        return '<b><a href="https://plus.codes" target="_blank">Open Location Code:</a></b>' + pluscodeFormat(pluscode);
+    } else {
+        return  pluscodeFormat(pluscode);
+    }
+}
+function getMapCode(lat, lng, link) {
+    var results = encodeShortest(lat, lng);
+    var out = "";
+    if (results.length > 0) {
+        if (link) {
+            out = '<b><a href="http://www.mapcode.com" target="_blank">Mapcode:</a>' + results[0].mapcode + "</b> (" + results[0].territoryAlphaCode + "}";
+        } else {
+            out = results[0].mapcode + " " + results[0].territoryAlphaCode;
+        }
+    }
+    return out;
+}
+function getWhat3Words(lat, lng, id, place) {
+    var w3wurl = "https://api.what3words.com/v3/convert-to-3wa?key=6AZYMY7P&coordinates=";
+    var url = w3wurl + lat.toFixed(7) + ',' + lng.toFixed(7);
+    getJSON(url, function (err, items) {
+        var tag = document.getElementById(id);
+        if (err !== null || tag === null) {
+            tag.innerHTML = "Error accessing What3Words: " + err + "<br/>";
+        } else {
+            var out = '<span class="w3w" onclick="javascript:w3wAboutUs()">///</span><abbr title=\'What3words - click /// to learn more\'>  ' + items.words + '</abbr><br/>';
+            if (place) {
+                out += '<b>Nearest Place: </b>' + items.nearestPlace + '<br/>';
+            }
+            tag.innerHTML = out;
+        }
+    });
+}
+
+function w3wAboutUs() {
+    var page = "https://what3words.com/about-us/";
+    window.open(page, "_blank", "scrollbars=yes,width=990,height=480,menubar=yes,resizable=yes,status=yes");
+}
+
+function pluscodeFormat(code) {
+    var out = code.substr(0, 4) + "<b>" + code.substr(4) + "</b>";
+    return out;
+}
 
 function osGridToLatLongSquare(gridref, size) {
 //  if (!(gridref instanceof OsGridRef))
@@ -527,23 +583,24 @@ function osGridToLatLongSquare(gridref, size) {
     return bounds;
 }
 function osMapGrid(layer) {
-    style = {color: '#333366', weight: 1, opacity: 0.2};
+    var style = {color: '#333366', weight: 1, opacity: 0.2};
+    var lines;
     for (east = 0; east < 700500; east += 100000) {
         lines = new Array();
         i = 0;
         for (north = 0; north < 1300500; north += 10000) {
-            gr = new OsGridRef(east, north);
-            latlong = OsGridRef.osGridToLatLon(gr);
+            var gr = new OsGridRef(east, north);
+            var latlong = OsGridRef.osGridToLatLon(gr);
             lines[i] = new L.latLng(latlong.lat, latlong.lon);
             i++;
         }
 // L.polyline(lines, style).addTo(map);
         layer.addLayer(L.polyline(lines, style));
     }
-    for (north = 0; north < 1300500; north += 100000) {
+    for (var north = 0; north < 1300500; north += 100000) {
         lines = new Array();
         i = 0;
-        for (east = 0; east < 700500; east += 10000) {
+        for (var east = 0; east < 700500; east += 10000) {
             gr = new OsGridRef(east, north);
             latlong = OsGridRef.osGridToLatLon(gr);
             lines[i] = new L.latLng(latlong.lat, latlong.lon);
@@ -578,17 +635,16 @@ function setMarkerIcon(marker, name) {
     var icon;
     if (name === "") {
         icon = L.icon({
-            iconUrl: ramblersMap.base + 'ramblers/leaflet/images/marker-icon.png',
+            iconUrl: ramblersMap.base + 'libraries/ramblers/leaflet/images/marker-icon.png',
             iconSize: [25, 41], // size of the icon
             iconAnchor: [12, 41],
             popupAnchor: [0, -41]
         });
-
         marker.setIcon(icon);
         return;
     }
-    var file = ramblersMap.base + "ramblers/gpxsymbols/exists.php?file=" + name + ".png";
-    marker.file = ramblersMap.base + "ramblers/gpxsymbols/" + name + ".png";
+    var file = ramblersMap.base + "libraries/ramblers/gpxsymbols/exists.php?file=" + name + ".png";
+    marker.file = ramblersMap.base + "libraries/ramblers/gpxsymbols/" + name + ".png";
     ajaxGet(file, "", marker, setIcon);
 }
 function setIcon(marker, response) {
@@ -604,7 +660,7 @@ function setIcon(marker, response) {
         });
     } else {
         icon = L.icon({
-            iconUrl: ramblersMap.base + 'ramblers/leaflet/images/redmarker.png',
+            iconUrl: ramblersMap.base + 'libraries/ramblers/leaflet/images/redmarker.png',
             iconSize: [36, 41], // size of the icon
             iconAnchor: [18, 41],
             popupAnchor: [0, -41]
@@ -625,7 +681,6 @@ function ajaxGet($url, $params, target, displayFunc) {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
         {
             displayFunc(target, xmlhttp.responseText);
-
             // document.getElementById($div).innerHTML = xmlhttp.responseText;
         }
     };
@@ -636,29 +691,7 @@ function ajaxGet($url, $params, target, displayFunc) {
     //   xmlhttp.setRequestHeader("Connection", "close");
     xmlhttp.send($params);
 }
-function ajax($url, $params, target, displayFunc) {
-    var xmlhttp;
-    if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
-        xmlhttp = new XMLHttpRequest();
-    } else
-    {// code for IE6, IE5
-        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-    }
-    xmlhttp.onreadystatechange = function () {
-        if (xmlhttp.readyState === 4 && xmlhttp.status === 200)
-        {
-            displayFunc(target, xmlhttp.responseText);
 
-            // document.getElementById($div).innerHTML = xmlhttp.responseText;
-        }
-    };
-    xmlhttp.open("POST", $url, true);
-    //Send the proper header information along with the request
-    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    //   xmlhttp.setRequestHeader("Content-length", $params.length);
-    //   xmlhttp.setRequestHeader("Connection", "close");
-    xmlhttp.send($params);
-}
 
 function onClickPlaceMarker(e) {
     var marker = e.target;
@@ -695,7 +728,7 @@ function displayDetails(marker, result) {
     var items = json.records;
     for (i = 0; i < items.length; i++) {
         var item = items[i];
-        if (item.desc == "") {
+        if (item.desc === "") {
             item.desc = "<i>no description</i>";
         }
         out += "<li>" + item.desc + " [" + item.lastread + "/" + item.score + "%]</li>";

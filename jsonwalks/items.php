@@ -8,7 +8,7 @@ defined('_JEXEC') or die('Restricted access');
  * @author Chris Vaughan
  */
 class RJsonwalksItems {
-    private $items;
+    public $items;
     //put your code here
      function __construct($values) {
          foreach ($values->items as $value) {

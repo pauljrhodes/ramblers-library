@@ -28,6 +28,7 @@ class RJsonwalksWalk extends REvent {
     public $walkLeader = "";        // walk leader if isLeader is false
     public $contactName = "";       // contact name
     public $email = "";             // email address for contact
+    private $emailAddr = "";             // email address for contact
     public $telephone1 = "";        // first telephone number of contact
     public $telephone2 = "";        // second telephone number of contact
 // meeting place
@@ -115,7 +116,8 @@ class RJsonwalksWalk extends REvent {
             if ($item->walkContact != null) {
                 $this->isLeader = $item->walkContact->isWalkLeader == "true";
                 $this->contactName = trim($item->walkContact->contact->displayName);
-                $this->email = $item->walkContact->contact->email;
+                $this->emailAddr = $item->walkContact->contact->email;
+                $this->email = str_replace("@", " (at) ", $this->emailAddr);
                 $this->telephone1 = $item->walkContact->contact->telephone1;
                 $this->telephone2 = $item->walkContact->contact->telephone2;
             }
@@ -156,11 +158,11 @@ class RJsonwalksWalk extends REvent {
         }
     }
 
-    public function getEmail($option, $withtitle = false) {
+    public function getEmail($option = 1, $withtitle = false) {
         if ($withtitle) {
             switch ($option) {
                 case 1:
-                    return "<b>Email: </b>" . $this->email;
+                    return "<b>Email: </b>" . $this->emailAddr;
                     break;
                 case 2:
                     $printOn = JRequest::getVar('print') == 1;
@@ -170,7 +172,7 @@ class RJsonwalksWalk extends REvent {
                     return "";
                     break;
                 case 4:
-                    return "<b>Email: </b>" . str_replace("@", " (at) ", $this->email);
+                    return "<b>Email: </b>" . str_replace("@", " (at) ", $this->emailAddr);
                     break;
                 default:
                     return "Invalid option specified for \$display->emailDisplayFormat";
@@ -179,7 +181,7 @@ class RJsonwalksWalk extends REvent {
         } else {
             switch ($option) {
                 case 1:
-                    return $this->email;
+                    return $this->emailAddr;
                     break;
                 case 2:
                     $printOn = JRequest::getVar('print') == 1;
@@ -190,7 +192,7 @@ class RJsonwalksWalk extends REvent {
                     return "";
                     break;
                 case 4:
-                    return str_replace("@", " (at) ", $this->email);
+                    return str_replace("@", " (at) ", $this->emailAddr);
                     break;
                 default:
                     return "Invalid option specified for \$display->emailDisplayFormat";
@@ -286,8 +288,9 @@ class RJsonwalksWalk extends REvent {
         return $text;
     }
 
-    public function EventLink() {
-        return $this->detailsPageUrl;
+    public function EventLink($display, $text) {
+        return $display->getWalkHref($this, $text);
+        // return $this->detailsPageUrl;
     }
 
     public function EventLinks() {
@@ -406,30 +409,30 @@ class RJsonwalksWalk extends REvent {
     }
 
     public static function nationalGradesLink() {
-        $out = '<p></p><p>Description of <a href="ramblers/pages/grades.html" class="jcepopup" data-mediabox="1">National Grades</a></p>';
+        $out = '<p></p><p>Description of <a href="libraries/ramblers/pages/grades.html" class="jcepopup" data-mediabox="1">National Grades</a></p>';
         echo $out;
     }
 
     public function getGradeImage() {
-        $image = "ramblers/images/grades/base.jpg";
+        $image = "libraries/ramblers/images/grades/base.jpg";
         switch ($this->nationalGrade) {
             case "Easy Access":
-                $image = "ramblers/images/grades/grade-ea.jpg";
+                $image = "libraries/ramblers/images/grades/grade-ea.jpg";
                 break;
             case "Easy":
-                $image = "ramblers/images/grades/grade-e.jpg";
+                $image = "libraries/ramblers/images/grades/grade-e.jpg";
                 break;
             case "Leisurely":
-                $image = "ramblers/images/grades/grade-l.jpg";
+                $image = "libraries/ramblers/images/grades/grade-l.jpg";
                 break;
             case "Moderate":
-                $image = "ramblers/images/grades/grade-m.jpg";
+                $image = "libraries/ramblers/images/grades/grade-m.jpg";
                 break;
             case "Strenuous":
-                $image = "ramblers/images/grades/grade-s.jpg";
+                $image = "libraries/ramblers/images/grades/grade-s.jpg";
                 break;
             case "Technical":
-                $image = "ramblers/images/grades/grade-t.jpg";
+                $image = "libraries/ramblers/images/grades/grade-t.jpg";
                 break;
             default:
                 break;
@@ -437,23 +440,62 @@ class RJsonwalksWalk extends REvent {
         return $image;
     }
 
-    public static function gradeSidebar() {
-        if (!self::$gradeSidebarDisplayed) {
-            self::$gradeSidebarDisplayed = true;
-            echo '<div class = "gradeSidebar" >';
-            echo '<a href="ramblers/pages/grades.html" class="jcepopup" data-mediabox="1">';
-            echo 'Walks difficulty</a>';
-            echo '</div>';
+    function getGradeSpan($class) {
+        $tag = "";
+        $img = $this->getGradeImg();
+        switch ($this->nationalGrade) {
+            case "Easy Access":
+                $tag = "<span data-descr='Easy Access' class='" . $class . "'><span class='grade easy-access " . $class . "' onclick='javascript:dGH()'>" . $img . "</span></span>";
+                break;
+            case "Easy":
+                $tag = "<span data-descr='Easy' class='" . $class . "'><span class='grade easy " . $class . "' onclick='javascript:dGH()'>" . $img . "</span></span>";
+                break;
+            case "Leisurely":
+                $tag = "<span data-descr='Leisurely' class='" . $class . "'><span class='grade leisurely " . $class . "' onclick='javascript:dGH()'>" . $img . "</span></span>";
+                break;
+            case "Moderate":
+                $tag = "<span data-descr='Moderate' class='" . $class . "'><span class='grade " . $class . "' onclick='javascript:dGH()'>" . $img . "</span></span>";
+                break;
+            case "Strenuous":
+                $tag = "<span data-descr='Strenuous' class='" . $class . "'><span class='grade strenuous " . $class . "' onclick='javascript:dGH()'>" . $img . "</span></span>";
+                break;
+            case "Technical":
+                $tag = "<span data-descr='Technical' class='" . $class . "'><span class='grade technical " . $class . "' onclick='javascript:dGH()'>" . $img . "</span></span>";
+                break;
+            default:
+                break;
         }
+        return $tag;
     }
 
-    public static function gradeToolTips() {
-        echo '<span  class = "gradeBar" id = "grade-ea">Easy Access</span>';
-        echo '<span  class = "gradeBar" id = "grade-e">Easy</span>';
-        echo '<span  class = "gradeBar" id = "grade-l">Leisurely</span>';
-        echo '<span  class = "gradeBar" id = "grade-m">Moderate</span>';
-        echo '<span  class = "gradeBar" id = "grade-s">Strenuous</span>';
-        echo '<span  class = "gradeBar" id = "grade-t">Technical</span>';
+    function getGradeImg() {
+        $base = JURI::base();
+        $folder = JURI::base(true);
+        $url = $folder . "/libraries/ramblers/images/grades/";
+     //   if (strpos($base, 'localhost') !== false) {
+     //   }
+
+        switch ($this->nationalGrade) {
+            case "Easy Access":
+                $url = "<img src='" . $url . "grade-ea30.jpg' alt='Easy Access' height='30' width='30'>";
+                break;
+            case "Easy":
+                $url = "<img src='" . $url . "grade-e30.jpg' alt='Easy' height='30' width='30'>";
+                break;
+            case "Leisurely":
+                $url = "<img src='" . $url . "grade-l30.jpg' alt='Leisurely' height='30' width='30'>";
+                break;
+            case "Moderate":
+                $url = "<img src='" . $url . "grade-m30.jpg' alt='Moderate' height='30' width='30'>";
+                break;
+            case "Strenuous":
+                $url = "<img src='" . $url . "grade-s30.jpg' alt='Strenuous' height='30' width='30'>";
+                break;
+            case "Technical":
+                $url = "<img src='" . $url . "grade-t30.jpg' alt='Technical' height='30' width='30'>";
+                break;
+        }
+        return $url;
     }
 
     public function distanceFrom($easting, $northing, $distanceKm) {

@@ -25,11 +25,6 @@ L.Control.DisplayHelp = L.Control.extend({
         this.link.title = this.options.title;
         return this.link;
     },
-    // _appendButtons: function (container) {
-    //       this.holder = L.DomUtil.create('div', 'leaflet-display-help', container);
-
-
-    //   },
     _display_help: function (evt) {
         var page = ramblersMap.maphelppage;
         open(page, "_blank", "scrollbars=yes,width=900,height=580,menubar=yes,resizable=yes,status=yes");

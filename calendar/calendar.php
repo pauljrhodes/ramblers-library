@@ -19,6 +19,7 @@ class RCalendar {
     private $baseno = 1;
     private $displayAll = false;
     private $monthFormat = "Y M";
+    private $display = null;
 
     public function __construct($size, $mdisplayAll) {
         $this->size = $size;
@@ -30,8 +31,8 @@ class RCalendar {
         $this->monthFormat = $format;
     }
 
-    public function show($events) {
-
+    public function show($display, $events) {
+        $this->display = $display;
         $lastdate = $events->getLastDate();
         $this->events = $events;
         $this->baseno = self::$copyno * 20;
@@ -223,7 +224,7 @@ class RCalendar {
     private function addEvents($cellContent, $currentDate) {
         //  echo $cellContent;
         //  echo $currentDate;
-        return $this->events->addEvent($cellContent, $currentDate);
+        return $this->events->addEvent($this->display, $cellContent, $currentDate);
     }
 
 }

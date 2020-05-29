@@ -17,7 +17,8 @@ class RLeafletGpxMap extends RLeafletMap {
 
     public function displayPath($gpx) {
         $document = JFactory::getDocument();
-        $document->addScript("ramblers/leaflet/maplist.js", "text/javascript");
+        $document->addScript("libraries/ramblers/leaflet/maplist.js", "text/javascript");
+        $this->help_page = "https://maphelp.ramblers-webs.org.uk/walking-route.html";
         $this->options->fullscreen = true;
         $this->options->cluster = false;
         $this->options->search = true;
@@ -28,7 +29,7 @@ class RLeafletGpxMap extends RLeafletMap {
         $this->options->fitbounds = true;
         $this->options->displayElevation = true;
         $this->options->print = true;
-    //    RLicense::BingMapKey(false);
+        //    RLicense::BingMapKey(false);
 
         if ($this->imperial) {
             $imperial = "true";
@@ -41,13 +42,13 @@ class RLeafletGpxMap extends RLeafletMap {
         if (file_exists($gpx)) {
             $path_parts = pathinfo($gpx);
             if (strtolower($path_parts['extension']) != "gpx") {
-                $application = JFactory::getApplication();
-                $application->enqueueMessage(JText::_('GPX: Route file is not a gpx file: ' . $file), 'error');
+                $ $app = JApplicationCms::getInstance('site');
+                $app->enqueueMessage(JText::_('GPX: Route file is not a gpx file: ' . $file), 'error');
                 echo "<p><b>Unable to display gpx file</b></p>";
             }
         } else {
-            $application = JFactory::getApplication();
-            $application->enqueueMessage(JText::_('GPX: Route file not found: ' . $file), 'error');
+            $app = JApplicationCms::getInstance('site');
+            $app->enqueueMessage(JText::_('GPX: Route file not found: ' . $file), 'error');
             echo "<p><b>Unable to display gpx file</b></p>";
         }
 
@@ -60,7 +61,7 @@ class RLeafletGpxMap extends RLeafletMap {
                     If ($this->loggedon()) {
                         $link = true;
                     } else {
-                        echo "<br/>Please log on to our site to be able to download GPX file of this walk";
+                        echo "<br/>Please log on to this site to be able to download GPX file of this walk";
                     }
                     break;
                 case "Public" :
@@ -70,7 +71,7 @@ class RLeafletGpxMap extends RLeafletMap {
                     break;
             }
             if ($link) {
-                echo '<b>Download route:</b> <a href="' . $gpx . '"><img alt="gpx" src="ramblers/images/orange-gpx-32.png" width="20" height="20"></a><br/><br/>';
+                echo '<b>Download route:</b> <a href="' . $gpx . '"><img alt="gpx" src="libraries/ramblers/images/orange-gpx-32.png" width="20" height="20"></a><br/><br/>';
             }
 
             $text = "  ramblersGpx=new RamblersLeafletGpx();"

@@ -21,7 +21,7 @@ class RLeafletMapoptions {
     public $displayElevation = false;
     public $bing = false;
     public $ramblersPlaces = false;
-    public $topoMapDefault=false;
+    public $topoMapDefault = false;
 
     public function __construct() {
         
@@ -29,8 +29,8 @@ class RLeafletMapoptions {
 
     public function text() {
         $options = "";
-     //   $this->print = false;
-        if (RLicense::isBingKeyMapSet()) {
+        //   $this->print = false;
+       if (RLicense::isBingKeyMapSet()) {
             $options .= "ramblersMap.bingkey='" . RLicense::getBingMapKey() . "';" . PHP_EOL;
             $options .= "ramblersMap.options.bing = true;" . PHP_EOL;
         }

@@ -17,7 +17,7 @@ abstract class REvent {
 
     abstract protected function EventText(); // as text string
 
-    abstract protected function EventLink(); // as url
+    abstract protected function EventLink($display, $text); // as A tag
 
     abstract protected function EventLinks(); // as url
 
@@ -30,12 +30,13 @@ abstract class REvent {
         return $out;
     }
 
-    public function EventList($class) {
-        $link = $this->EventLink();
+    public function EventList($display, $text) {
+        $class="";
         $text = $this->EventText();
+        $link = $this->EventLink($display, $text);
         $out = "";
         $out.= "<div class='event-list-cal-event-single-link " . $class . $this->EventStatus() . "'>" . PHP_EOL;
-        $out.= "<a href='" . $link . "' target='_blank'>" . $text . "</a>" . PHP_EOL;
+        $out.= $link . PHP_EOL;
         $out.="<div class='events links'>";
         $out.=$this->EventLinks();
         $out.="</div>";

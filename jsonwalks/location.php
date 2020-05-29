@@ -15,6 +15,9 @@ class RJsonwalksLocation {
     public $longitude;          // Longitude of the location
     public $latitude;           // Latitude of the location
     public $postcode;           // either a postcode or null
+    public $postcodeDistance;   // Distance of postcode from location or null
+    public $postcodeDirection;   // Distance of postcode from location or null
+    public $postcodeDirectionAbbr;
     public $postcodeLatitude;   // Longitude of the postcode or null
     public $postcodeLongitude;  // Latitude of the postcode or null
     public $type;               // type of location, meet,start,finish
@@ -47,6 +50,15 @@ class RJsonwalksLocation {
         $this->postcodeLongitude = $value->postcodeLongitude;
         $this->type = $value->typeString;
         $this->exact = $value->showExact == "true";
+        if ($this->postcode != null) {
+            $lat1 = $this->postcodeLatitude;
+            $lon1 = $this->postcodeLongitude;
+            $lat2 = $this->latitude;
+            $lon2 = $this->longitude;
+            $this->postcodeDistance = 1000 * round(RGeometryGreatcircle::distance($lat1, $lon1, $lat2, $lon2, "KM"), 3); // metres
+            $this->postcodeDirection = RGeometryGreatcircle::direction($lat1, $lon1, $lat2, $lon2);
+            $this->postcodeDirectionAbbr = RGeometryGreatcircle::directionAbbr($this->postcodeDirection);
+        }
     }
 
     public function getTextDescription() {
@@ -90,10 +102,17 @@ class RJsonwalksLocation {
         return "";
     }
 
-    public function distanceFrom($easting, $northing, $distanceKm) {
+    public function distanceFrom($easting, $northing) {
         $dele = ($this->easting - $easting) / 1000;
         $deln = ($this->northing - $northing) / 1000;
         $dist = sqrt($dele * $dele + $deln * $deln);
+        return $dist;
+    }
+
+    public function distanceFromLatLong($lat1, $lon2) {
+        $lat2 = $this->latitude;
+        $lon2 = $this->longitude;
+        $dist = RGeometryGreatcircle::distance($lat1, $lon1, $lat2, $lon2, "KM");
         return $dist;
     }
 
@@ -142,12 +161,8 @@ class RJsonwalksLocation {
     }
 
     public function displayPostcode($detailsPageUrl) {
-        $lat1 = $this->postcodeLatitude;
-        $lon1 = $this->postcodeLongitude;
-        $lat2 = $this->latitude;
-        $lon2 = $this->longitude;
-        $dist = 1000 * round(RGeometryGreatcircle::distance($lat1, $lon1, $lat2, $lon2, "KM"), 3); // metres
-        $direction = RGeometryGreatcircle::direction($lat1, $lon1, $lat2, $lon2);
+        $dist = $this->postcodeDistance; // metres
+        $direction = $this->postcodeDirection;
         If ($dist < 100) {
             $note = "Postcode is within 100m of location";
             $link = "";

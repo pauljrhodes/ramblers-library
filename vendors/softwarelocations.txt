@@ -28,6 +28,9 @@ Simplify - reduce number of points
     http://mourner.github.io/simplify-js/
     https://github.com/mourner/simplify-js  
 
+Searching
+    https://github.com/perliedman/leaflet-control-geocoder
+
 Blurt popup
     https://github.com/brijeshb42/blurt/
 Download saveas option
@@ -35,3 +38,9 @@ Download saveas option
 
 Bing/OS maps
 https://github.com/shramov/leaflet-plugins
+
+JPList pagination 
+https://www.jplist.org/
+
+Routing
+https://www.liedman.net/leaflet-routing-machine/

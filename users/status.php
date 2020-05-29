@@ -88,7 +88,8 @@ class RUsersStatus {
             if ($this->membershipnoValidFormat == false) {
                 $text = 'The format of your Membership number is not correct. It should be of the form <b><i>DE-02-0123456</b></i>';
                 $text .=" - value given in Profile: " . strtoupper($this->cbInfo->cb_membershipno);
-                JFactory::getApplication()->enqueueMessage($text);
+                $app = JApplicationCms::getInstance('site');
+                $app->enqueueMessage($text, 'Warning');
             }
         }
     }
@@ -156,7 +157,8 @@ class RUsersStatus {
                 }
         }
     }
- function getMembershipInfo($id) {
+
+    function getMembershipInfo($id) {
         $this->decodeMembershipNumber($id);
         $ClearCache = NULL;
         $feedTimeout = 5;
@@ -170,7 +172,7 @@ class RUsersStatus {
         if (isset($ClearCache)) {
             $this->srfr->clearCache($cacheLocation); // clear cache
         }
-        
+
         $this->membership = NULL;
 
         $this->readFeed($rafeedurl);

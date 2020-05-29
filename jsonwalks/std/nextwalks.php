@@ -15,9 +15,6 @@ class RJsonwalksStdNextwalks extends RJsonwalksDisplaybase {
     private $nowalks = 5;
 
     function DisplayWalks($walks) {
-        if ($this->displayGradesSidebar) {
-            RJsonwalksWalk::gradeSidebar();
-        }
         $schemawalks = array();
         $walks->sort(RJsonwalksWalk::SORT_DATE, RJsonwalksWalk::SORT_TIME, RJsonwalksWalk::SORT_DISTANCE);
         $items = $walks->allWalks();
@@ -36,20 +33,13 @@ class RJsonwalksStdNextwalks extends RJsonwalksDisplaybase {
                 $desc .= ", " . $walk->distanceMiles . "mi/" . $walk->distanceKm . "km";
             }
             $out = "<span class='" . $this->walkClass . $walk->status . "' " . ">";
-//            if ($this->dispArticle > 0) {
-//                $out.="index.php?option=com_content&view=article&id=" . $this->dispArticle . "&Itemid=" . $this->dispMenu . "&walk=" . $walk->id . "'";
-//            } else {
-//                $out .= $walk->detailsPageUrl . "' target='_blank' ";
-//            }
-            $out .= $this->getWalkHref($walk);
-            $out .=  $desc . "</a></span>";
+            $out .= $this->getWalkHref($walk, $desc);
+            $out .= "</span>";
 
             if ($this->displayGradesIcon) {
-                $image = $walk->getGradeImage();
-                $tooltip = "<span class='ntooltiptext'>" . $walk->nationalGrade . "</span>";
-                echo "<div class='nextWalksWithGrade ntooltip'><img src=\"" . $image . "\" alt=\"" . $walk->nationalGrade . "\" />" . $tooltip . $out . "</div>" . PHP_EOL;
+                echo "<span class='nextWalksWithGrade'>" . $walk->getGradeSpan("left") . $out . "</span>\r\n";
             } else {
-                echo "<li> " . $out . "</li>" . PHP_EOL;
+                echo "<li>" . $out . "</li>" . PHP_EOL;
             }
             if ($walk->isCancelled()) {
                 echo "CANCELLED: " . $walk->cancellationReason;
@@ -73,9 +63,8 @@ class RJsonwalksStdNextwalks extends RJsonwalksDisplaybase {
         }
 
         if (!$this->displayGradesIcon) {
-            echo "<ul class='" . $this->feedClass . "' >" . PHP_EOL;
+            echo "</ul>" . PHP_EOL;
         }
-        echo "</ul>" . PHP_EOL;
         $script = json_encode($schemawalks);
         $script = str_replace('"context":', '"@context":', $script);
         $script = str_replace('"type":', '"@type":', $script);
@@ -87,5 +76,4 @@ class RJsonwalksStdNextwalks extends RJsonwalksDisplaybase {
     public function noWalks($no) {
         $this->nowalks = $no;
     }
-
 }

@@ -93,10 +93,10 @@ class RJsonwalksDe02Tic extends RJsonwalksDisplaybase {
         echo RHtml::addTableRow(array($col1, $col2));
 
         $col1 = "<b>Email:</b>";
-        if ($walk->email == "") {
+        if ($walk->getEmail() == "") {
             $col2 = "progsec@derbyramblers.org.uk";
         } else {
-            $col2 = $walk->email;
+            $col2 = $walk->getEmail();
         }
         echo RHtml::addTableRow(array($col1, $col2));
 

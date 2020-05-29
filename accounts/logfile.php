@@ -183,6 +183,22 @@ class RAccountsLogfile {
         return $out;
     }
 
+    public function getNoJoomlaInstalls() {
+        $no = 0;
+        if ($this->jsonobject <> NULL) {
+            $remove = strlen($this->jsonobject["path"]);
+
+
+            if (isset($this->jsonobject["joomlaversions"])) {
+                $array = $this->jsonobject["joomlaversions"];
+                foreach ($array as $key => $item) {
+                    $no+=1;
+                }
+            }
+        }
+        return $no;
+    }
+
     public function getJoomlaVersion() {
         $out = "";
         if ($this->jsonobject <> NULL) {
@@ -282,7 +298,7 @@ class RAccountsLogfile {
         $hcp = $this->getHCPVersion();
         switch ($filename) {
             case ".htaccess":
-                $options = ["compare" => "htaccess", "file" => ".htaccess", "path" => "ramblers/conf/htaccess/joomla3"];
+                $options = ["compare" => "htaccess", "file" => ".htaccess", "path" => "libraries/ramblers/conf/htaccess/joomla3"];
                 break;
             case "php.ini":
                 $options = ["compare" => "ini", "file" => "php.ini", "path" => ""];
@@ -293,7 +309,7 @@ class RAccountsLogfile {
                         $options = ["compare" => "ini", "file" => ".user.ini", "path" => ""];
                         break;
                     default:
-                        $options = ["compare" => "ini", "file" => ".user.ini", "path" => "ramblers/conf/userini/joomla3.ini"];
+                        $options = ["compare" => "ini", "file" => ".user.ini", "path" => "libraries/ramblers/conf/userini/joomla3.ini"];
                         break;
                 }
                 break;
@@ -595,7 +611,7 @@ class RAccountsLogfile {
             case "New":
                 switch ($which) {
                     case self::FILE_HTACCESS:
-                        $options = ["compare" => "htaccess", "file" => ".htaccess", "path" => "ramblers/conf/htaccess/new-root"];
+                        $options = ["compare" => "htaccess", "file" => ".htaccess", "path" => "libraries/ramblers/conf/htaccess/new-root"];
                         break;
                     case self::FILE_PHPINI:
                         $options = ["compare" => "ini", "file" => "php.ini", "path" => ""];
@@ -617,7 +633,7 @@ class RAccountsLogfile {
             Case "Old":
                 switch ($which) {
                     case self::FILE_HTACCESS:
-                        $options = ["compare" => "htaccess", "file" => ".htaccess", "path" => "ramblers/conf/htaccess/old-root"];
+                        $options = ["compare" => "htaccess", "file" => ".htaccess", "path" => "libraries/ramblers/conf/htaccess/old-root"];
                         break;
                     case self::FILE_PHPINI:
                         $options = ["compare" => "ini", "file" => "php.ini", "path" => ""];
@@ -626,10 +642,10 @@ class RAccountsLogfile {
                         $options = ["compare" => "ini", "file" => ".user.ini", "path" => ""];
                         break;
                     case self::FILE_PUBLIC_HTACCESS:
-                        $options = ["compare" => "htaccess", "file" => "public_html/.htaccess", "path" => "ramblers/conf/htaccess/old-public_html", "replace" => true];
+                        $options = ["compare" => "htaccess", "file" => "public_html/.htaccess", "path" => "libraries/ramblers/conf/htaccess/old-public_html", "replace" => true];
                         break;
                     case self::FILE_PUBLIC_PHPINI:
-                        $options = ["compare" => "ini", "file" => "public_html/php.ini", "path" => "ramblers/conf/phpini/old-public_html"];
+                        $options = ["compare" => "ini", "file" => "public_html/php.ini", "path" => "libraries/ramblers/conf/phpini/old-public_html"];
                         break;
                     case self::FILE_PUBLIC_USERINI:
                         $options = ["compare" => "ini", "file" => "public_html/.user.ini", "path" => ""];

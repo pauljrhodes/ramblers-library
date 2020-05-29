@@ -169,11 +169,7 @@ div.ra-upload-toolbar-button-disabled #upload-icon{
     background-size:27px 27px;
     background-position: center; 
 }
-
-/* Help */
-.leaflet-control-display-help a {
-    background:#fff url(images/help.png) no-repeat 0 0;
-    background-size:27px 27px;
-    background-position: center; 
-    cursor: pointer;
+div.leaflet-gpx-options div.status {
+    background-color: #a7ffa7;
+    color: #000000;
 }

@@ -14,6 +14,7 @@ class RJsonwalksLeafletMapmarker extends RJsonwalksDisplaybase {
 
     public function __construct() {
         $this->map = new RLeafletMap;
+        $this->map->help_page = "https://maphelp.ramblers-webs.org.uk/";
         $options = $this->map->options;
         $options->cluster = true;
         $options->displayElevation = true;
@@ -46,11 +47,8 @@ class RJsonwalksLeafletMapmarker extends RJsonwalksDisplaybase {
 
     public function DisplayWalks($walks) {
         $legend = '<p><strong>Zoom</strong> in to see where our walks are going to be. <strong>Click</strong> on a walk to see details.</p>
-<p><img src="ramblers/images/marker-start.png" alt="Walk start" height="26" width="16">&nbsp; Start locations&nbsp; <img src="ramblers/images/marker-cancelled.png" alt="Cancelled walk" height="26" width="16"> Cancelled walk&nbsp; <img src="ramblers/images/marker-area.png" alt="Walking area" height="26" width="16"> Walk in that area.</p>';
-
-        if ($this->displayGradesSidebar) {
-            RJsonwalksWalk::gradeSidebar();
-        }
+<p><img src="libraries/ramblers/images/marker-start.png" alt="Walk start" height="26" width="16">&nbsp; Start locations&nbsp; <img src="libraries/ramblers/images/marker-cancelled.png" alt="Cancelled walk" height="26" width="16"> Cancelled walk&nbsp; <img src="libraries/ramblers/images/marker-area.png" alt="Walking area" height="26" width="16"> Walk in that area.</p>';
+        
         if (isset($this->map)) {
             if (strpos($this->legendposition, "top") !== false) {
                 echo $legend;
@@ -78,26 +76,28 @@ class RJsonwalksLeafletMapmarker extends RJsonwalksDisplaybase {
         $gr = $walk->startLocation->gridref;
         $long = $walk->startLocation->longitude;
         $lat = $walk->startLocation->latitude;
-        $url = $walk->detailsPageUrl;
+        $desc = "<b>" . $date . "<br/>" . $title . "<br/>" . $dist . " " . $walk->nationalGrade . "</b>";
+        $url = $this->getWalkMapHref($walk, $desc);
         if ($walk->startLocation->exact) {
-            $icon = "markerStart";
+            $icon = "ramblersMap.markerStart";
         } else {
-            $icon = "markerArea";
+            $icon = "ramblersMap.markerArea";
         }
         if ($walk->isCancelled()) {
-            $icon = "markerCancelled";
+            $icon = "ramblersMap.markerCancelled";
         }
         $class = $this->walkClass . $walk->status;
         $grade = $walk->getGradeImage();
         $grade = "<img src='" . JURI::base() . $grade . "' alt='" . $walk->nationalGrade . "' width='30px'>";
-        $details = "<div class='" . $class . "'>" . $grade . "<b><a href=&quot;javascript:walkdetails('" . $url . "')&quot; >" . $date . "<br/>" . $title . "<br/>" . $dist . " " . $walk->nationalGrade . "</a></b></div>";
+        //  $details = "<div class='" . $class . "'>" . $grade . "<b><a href=&quot;javascript:walkdetails('" . $url . "')&quot; >" . $date . "<br/>" . $title . "<br/>" . $dist . " " . $walk->nationalGrade . "</a></b></div>";
+        $details = "<div class='" . $class . "'>" . $grade . $url . "</div>";
         $map = "<a href=&quot;javascript:streetmap('" . $gr . "')&quot; >[OS Map]</a>";
         $directions = "<a href=&quot;javascript:directions(" . $lat . "," . $long . ")&quot; >[Directions]</a>";
         //  var $directions = "<a href='https://maps.google.com?saddr=Current+Location&daddr=" + $lat + "," + $long + "' target='_blank'>[Directions]</a>";
         $popup = $details . $map . $directions;
         // $popup = str_replace('"', "&quot;", $popup);
         $marker = 'addMarker("' . $popup . '", ' . $lat . ', ' . $long . ', ' . $icon . ');';
-        //     $marker = "addWalk(markerList,'" . $this->walkClass . $walk->status . "', '" . $date . "', '" . $title . "', '" . $dist . "', '" . $gr . "', " . $lat . ", " . $long . ", '" . $url . "', " . $icon . ");";
+        //     $marker = "addWalk(ramblersMap.markerList,'" . $this->walkClass . $walk->status . "', '" . $date . "', '" . $title . "', '" . $dist . "', '" . $gr . "', " . $lat . ", " . $long . ", '" . $url . "', " . $icon . ");";
         return $marker;
     }
 

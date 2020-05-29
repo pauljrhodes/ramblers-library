@@ -525,9 +525,6 @@ L.Control.BrowserPrint = L.Control.extend({
 			var closePopupsOnPrint = this.options.closePopupsOnPrint;
 			printObjects[type] = printObjects[type].map(function(pLayer){
 				var clone = L.Control.BrowserPrint.Utils.cloneLayer(pLayer);
-if (type=="L.TileLayer"){
-    aa=0;
-}
 				if (clone) {
 					/* Workaround for apropriate handling of popups. */
 					if (pLayer instanceof L.Popup){

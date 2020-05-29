@@ -397,12 +397,15 @@ L.Control.Elevation = L.Control.extend({
         }
         var coords = d3.mouse(this._background.node());
         var opts = this.options;
-        var item = this._data[this._findItemForX(coords[0])],
-                alt = item.altitude,
-                dist = item.dist,
-                ll = item.latlng,
-                numY = opts.hoverNumber.formatter(alt, opts.hoverNumber.decimalsY),
-                numX = opts.hoverNumber.formatter(dist, opts.hoverNumber.decimalsX);
+        var item = this._data[this._findItemForX(coords[0])];
+        if (item === undefined) {
+            return;
+        }
+        var alt = item.altitude;
+        var dist = item.dist;
+        var ll = item.latlng;
+        var numY = opts.hoverNumber.formatter(alt, opts.hoverNumber.decimalsY);
+        var numX = opts.hoverNumber.formatter(dist, opts.hoverNumber.decimalsX);
         this._showDiagramIndicator(item, coords[0]);
         var layerpoint = this._map.latLngToLayerPoint(ll);
         //if we use a height indicator we create one with SVG

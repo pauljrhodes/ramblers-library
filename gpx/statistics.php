@@ -18,7 +18,8 @@ class RGpxStatistics {
         $this->getMetaFromGPX = $getMetaFromGPX;
         if (!file_exists($folder)) {
             $text = "Folder does not exist: " . $folder . ". Unable to list contents";
-            JFactory::getApplication()->enqueueMessage($text);
+            $app = JApplicationCms::getInstance('site');
+            $app->enqueueMessage($text, "error");
             echo "<b>Not able to list contents of folder: " . $folder . "<b>";
             return;
         }
@@ -35,8 +36,8 @@ class RGpxStatistics {
         $lastMod = 0;
         $lastModFile = '';
         foreach (scandir($dir) as $entry) {
-            if (is_file($dir . $entry) && filectime($dir . $entry) > $lastMod) {
-                $lastMod = filectime($dir . $entry);
+            if (is_file($dir . $entry) && filemtime($dir . $entry) > $lastMod) {
+                $lastMod = filemtime($dir . $entry);
                 $lastModFile = $entry;
             }
         }
@@ -49,7 +50,7 @@ class RGpxStatistics {
             $contents = file_get_contents($file);
             return $contents;
         }
-        return null;
+        return "[]";
     }
 
     private function processFolder() {
@@ -60,9 +61,9 @@ class RGpxStatistics {
         echo "<p>Diagnostics while generating file: " . self::JSONFILE . "</p>";
         echo "<p>The diagnostics only appear when the file is generated. They will be displayed until the Joomla Cache expires (usually 15 mins), clearing the cache manually will also remove them.</p>";
         echo "<table>";
-        echo RHtml::addTableHeader(['Filename/<b>Title</b>', 'Longitude', 'Latitude', 'Distance', 'Elevation Gain', 'min Alt', 'max Alt', 'Tracks,Segments', 'Routes']);
+        echo RHtml::addTableHeader(['Filename/<b>Title</b>', 'Author', 'Date', 'Longitude', 'Latitude', 'Distance', 'Elevation Gain', 'min Alt', 'max Alt', 'Tracks,Segments', 'Routes']);
         foreach ($files as $file) {
-            if ($this->endsWith($file, ".gpx")) {
+            if ($this->endsWith($file, ".gpx") || $this->endsWith($file, ".GPX")) {
                 $stat = $this->processGPXFile($file);
                 $this->jsonfile->addItem("id" . $stat->id, $stat);
             }
@@ -104,14 +105,18 @@ class RGpxStatistics {
         }
         $stat->tracks = $gpx->tracks;
         $stat->routes = $gpx->routes;
+        $stat->duration = $gpx->duration;
         $cols = [];
         $cols[] = $stat->filename . "<br/><b>" . $stat->title . "</b>";
+        $cols[] = $stat->author;
+        $cols[] = $stat->date;
         $cols[] = round($stat->longitude, 4);
         $cols[] = round($stat->latitude, 4);
         $cols[] = round($stat->distance, 0) . " m";
         $cols[] = round($stat->cumulativeElevationGain, 1);
         $cols[] = round($stat->minAltitude, 0);
         $cols[] = round($stat->maxAltitude, 0);
+
         $cols[] = $stat->tracks . "(" . $gpx->segments . ")";
         $cols[] = $stat->routes;
         echo RHtml::addTableRow($cols);

@@ -54,7 +54,7 @@ class REventGroup {
         return $lastdate;
     }
 
-    public function addEvent($text, $currentDate) {
+    public function addEvent($display, $text, $currentDate) {
         $found = false;
         $out = "";
         foreach ($this->arrayofevents as $event) {
@@ -69,7 +69,7 @@ class REventGroup {
                     $out.= $event->EventDate()->format('l, jS');
                 }
                 $found = true;
-                $out.= $event->EventList($this->class);
+                $out.= $event->EventList($display, $text);
             }
         }
         if ($found) {

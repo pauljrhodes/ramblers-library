@@ -18,6 +18,9 @@ p.mapcopyright {
 div#rt-header {
     z-index: 1000;
 }
+div.leaflet-container{
+    z-index:0;
+}
 
 /* leaflet/joomla fix so that overlay pane is displayed */
 .leaflet-overlay-pane svg{
@@ -93,16 +96,9 @@ div#rt-header {
     border: 1px solid #ccc;
     background-color: #f1f1f1;
     padding:5px;
+    border-radius: 10px 10px 0px 0px;
 }
 
-#gpxdetails tr:nth-child(even){background-color: #f0f0f0;}
-
-#gpxdetails  td{
-    text-align:right;
-}
-#gpxdetails td.alignleft{
-    text-align:left;
-}
 div.gpxlist  ul li{
     list-style-type:circle;
 }
@@ -143,6 +139,19 @@ div.gpxlist  ul li{
     border: 1px solid #ccc;
     border-top: none;
 } 
+#gpxdetails {
+    width:100%;
+}
+#gpxdetails tr:nth-child(even){background-color: #f0f0f0;}
+
+#gpxdetails  th,
+#gpxdetails  td{
+    text-align:right;
+}
+#gpxdetails  th.alignleft,
+#gpxdetails td.alignleft{
+    text-align:left;
+}
 #gpxdetails  th[onclick]{
     color: #782327;
     cursor:pointer;
@@ -184,7 +193,7 @@ span.placelocation{
 }
 .agreebutton{
     font-size: 1.5em;
-   
+
 }
 
 
@@ -217,4 +226,72 @@ span.placelocation{
 .leaflet-popup-content p {
     margin-top:5px;
     margin-bottom:5px;
+}
+
+/* Help */
+div.leaflet-control-display-help a {
+    background:#fff url(images/help.png) no-repeat 0 0;
+    background-size:27px 27px;
+    background-position: center; 
+    cursor: pointer;
+}
+div#gpxouter {
+    background-color:#D8D8D8;;
+    border-radius: 0px 10px 10px 10px;
+    padding:25px;
+}
+
+table#gpxoptions{
+    background-color:transparent;
+    margin-bottom:0px;;
+    border-width: 0px;
+}
+/*table#gpxoptions td{
+    padding-left:25px;
+    padding-right:25px;
+}
+table#gpxoptions td.active{
+    background-color:#DDDDDD;
+}
+table#gpxoptions td::hover{
+    background-color:#CCCCCC;
+}*/
+table tr td.ra-tab { 
+    cursor: pointer;
+    font-weight: bold;
+    font-size:115%;
+    background-color: #E1E1E1;
+    border-width: 0px !important;
+    padding-left:30px !important;
+    padding-right:30px !important;
+    border-radius: 10px 10px 0px 0px;
+}
+
+table tr td.active {
+    background-color: #D8D8D8;
+} 
+table tr td.ra-tab:hover {
+    background-color: #BBBBBB;
+} 
+.group-icon {
+    background: rgba(120, 35, 39, 0.7);
+    padding:5px;
+    border-radius: 5px;
+    font-weight: bold;
+    color:white;
+}
+
+.group-icon.a {
+    background: rgba(120, 35, 39, 0.7);
+}
+.group-icon.g {
+    background: rgba(0, 122, 135, 0.7);
+}
+.group-icon.s {
+    background: rgba(139, 165, 156, 0.7);
+}
+span.w3w{
+    color:#E11F26;
+    font-weight: bold;
+    cursor: pointer;
 }

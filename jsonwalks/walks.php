@@ -52,7 +52,15 @@ class RJsonwalksWalks {
 
     public function filterDistanceFrom($easting, $northing, $distanceKm) {
         foreach ($this->arrayofwalks as $key => $walk) {
-            if ($walk->distanceFrom($easting, $northing, $distanceKm) > $distanceKm) {
+            if ($walk->distanceFrom($easting, $northing) > $distanceKm) {
+                unset($this->arrayofwalks[$key]);
+            }
+        }
+    }
+
+    public function filterDistanceFromLatLong($lat, $lon, $distanceKm) {
+        foreach ($this->arrayofwalks as $key => $walk) {
+            if ($walk->distanceFromLatLong($lat, $lon) > $distanceKm) {
                 unset($this->arrayofwalks[$key]);
             }
         }
@@ -105,6 +113,15 @@ class RJsonwalksWalks {
 
     private function contains($needle, $haystack) {
         return strpos($haystack, $needle) !== false;
+    }
+
+    public function filterCancelled() {
+        foreach ($this->arrayofwalks as $key => $value) {
+            $walk = $this->arrayofwalks[$key];
+            if ($walk->status == "Cancelled") {
+                unset($this->arrayofwalks[$key]);
+            }
+        }
     }
 
     public function filterDayofweek($days) {
