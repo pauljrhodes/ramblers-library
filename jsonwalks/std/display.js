@@ -837,7 +837,7 @@ ra.display.walksTabs = function (mapOptions, data) {
     this.addPagination = function (no, tag) {
         var printTag = this.elements.rawalks;
         var printButton = this.myjplist.addPagination(no, tag, this.settings.jplistName, this.settings.itemsPerPage, true);
-        if (printButton !== null) {
+        if (printButton != null) {
             printButton.addEventListener('click', function () {
                 ra.html.printTag(printTag);
             });
