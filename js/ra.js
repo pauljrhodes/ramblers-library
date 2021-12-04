@@ -1063,9 +1063,26 @@ ra.jplist = function (group) {
             tag.appendChild(h3);
             return null;
         }
+        var width = document.documentElement.clientWidth;
         if (no < 21) {
             var tags = [
                 {name: 'print', parent: 'spanitems', tag: 'button', attrs: {class: 'link-button small button-p4485'}, textContent: 'Print'}
+            ];
+            var elements = ra.html.generateTags(tag, tags);
+            elements.print.style.marginRight = "5px";
+        } else if (no > 20 && width < 768) {
+			var tags = [
+                {name: 'div', parent: 'root', tag: 'div', attrs: {'data-jplist-control': 'pagination',
+                        'data-group': this.group, 'data-items-per-page': itemsPerPage,
+                        'data-current-page': '0', 'data-id': 'no-items',
+                        'data-name': jplistName}},
+                {name: 'buttons', parent: 'div', tag: 'span', attrs: {class: 'center '}},
+                {name: 'first', parent: 'buttons', tag: 'button', attrs: {type: 'button', 'data-type': 'first'}, textContent: '|<'},
+                {name: 'previous', parent: 'buttons', tag: 'button', attrs: {type: 'button', 'data-type': 'prev'}, textContent: '<'},
+                {name: 'xxx', parent: 'buttons', tag: 'span', attrs: {class: 'jplist-holder', 'data-type': 'pages'}},
+                {name: 'pageNumber', parent: 'xxx', tag: 'button', attrs: {type: 'button', 'data-type': 'page'}, textContent: '{pageNumber}'},
+                {name: 'next', parent: 'buttons', tag: 'button', attrs: {type: 'button', 'data-type': 'next'}, textContent: '>'},
+                {name: 'last', parent: 'buttons', tag: 'button', attrs: {type: 'button', 'data-type': 'last'}, textContent: '>|'}
             ];
             var elements = ra.html.generateTags(tag, tags);
         } else {
@@ -1094,8 +1111,9 @@ ra.jplist = function (group) {
 
             var elements = ra.html.generateTags(tag, tags);
             elements.select.style.width = "120px";
+            elements.print.style.marginRight = "5px";
         }
-        elements.print.style.marginRight = "5px";
+        
         if (print) {
             return elements.print;
         } else {
