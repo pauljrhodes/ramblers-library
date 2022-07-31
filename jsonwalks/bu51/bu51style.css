@@ -12,14 +12,14 @@ div.bu51-nextwalk div.even:hover span.item{
     background-color: transparent !important;
     color:#a8b400;
 }
-.odd {
+.odd.walkPublished, .odd.walkNew {
     background-color: #00000011 !important;
 }
-.even{
+.even.walkPublished, .even.walkNew{
     background-color: #00000022 !important;
 }
 
-.odd:hover,.even:hover{
+.odd.walkPublished:hover,.even.walkPublished:hover{
     background-color: transparent !important;
 	color:#CCCCCC;
 }
@@ -68,7 +68,7 @@ div.js-modal.ramblers {
     background-color: rgb(91 73 31 / 90%);
  }
 	
-.modal-header .btn, div#rainner button {
+.modal-header .btn, div#rainner button, .link-button {
 	border: none;
 	background: none;
 	color:#fff;
@@ -146,6 +146,7 @@ img.walkmedia {
     border-radius: unset;
     max-height: 250px;
     max-width: 85%;
+    padding-right: 2px
 }
 
 div.walk-image {
@@ -154,6 +155,7 @@ div.walk-image {
     align-items: center;
     flex-direction: row;
     margin: 2px 0px;
+    max-width: unset;
 }
 
 div.ra-map-container {
