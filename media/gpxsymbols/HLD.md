@@ -82,29 +82,34 @@ sequenceDiagram
 
 ## Integration Points
 
-### JavaScript Integration
-- **GPX Display**: Used by GPX symbol display to check symbol availability
-- **Map Markers**: Used when displaying waypoint symbols
+### PHP Integration
+- **exists.php endpoint**: Provides a lightweight file existence check used by GPX symbol renderers → [gpxsymbols HLD](../../gpxsymbols/HLD.md)
 
-### File System
-- **Symbol Directories**: 
-  - `media/gpxsymbols/letter/` - Letter symbols (a-z)
-  - `media/gpxsymbols/number/` - Number symbols (0-100)
-  - `media/gpxsymbols/number_white/` - White number symbols
-  - `media/gpxsymbols/office/` - Office symbols
-  - `media/gpxsymbols/transport/` - Transport symbols
+### Core JavaScript Integration
+- **Callers**: GPX map/marker widgets may call `exists.php` to test for symbol availability before rendering markers.
 
-## Media Dependencies
+## Media Integration
 
-### Symbol Image Files
-- `media/gpxsymbols/letter/*.png` - 26 letter symbols
-- `media/gpxsymbols/number/*.png` - 101 number symbols
-- `media/gpxsymbols/number_white/*.png` - 101 white number symbols
-- `media/gpxsymbols/office/*.png` - 74 office symbols
-- `media/gpxsymbols/transport/*.png` - 101 transport symbols
+### Server-to-Client Asset Relationship
 
-### CSS Dependencies
-- `media/gpxsymbols/display.css` - Symbol display styles
+```mermaid
+flowchart LR
+    Client[Client widget]
+    Exists[media/gpxsymbols/exists.php]
+    Files[/media/gpxsymbols<br/>symbol sprites]
+    Response["true" / "false"]
+
+    Client --> Exists
+    Exists --> Files
+    Exists --> Response
+```
+
+`exists.php` responds synchronously with a boolean string so client code can decide whether to reference a given symbol image under `/media/gpxsymbols/*`.
+
+### Key Features (`exists.php`)
+- Sanitizes incoming file paths before checking the filesystem.
+- Returns plain-text `"true"`/`"false"` for easy consumption by PHP or JavaScript.
+- Supports all symbol families under `/media/lib_ramblers/gpxsymbols/*` without code changes.
 
 ## Examples
 
@@ -153,13 +158,3 @@ fetch('media/lib_ramblers/gpxsymbols/exists.php?file=media/lib_ramblers/gpxsymbo
 
 ### Key Source Files
 - `media/gpxsymbols/exists.php` - Existence check endpoint (18 lines)
-
-### Related Media Files
-- `media/gpxsymbols/display.css` - Symbol stylesheet
-- `media/gpxsymbols/letter/*.png` - Letter symbols (26 files)
-- `media/gpxsymbols/number/*.png` - Number symbols (101 files)
-- `media/gpxsymbols/number_white/*.png` - White number symbols (101 files)
-- `media/gpxsymbols/office/*.png` - Office symbols (74 files)
-- `media/gpxsymbols/transport/*.png` - Transport symbols (101 files)
-
-

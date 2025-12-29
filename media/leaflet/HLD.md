@@ -340,14 +340,15 @@ sequenceDiagram
 ## Integration Points
 
 ### PHP Integration
-- **RLeafletMap**: Provides map options and data → [leaflet HLD](../../leaflet/HLD.md)
-- **RLeafletScript**: Injects bootstrap code → [leaflet HLD](../../leaflet/HLD.md)
-- **RLeafletGpxMap**: Provides GPX file path → [leaflet/gpx HLD](../../leaflet/gpx/HLD.md)
+- **RLeafletMap**: Provides map options/data and emits the command/data JSON for client bootstrap → [leaflet HLD](../../leaflet/HLD.md)
+- **RLeafletScript**: Injects Leaflet core/plugins and routes asset enqueueing through `RLoad::addScript()` → [leaflet HLD](../../leaflet/HLD.md)
+- **RLeafletGpxMap**: Supplies GPX file paths for client rendering → [leaflet/gpx HLD](../../leaflet/gpx/HLD.md)
 
 ### Core JavaScript Integration
-- **ra.js**: Core utilities, bootstrapper → [media/js HLD](../js/HLD.md)
-- **ra.map.js**: Map utilities, icons → [media/js HLD](../js/HLD.md)
-- **ra.tabs.js**: Tab system → [media/js HLD](../js/HLD.md)
+- **ra.js / ra.map.js / ra.tabs.js**: Shared foundations loaded before any `/media/leaflet` entry point → [media/js HLD](../js/HLD.md)
+- **ra.leafletmap.js**: Map wrapper used by all client displays.
+- **ra.map.cluster**: Optional clustering helper for map presenters.
+- **ra.paginatedDataList.js**: Used by table-driven map lists.
 
 ### Vendor Library Integration
 - **Leaflet.js**: Core mapping library (CDN)
@@ -365,47 +366,33 @@ sequenceDiagram
 - **Ordnance Survey API**: OS maps and tiles
 - **ESRI**: Aerial imagery
 
-## Media Dependencies
+## Media Integration
 
-### JavaScript Files
+### Server-to-Client Asset Relationship
 
-#### Core Map Files
-- `ra.leafletmap.js` - Map wrapper (395+ lines)
-- `ra.map.settings.js` - Settings panel (114+ lines)
-- `ra.display.plotRoute.js` - Route plotting
-- `ra-display-places.js` - Place display
-- `ra.display.mapCompare.js` - Map comparison
+```mermaid
+flowchart LR
+    PHP[RLeafletScript::add]
+    Loader[RLoad::addScript]
+    BaseJS[/media/js<br/>ra.js, ra.map.js, ra.tabs.js]
+    LeafletJS[Leaflet core + CSS]
+    ModuleJS[/media/leaflet<br/>ra.leafletmap.js, ra.map.settings.js, L.Control.*]
+    Bootstrap[ra.bootstrapper → ra.display.*]
 
-#### Control Files (10+ files)
-- `L.Control.Places.js` - Place management (510+ lines)
-- `L.Control.Search.js` - Location search
-- `L.Control.Tools.js` - Map tools
-- `L.Control.SmartRoute.js` - Smart routing
-- `L.Control.ReverseRoute.js` - Reverse routing
-- `L.Control.GpxUpload.js` - GPX upload
-- `L.Control.GpxDownload.js` - GPX download
-- `L.Control.GpxSimplify.js` - GPX simplification
-- `L.Control.Mouse.js` - Mouse position
-- `L.Control.MyLocation.js` - User location
-- `L.Control.RAContainer.js` - Container control
+    PHP --> Loader
+    Loader --> BaseJS
+    Loader --> LeafletJS
+    Loader --> ModuleJS
+    PHP --> Bootstrap
+```
 
-#### Display Files
-- `gpx/maplist.js` - GPX list display (495+ lines)
-- `table/ramblerstable.js` - Table rendering (358+ lines)
+`RLeafletScript::add()` orchestrates asset loading through `RLoad`, enqueueing the `/media/js` foundation, Leaflet core/CSS, and `/media/leaflet` entry points before outputting the bootstrapper that starts the requested `ra.display.*` class.
 
-### CSS Dependencies
-- `media/leaflet/ramblersleaflet.css` - Base Leaflet styles
-- `media/leaflet/L.Control.Mouse.css` - Mouse control styles
-- `media/leaflet/ra-gpx-tools.css` - GPX tool styles
-
-### Image Dependencies
-- `media/leaflet/images/` - Map icons and markers (58 files)
-  - `postcode-icon.png`, `redmarker.png`, `route-start.png`, etc.
-
-### Map Style Files
-- `media/leaflet/mapStyles/osRamblersStyle.json` - OS Ramblers style
-- `media/leaflet/mapStyles/osTestStyle.json` - OS test style
-- `media/leaflet/mapStyles/osmliberty.json` - OSM Liberty style
+## Key Features (Leaflet Media Stack)
+- `ra.leafletmap.js`: Central map wrapper handling initialization, controls, and data overlays.
+- Control bundle (`L.Control.*`): Search, tools, smart routing, reverse routes, GPX upload/download, mouse position, and more.
+- GPX utilities: `gpx/maplist.js` and elevation integration for displaying and analysing routes.
+- Optional settings panel and comparison displays driven by map options from PHP.
 
 ## Examples
 
@@ -504,5 +491,3 @@ ra.bootstrapper(
 - `media/leaflet/ramblersleaflet.css` - Stylesheet
 - `media/leaflet/images/` - Map icons (58 files)
 - `media/leaflet/mapStyles/` - Map style JSON files
-
-

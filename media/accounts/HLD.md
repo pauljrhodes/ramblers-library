@@ -109,31 +109,48 @@ sequenceDiagram
 ## Integration Points
 
 ### PHP Integration
-- **RAccounts**: Provides account data → [accounts HLD](../../accounts/HLD.md)
-- **RLeafletMap**: Provides map options → [leaflet HLD](../../leaflet/HLD.md)
+- **RAccounts**: Provides account data and calls `RLoad::addScript()` to enqueue `/media/accounts/accounts.js` and the shared `/media/js` stack before rendering the Leaflet map → [accounts HLD](../../accounts/HLD.md)
+- **RLeafletMap**: Hosts the map container and injects JSON data/command for `ra.display.accountsMap` → [leaflet HLD](../../leaflet/HLD.md)
 
 ### Core JavaScript Integration
-- **ra.js**: Core utilities → [media/js HLD](../js/HLD.md)
+- **ra.js**: Bootstrapper and utilities → [media/js HLD](../js/HLD.md)
 - **ra.leafletmap.js**: Map wrapper → [media/leaflet HLD](../leaflet/HLD.md)
 - **ra.map.cluster**: Marker clustering → [media/leaflet HLD](../leaflet/HLD.md)
 
-## Media Dependencies
+## Media Integration
 
-### JavaScript File
+### Server-to-Client Asset Relationship
 
-#### `media/accounts/accounts.js`
-- **Purpose**: Accounts map display
-- **Dependencies**: `ra.js`, `ra.leafletmap.js`, Leaflet.js
-- **Size**: 69+ lines
-- **Key Features**: 
-  - Account marker rendering
-  - Status-based filtering
-  - Marker clustering
-  - Popup content generation
+```mermaid
+flowchart LR
+    PHP[RAccounts::addMapMarkers]
+    Loader[RLoad::addScript]
+    Map[RLeafletMap::display]
+    BaseJS[/media/js<br/>ra.js, ra.leafletmap.js, ra.tabs.js]
+    AccountsJS[/media/accounts/accounts.js]
+    Bootstrap[ra.bootstrapper → ra.display.accountsMap]
 
-### CSS Dependencies
-- `media/css/ramblerslibrary.css` - Base styles
-- `media/leaflet/ramblersleaflet.css` - Leaflet styles
+    PHP --> Loader
+    Loader --> BaseJS
+    Loader --> AccountsJS
+    PHP --> Map
+    Map --> Bootstrap
+```
+
+`RAccounts::addMapMarkers()` pushes the `/media/js` foundation and `/media/accounts/accounts.js` through `RLoad`. `RLeafletMap::display()` then emits the bootstrapper command so the browser instantiates `ra.display.accountsMap` with the injected JSON data.
+
+### PHP Integration
+- **Asset enqueue**: `RAccounts::addMapMarkers()` calls `RLoad::addScript()` for `/media/js/ra.js`, `/media/js/ra.leafletmap.js`, `/media/js/ra.tabs.js`, and `/media/accounts/accounts.js` before delegating to `RLeafletMap::display()`.
+
+### Core JavaScript Integration
+- **Entry point**: `ra.display.accountsMap` consumes the JSON payload and map options provided by `RLeafletMap` and uses `ra.leafletmap` plus `ra.map.cluster` for rendering.
+
+### Key Features (`media/accounts/accounts.js`)
+- Marker clustering and status-aware styling for hosted sites.
+- Popups listing domain, code, area, group, and status from PHP-injected JSON.
+- Automatic zoom-to-bounds after rendering the marker set.
+- Uses `ra.leafletmap` and `ra.map.cluster` to keep display logic concise.
+
 
 ## Examples
 
@@ -158,5 +175,3 @@ ra.bootstrapper(
 
 ### Key Source Files
 - `media/accounts/accounts.js` - Accounts display (69+ lines)
-
-

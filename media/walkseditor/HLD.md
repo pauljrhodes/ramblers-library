@@ -250,60 +250,73 @@ sequenceDiagram
 ## Integration Points
 
 ### PHP Integration
-- **Joomla Configuration**: Reads email settings from `configuration.php`
-- **PHPMailer Library**: Uses PHPMailer for email sending
-- **JSON Processing**: Receives and validates JSON walk data
+- **RWalkseditorProgramme / RWalkseditorSubmitform**: Call `RWalkseditor::addScriptsandCss()` to enqueue `/media/walkseditor/js/*` plus shared `/media/js/ra.tabs.js` and `/media/vendors/cvList/cvList.js` through `RLoad::addScript()`. Email submission flows through `media/lib_ramblers/walkseditor/sendemail.php` using PHPMailer.
+- **JSON Handling**: Server receives/validates JSON walk data and injects configuration into the client bootstrap.
 
-### JavaScript Integration
-- **ra.js**: Core utilities → [media/js HLD](../js/HLD.md)
-- **Leaflet Maps**: Location selection → [media/leaflet HLD](../leaflet/HLD.md)
-- **AJAX**: Form submission to PHP endpoint
+### Core JavaScript Integration
+- **ra.tabs**: Shared tab UI used by the editor displays → [media/js HLD](../js/HLD.md)
+- **cvList**: Pagination for list views → [media/vendors HLD](../vendors/HLD.md)
+- **Leaflet Maps**: Location picker utilities consume `/media/leaflet` controls when map support is enabled → [media/leaflet HLD](../leaflet/HLD.md)
+- **AJAX Helpers**: Editor scripts post to `sendemail.php` for email delivery.
+
+## Media Integration
+
+### Server-to-Client Asset Relationship
+
+```mermaid
+flowchart LR
+    PHP[RWalkseditorProgramme<br/>RWalkseditorSubmitform]
+    Loader[RLoad::addScript]
+    BaseJS[/media/js/ra.tabs.js<br/>/media/vendors/cvList/cvList.js]
+    EditorJS[/media/walkseditor/js<br/>walkeditor.js, form/*.js]
+    Bootstrap[Client bootstrap + AJAX handlers]
+
+    PHP --> Loader
+    Loader --> BaseJS
+    Loader --> EditorJS
+    PHP --> Bootstrap
+```
+
+`RWalkseditor::addScriptsandCss()` centralizes asset loading by pushing the `/media/walkseditor/js` bundle and shared tab/pagination libraries through `RLoad`. The rendered page then runs the editor bootstrap, which wires the AJAX submission pipeline to `sendemail.php`.
 
 ### External Services
 - **SMTP Server**: Email delivery (via Joomla configuration)
 - **Email Recipients**: Programme coordinators (from form data)
 
-## Media Dependencies
+## Media Dependencies & Key Features
 
 ### JavaScript Files (13 files in `js/` subfolder)
 
 #### Core Editor Files
-- `walkeditor.js` - Main editor (779+ lines)
-- `walk.js` - Walk object handling
-- `viewWalks.js` - Walk viewing interface
-- `inputfields.js` - Form field utilities
-- `loader.js` - Asset loading
+- `walkeditor.js` - Main editor (779+ lines); **Key features**: bootstraps the UI, wires events, orchestrates AJAX.
+- `walk.js` - Walk object handling; **Key features**: domain model, validation helpers.
+- `viewWalks.js` - Walk viewing interface; **Key features**: renders tabbed lists and details.
+- `inputfields.js` - Form field utilities; **Key features**: validation and standardised inputs.
+- `loader.js` - Asset loading; **Key features**: loading overlays and progress feedback.
 
 #### Place Management
-- `placeEditor.js` - Place editing
-- `maplocation.js` - Map location selection
-- `comp/places.js` - Places component
-- `comp/viewAllPlaces.js` - Places list view
+- `placeEditor.js` - Place editing; **Key features**: CRUD helpers and map sync.
+- `maplocation.js` - Map location selection; **Key features**: Leaflet-based picker and coordinate handling.
+- `comp/places.js` - Places component; **Key features**: list rendering and pagination hooks.
+- `comp/viewAllPlaces.js` - Places list view; **Key features**: table rendering and filters.
 
 #### Form Handling
-- `form/submitwalk.js` - Walk submission
-- `form/programme.js` - Programme management
+- `form/submitwalk.js` - Walk submission; **Key features**: validation, payload assembly, and postback.
+- `form/programme.js` - Programme management; **Key features**: programme tab wiring and list refresh.
 
 #### Component Views
-- `comp/viewAllWalks.js` - Walks list view
+- `comp/viewAllWalks.js` - Walks list view; **Key features**: list rendering and pagination with cvList.
 
 #### Utilities
-- `walksEditorHelps.js` - Help system
+- `walksEditorHelps.js` - Help system; **Key features**: contextual tips and modal guidance.
 
 ### PHP Files
 
 #### Email Handling
-- `sendemail.php` - Email submission handler (105 lines)
+- `sendemail.php` - Email submission handler (105 lines); **Key features**: PHPMailer orchestration and JSON response shaping.
 - `PHPMailer.php` - PHPMailer library (5253+ lines)
 - `SMTP.php` - SMTP transport
 - `Exception.php` - Exception classes
-
-### CSS Dependencies
-- `media/walkseditor/css/*.css` - Editor stylesheets (5 files)
-- `media/walkseditor/css/styleemail.css` - Email template styles
-
-### Image Dependencies
-- `media/walkseditor/css/*.png` - Editor icons (6 files)
 
 ## Examples
 
@@ -393,5 +406,3 @@ editor.load(editDiv, walkObject, false);
 ### Related Media Files
 - `media/walkseditor/css/` - Editor stylesheets (5 CSS files)
 - `media/walkseditor/css/*.png` - Editor icons (6 PNG files)
-
-

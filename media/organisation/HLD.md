@@ -117,31 +117,46 @@ sequenceDiagram
 ## Integration Points
 
 ### PHP Integration
-- **ROrganisation**: Provides organisation data → [organisation HLD](../../organisation/HLD.md)
-- **RLeafletMap**: Provides map options → [leaflet HLD](../../leaflet/HLD.md)
+- **ROrganisation**: Supplies organisation data and enqueues `/media/organisation/organisation.js` plus shared `/media/js` assets via `RLoad::addScript()` → [organisation HLD](../../organisation/HLD.md)
+- **RLeafletMap**: Provides map options, command (`ra.display.organisationMap`), and JSON payload to the browser → [leaflet HLD](../../leaflet/HLD.md)
 
 ### Core JavaScript Integration
-- **ra.js**: Core utilities → [media/js HLD](../js/HLD.md)
+- **ra.js**: Core utilities/bootstrapper → [media/js HLD](../js/HLD.md)
 - **ra.leafletmap.js**: Map wrapper → [media/leaflet HLD](../leaflet/HLD.md)
 - **ra.map.cluster**: Marker clustering → [media/leaflet HLD](../leaflet/HLD.md)
 
-## Media Dependencies
+## Media Integration
 
-### JavaScript File
+### Server-to-Client Asset Relationship
 
-#### `media/organisation/organisation.js`
-- **Purpose**: Organisation map display
-- **Dependencies**: `ra.js`, `ra.leafletmap.js`, Leaflet.js
-- **Size**: 297+ lines
-- **Key Features**: 
-  - Area/group marker rendering
-  - Marker clustering
-  - Popup content generation
-  - Custom styling based on scope
+```mermaid
+flowchart LR
+    PHP[ROrganisation::display]
+    Loader[RLoad::addScript]
+    Map[RLeafletMap::display]
+    BaseJS[/media/js<br/>ra.js, ra.leafletmap.js, ra.tabs.js]
+    OrgJS[/media/organisation/organisation.js]
+    Bootstrap[ra.bootstrapper → ra.display.organisationMap]
 
-### CSS Dependencies
-- `media/css/ramblerslibrary.css` - Base styles
-- `media/leaflet/ramblersleaflet.css` - Leaflet styles
+    PHP --> Loader
+    Loader --> BaseJS
+    Loader --> OrgJS
+    PHP --> Map
+    Map --> Bootstrap
+```
+
+`ROrganisation::display()` queues the `/media/js` foundation and `/media/organisation/organisation.js` through `RLoad`. `RLeafletMap::display()` then emits the bootstrapper so the browser instantiates `ra.display.organisationMap` with the JSON data provided by PHP.
+
+### PHP Integration
+- **Asset enqueue**: `RLoad::addScript()` loads `/media/js/ra.js`, `/media/js/ra.leafletmap.js`, `/media/js/ra.tabs.js`, and `/media/organisation/organisation.js` before outputting the map container.
+
+### Core JavaScript Integration
+- **Entry point**: `ra.display.organisationMap` consumes the injected JSON and uses `ra.leafletmap` plus `ra.map.cluster` to render markers and popups.
+
+### Key Features (`media/organisation/organisation.js`)
+- Renders clustered area and group markers with configurable colours.
+- Popups include codes, descriptions, and optional links from server data.
+- Supports centring on a preferred group and toggling code/link visibility.
 
 ## Examples
 
@@ -166,5 +181,3 @@ ra.bootstrapper(
 
 ### Key Source Files
 - `media/organisation/organisation.js` - Organisation display (297+ lines)
-
-

@@ -157,7 +157,12 @@ sequenceDiagram
 - **RHtml**: HTML table formatting → [html HLD](../html/HLD.md)
 - **RSqlUtils**: Table existence checks → [sql HLD](../sql/HLD.md)
 
-## Media Dependencies
+### Key Features (`RAccounts`)
+- Loads hosted site accounts, enriches them with organisation data, and exposes table/log displays.
+- Configures Leaflet map commands/data for `ra.display.accountsMap` with minimal caller setup.
+- Supports multiple display formats and integrates log file analysis for each account.
+
+## Media Integration
 
 ### Server-to-Client Asset Relationship
 
@@ -166,8 +171,8 @@ flowchart LR
     Accounts[RAccounts::addMapMarkers]
     Map[RLeafletMap]
     Loader[RLoad]
-    BaseJS[media/js<br/>ra.js<br/>ra.map.js<br/>ra.tabs.js]
-    AccountsJS[media/accounts/accounts.js]
+    BaseJS[/media/js<br/>ra.js, ra.map.js, ra.tabs.js]
+    AccountsJS[/media/accounts/accounts.js]
     Leaflet[Leaflet core + plugins]
 
     Accounts --> Map
@@ -177,28 +182,17 @@ flowchart LR
     Loader --> AccountsJS
 ```
 
-`RAccounts::addMapMarkers()` invokes `RLoad` to enqueue the shared `media/js` foundation plus `media/accounts/accounts.js`, then defers to `RLeafletMap::display()`/`RLeafletScript::add()` for Leaflet setup before running the `ra.display.accountsMap` client initializer.
+`RAccounts::addMapMarkers()` enqueues `/media/accounts/accounts.js` alongside the shared `/media/js` bootstrap by calling `RLoad::addScript()`; `RLeafletScript::add()` then injects Leaflet core and plugins so that `ra.display.accountsMap` can run in the browser.
 
-### JavaScript File
+### Media Asset Loading
+- **JavaScript entry point**: `/media/accounts/accounts.js` (initialized via `ra.display.accountsMap`).
+- **Server-to-client flow**: `RAccounts::addMapMarkers()` sets the command/data on `RLeafletMap`, uses `RLoad` for the `/media` assets, and delegates to `RLeafletMap::display()` to emit the bootstrapper and data payload.
 
-#### `media/accounts/accounts.js`
-- **Purpose**: Client-side accounts map display
-- **Dependencies**: `ra.js`, `ra.leafletmap.js`, Leaflet.js
-- **Integration**: Loaded via `RLoad::addScript()` in `addMapMarkers()`
-- **Key Functions**:
-  - `ra.display.accountsMap(options, data)` - Main initialization
-  - `this.addMarkers(websites)` - Add hosted site markers
-  - `this.addMarker(item)` - Add individual marker
-  - Marker styling based on account status
-  - Popup content with account details
-- **API**:
-  - `this.lmap` - Leaflet map instance
-  - `this.cluster` - Marker clustering
-  - `this.data` - Hosted site data
-  - `this.load()` - Initialize map and markers
-- **Usage**: Automatically initialized when `RLeafletMap` sets command to `"ra.display.accountsMap"`
-
-**Loading**: `addMapMarkers()` calls `RLoad::addScript()` for `media/js/ra.js`, `media/js/ra.map.js`, `media/js/ra.tabs.js`, and `media/accounts/accounts.js` before invoking `RLeafletMap::display()`.
+### Key Features (`accounts.js`)
+- Status-aware marker clustering and popups for hosted sites.
+- Area vs group iconography based on account code length.
+- Automatic fit-to-bounds after marker creation.
+- Consumes JSON injected by `RAccounts::addMapMarkers()` without extra configuration.
 
 ## Examples
 
