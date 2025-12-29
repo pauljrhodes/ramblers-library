@@ -29,7 +29,7 @@ It retrieves walk/event data (primarily from Walk Manager), normalises it into a
 
 **For detailed documentation, see individual module HLD documents:**
 - [jsonwalks HLD](jsonwalks/HLD.md)
-- [jsonwalks/wm HLD](jsonwalks/wm/ARCHITECTURE.md)
+- [jsonwalks/wm HLD](jsonwalks/wm/HLD.md)
 - [jsonwalks/std HLD](jsonwalks/std/HLD.md)
 - [jsonwalks/walk HLD](jsonwalks/walk/HLD.md)
 - [jsonwalks/leaflet HLD](jsonwalks/leaflet/HLD.md)
@@ -45,15 +45,22 @@ It retrieves walk/event data (primarily from Walk Manager), normalises it into a
 - [sql HLD](sql/HLD.md)
 - [load HLD](load/HLD.md)
 
-### 0.2 Key execution "spines"
+### 0.3 Integration overview (API, boundaries, caching, media assets)
+
+- **Walk Manager API (OpenAPI-driven)**: `RJsonwalksWmFeed` constructs query-string calls to the WM Volunteer API (group codes, date ranges, walk/event/wellbeing toggles) and validates JSON payload shape before conversion.【F:jsonwalks/wm/feed.php†L9-L129】【F:jsonwalks/wm/feedoptions.php†L7-L85】  
+- **Joomla boundaries**: The library is packaged as a Joomla *site library* (`ramblers.xml`) and pushes assets + JSON data into `JDocument` via `RLeafletScript`/`RLoad`, keeping presentation concerns inside Joomla’s document pipeline.【F:ramblers.xml†L2-L58】【F:leaflet/script.php†L12-L164】【F:load/load.php†L3-L24】  
+- **Caching**: Walk Manager responses are cached on disk (`RJsonwalksWmCachefolder`) with a fixed 10-minute TTL, including fallback to stale cache on upstream failure.【F:jsonwalks/wm/feed.php†L52-L118】【F:jsonwalks/wm/cachefolder.php†L14-L65】  
+- **Media asset pipeline**: PHP presenters delegate to `RLoad` for cache-busted scripts/styles and to `RLeafletScript` for JSON payload injection, enabling JS bootstrap (`ra.bootstrapper`) to hydrate maps, tabs, and tables.【F:jsonwalks/std/display.php†L60-L133】【F:leaflet/script.php†L21-L151】【F:load/load.php†L3-L24】
+
+### 0.4 Key execution "spines"
 - **Walk listing spine**: `RJsonwalksFeed → RJsonwalksWalks → presenter (RJsonwalksDisplaybase subclasses) → Leaflet bridge (RLeafletMap / RLeafletScript) → Joomla document injection`.【F:jsonwalks/feed.php†L18-L200】【F:leaflet/map.php†L21-L42】【F:leaflet/script.php†L21-L151】  
 - **Walk Manager spine**: `RJsonwalksSourcewalksmanager → RJsonwalksWmFeed → cache folder + file IO → WM API → error escalation`.【F:jsonwalks/sourcewalksmanager.php†L13-L176】【F:jsonwalks/wm/feed.php†L16-L189】  
 - **Calendar spine**: `event/feed.php → RIcsOutput (RFC5545 output)` with optional shared JS dataset exposure via `RLeafletScript::registerWalks`.【F:event/feed.php†L13-L28】【F:ics/output.php†L14-L78】【F:leaflet/script.php†L153-L164】
 
-### 0.3 Data Flow Overview
+### 0.5 Data Flow Overview
 
 #### Complete BU51 Feed to Display Flow
-This sequence diagram shows the complete execution path from feed options creation through to final display rendering:
+This updated sequence diagram highlights the external WM API call (per the published OpenAPI spec), cache layering, and the media-asset pipeline driven by `RLoad`:
 
 ```mermaid
 sequenceDiagram
@@ -63,94 +70,47 @@ sequenceDiagram
     participant Feed as RJsonwalksFeed
     participant SrcWM as RJsonwalksSourcewalksmanager
     participant WMFeed as RJsonwalksWmFeed
-    participant WMOpts as RJsonwalksWmFeedoptions
     participant Cache as RJsonwalksWmCachefolder
-    participant WMOrg as RJsonwalksWmOrganisation
     participant WMFileIO as RJsonwalksWmFileio
     participant WMAPI as Walk Manager API
     participant Walks as RJsonwalksWalks
-    participant DisplayBU51 as RJsonwalksBU51Tabs
-    participant DisplayStd as RJsonwalksStdDisplay
-    participant DisplayBase as RJsonwalksDisplaybase
-    participant LeafletScript as RLeafletScript
-    participant LeafletOpts as RLeafletMapoptions
+    participant Presenter as Display (Std/BU51/etc.)
     participant LeafletMap as RLeafletMap
+    participant LeafletScript as RLeafletScript
+    participant RLoad as RLoad
     participant Doc as Joomla Document
+    participant Browser as Browser (ra.bootstrapper)
 
-    Note over Page: Construct feed options
-    Page->>FeedOpts: new('BU51')
-    FeedOpts->>FeedOpts: addWalksMangerGroupWalks('BU51')
-    FeedOpts->>SrcWM: new + _initialise(groups, readwalks=true,<br/>readevents=true, wellbeingWalks=false)
-
-    Note over Page: Construct feed and load data
+    Note over Page: Construct feed options + presenter
+    Page->>FeedOpts: new('BU51') + group/date filters
     Page->>Feed: new(FeedOpts)
-    Feed->>Walks: new()
-    Feed->>FeedOpts: getWalks(Walks)
-    FeedOpts->>SrcWM: getWalks(Walks)
-    
-    SrcWM->>WMFeed: new()
-    SrcWM->>WMFeed: getGroupFutureItems(groups,<br/>readwalks, readevents, wellbeing)
-    WMFeed->>WMOpts: new() + set groupCode/date range (+12 months)
-    WMFeed->>WMFeed: getFeed(WMOpts)
-    
-    alt method == "time" → check cache
-        WMFeed->>Cache: whichSource(cacheFile)
-        Cache-->>WMFeed: FEED or CACHE
-    else organisation decides
-        WMFeed->>WMOrg: whereToGetWalksFrom(WMOpts)
-        WMOrg-->>WMFeed: FEED or CACHE
-    end
+    Page->>Presenter: new(Display)
 
-    opt source == CACHE
-        WMFeed->>Cache: readFile(cacheFile)
-        Cache-->>WMFeed: json|string|false
-    end
-
-    opt source == FEED
+    Note over Feed: Acquire data via WM API
+    Feed->>SrcWM: getWalks(Walks)
+    SrcWM->>WMFeed: getGroupFutureItems(groups,...)
+    WMFeed->>Cache: whichSource(cacheFile)
+    alt cache fresh
+        Cache-->>WMFeed: cached JSON
+    else read upstream
         WMFeed->>WMFileIO: readFile(feedUrl)
-        WMFileIO->>WMAPI: HTTP request (with gzip, retries)
-        WMAPI-->>WMFileIO: JSON response
-        WMFileIO-->>WMFeed: JSON response
-        WMFeed->>Cache: writeFile(cacheFile, result)
+        WMFileIO->>WMAPI: GET /volunteers/walksevents
+        WMAPI-->>WMFileIO: JSON (OpenAPI schema)
+        WMFileIO-->>WMFeed: response body
+        WMFeed->>Cache: writeFile(cacheFile, body)
     end
+    WMFeed->>SrcWM: convertResults + normalise
+    SrcWM->>Walks: addWalk(walk)
 
-    WMFeed->>WMFeed: convertResults(result, url)<br/>(json_decode, validate)
-    WMFeed-->>SrcWM: items[]
-    
-    loop for each item
-        SrcWM->>SrcWM: convertToInternalFormat(walk,item)
-        SrcWM->>Walks: addWalk(walk)
-    end
-    SrcWM-->>FeedOpts: return
-    FeedOpts-->>Feed: return
-    
-    Feed->>Walks: setNewWalks(7)
-    Feed->>Walks: setBookings()
+    Note over Presenter: Prepare render + assets
+    Presenter->>LeafletMap: setCommand("ra.display.walksTabs") + payload
+    LeafletMap->>LeafletScript: add(options + data)
+    LeafletScript->>RLoad: addScript/addStyle (cache-busted)
+    RLoad->>Doc: enqueue assets + inline JSON
 
-    Note over Page: Construct display
-    Page->>DisplayBU51: new()
-    DisplayBU51->>DisplayBase: parent::__construct()
-    DisplayBase->>LeafletScript: new()
-    DisplayBase->>LeafletOpts: new()<br/>+ set defaults (mapHeight, rightclick,<br/>fullscreen, copyright=false)
-    DisplayBase->>LeafletScript: add(LeafletOpts)
-    DisplayBU51->>DisplayStd: setTabOrder(['List','Calendar','Map'])<br/>+ setCustomListFormat([...])
-    DisplayBU51->>Doc: RLoad::addStyleSheet(bu51.css)
-
-    Note over Page: Render
-    Page->>Feed: display(DisplayBU51)
-    Feed->>Doc: RLoad::addStyleSheet(ramblerslibrary.css)
-    Feed->>DisplayBU51: DisplayWalks(Walks)
-    DisplayBU51->>DisplayStd: parent::DisplayWalks(Walks)
-    DisplayStd->>LeafletMap: new()
-    DisplayStd->>LeafletMap: setCommand("ra.display.walksTabs")<br/>+ options (cluster, calendar, etc.)
-    DisplayStd->>Walks: sort(by date,time,distance)
-    DisplayStd->>LeafletMap: setDataObject(data)
-    DisplayStd->>LeafletMap: display()
-    DisplayStd->>Doc: RLoad::addScript/Style (display.js, cvList.js/css,<br/>ra.tabs.js, ra.tabs.css)
-    DisplayStd->>Doc: add schema.org metadata
-    DisplayStd-->>DisplayBU51: return
-    DisplayBU51-->>Feed: return
-    Feed-->>Page: HTML output
+    Note over Doc: Deliver page
+    Doc-->>Browser: HTML + scripts/styles
+    Browser->>Browser: ra.bootstrapper() hydrates display
 ```
 
 **Key Points:**
@@ -159,21 +119,15 @@ sequenceDiagram
 - Conversion layer transforms WM JSON to internal `RJsonwalksWalk` objects
 - Display classes configure presentation (tabs, formats, styles)
 - Leaflet integration injects assets and JSON payloads into Joomla document
-- See [jsonwalks/wm HLD](jsonwalks/wm/ARCHITECTURE.md) for detailed WM feed architecture
+- See [jsonwalks/wm HLD](jsonwalks/wm/HLD.md) for detailed WM feed architecture
 
-## 0.3 Discrepancies and resolutions
+## 0.6 Discrepancies and resolutions (updated)
 
-### Resolved (based on your notes)
-1. **REventFeed naming**: references to “REventFeed” in this document refer to the implementation in `event/feed.php`.【F:event/feed.php†L13-L28】  
-2. **TTL**: Walk Manager cache TTL is **fixed in code** (not a configurable parameter).【F:jsonwalks/wm/feed.php†L22-L116】  
-3. **Configuration surface**: caller configuration may originate as **module parameters** and/or **direct PHP instantiation options**; both end up as an options object/string set consumed by `RJsonwalksFeed` / `RJsonwalksFeedoptions`.【F:jsonwalks/feed.php†L18-L200】【F:jsonwalks/feedoptions.php†L9-L78】  
+1. **ICS entrypoint naming**: `REventFeed` (in `event/feed.php`) remains the ICS aggregation entrypoint and extends `RIcsOutput`; `REventGroup` is the collector that adds walk data and registers it with `RLeafletScript`.【F:event/feed.php†L9-L25】【F:event/group.php†L11-L61】  
+2. **Configuration surface**: module parameters are the primary integration point for site builders, but direct PHP construction is fully supported and uses the same `RJsonwalksFeedoptions` methods (e.g., `addWalksMangerGroupWalks`) and feed orchestration path.【F:jsonwalks/feed.php†L18-L200】【F:jsonwalks/feedoptions.php†L15-L129】  
+3. **Method naming**: diagrams now use the actual method identifiers—`RLeafletMapoptions::setinitialviewView` (note casing) and `RJsonwalksFeedoptions::addWalksMangerGroupWalks` / `addWalksManagerGroupsInArea`—so terminology aligns with code.【F:leaflet/mapoptions.php†L8-L32】【F:jsonwalks/feedoptions.php†L63-L90】
 
-### Open questions (please answer so the diagrams can be made strictly canonical)
-1. In `event/feed.php`, what is the **actual class name** that owns the ICS aggregation entrypoint: `REventFeed` or `REventGroup` (or both)?【F:event/feed.php†L13-L28】  
-2. “Module params vs PHP”: do you want the doc to treat *module params* as the **primary public API** and *PHP construction* as an internal detail, or present them as co-equal entry points?  
-3. Which “real method name” mismatch did you mean specifically? (Example candidates: `RLeafletMapoptions::setinitialviewView` spelling/casing; `RJsonwalksFeedoptions` method names.)【F:leaflet/mapoptions.php†L12-L82】【F:jsonwalks/feedoptions.php†L9-L78】  
-
-### 0.4 Integration Points
+### 0.7 Integration Points
 
 The library modules integrate through well-defined interfaces across three layers:
 
@@ -208,6 +162,12 @@ The library modules integrate through well-defined interfaces across three layer
 - **geometry** → Used by `jsonwalks` filtering and `leaflet` distance calculations
 - **html** → Used by `accounts` and other modules for HTML formatting
 - **sql** → Used by `accounts` and `organisation` for database operations
+
+#### Leaflet data-source adapters (commands + payloads)
+- **CSV/JSON/SQL lists**: `RLeafletCsvList`, `RLeafletJsonList`, and `RLeafletSqlList` read external files/queries, then call `setCommand('ra.display.tableList.display')` with table/pagination metadata for `ra.leafletmap` to render tabbed tables and markers.【F:leaflet/csv/list.php†L24-L63】【F:leaflet/sql/list.php†L20-L61】【F:leaflet/json/list.php†L23-L66】
+- **Single GPX**: `RLeafletGpxMap::displayPath()` injects a single GPX track and elevation payload via `ra.display.gpxSingle`.【F:leaflet/gpx/map.php†L15-L78】
+- **GPX folder list**: `RLeafletGpxMaplist` builds an item list from a folder (using `RGpxStatistics` for cached summaries) and publishes it through `ra.display.gpxFolder` with download state and styling options.【F:leaflet/gpx/maplist.php†L24-L83】【F:gpx/statistics.php†L16-L130】
+- **Route plotting**: `RLeafletMapdraw` sets `ra.display.plotRoute` and loads drawing/upload/download controls so the JS client (`ra.display.plotRoute`) can capture, style, and export user-drawn routes.【F:leaflet/mapdraw.php†L21-L54】【F:media/leaflet/ra.display.plotRoute.js†L8-L188】
 
 #### Client-Side Integration (JavaScript Module Interactions)
 
@@ -264,7 +224,7 @@ The library modules integrate through well-defined interfaces across three layer
 
 **See individual module HLD documents for detailed integration patterns.**
 
-### 0.5 Media Assets Architecture
+### 0.8 Media Assets Architecture
 
 The Ramblers Library uses a three-layer architecture: **Server-Side PHP**, **Presentation Layer**, and **Client-Side JavaScript**. Media assets bridge the presentation and client-side layers.
 
@@ -439,7 +399,47 @@ flowchart TB
 ```
 This is the “shape” of the library: `jsonwalks` does orchestration + domain; presenters render; Leaflet is a shared bootstrap; event/ICS exports reuse the domain objects; organisation/accounts reuse feed and mapping utilities.【F:jsonwalks/feed.php†L18-L200】【F:leaflet/script.php†L12-L164】【F:accounts/accounts.php†L24-L205】
 
-### 1.3 Primary runtime flow: render a walk listing page (complete flow)
+### 1.3 Integration + cache + asset-loading view (component/sequence hybrid)
+```mermaid
+sequenceDiagram
+  autonumber
+  participant Joomla as Joomla Module/Page
+  participant FeedOpts as RJsonwalksFeedoptions
+  participant Feed as RJsonwalksFeed
+  participant WMFeed as RJsonwalksWmFeed
+  participant Cache as RJsonwalksWmCachefolder
+  participant WMAPI as Walk Manager API
+  participant Walks as RJsonwalksWalks
+  participant Presenter as Display (Std/BU51/etc.)
+  participant LeafletMap as RLeafletMap
+  participant RLoad as RLoad
+  participant Doc as Joomla Document
+  participant Browser as Browser (ra.bootstrapper)
+
+  Joomla->>FeedOpts: configure (groups, date range, types)
+  Joomla->>Feed: new(FeedOpts)
+  Feed->>WMFeed: getGroupFutureItems(...)
+  WMFeed->>Cache: whichSource(cacheFile)
+  alt cache fresh (<10 min)
+    Cache-->>WMFeed: cached JSON
+  else fetch upstream
+    WMFeed->>WMAPI: GET /volunteers/walksevents (OpenAPI schema)
+    WMAPI-->>WMFeed: JSON payload
+    WMFeed->>Cache: writeFile(cacheFile, payload)
+  end
+  WMFeed-->>Feed: items[]
+  Feed->>Walks: hydrate + filter + flags
+  Joomla->>Presenter: configure tabs/view
+  Presenter->>LeafletMap: setCommand + data payload
+  LeafletMap->>RLoad: add script/style assets (cache-busted)
+  RLoad->>Doc: enqueue assets + inline JSON payload
+  Doc-->>Browser: HTML + assets
+  Browser->>Browser: ra.bootstrapper initialises modules
+```
+
+**Highlights:** External WM API calls, cache freshness checks, and the RLoad-driven media pipeline that hands the bootstrapper JSON payloads for client-side rendering.【F:jsonwalks/wm/feed.php†L52-L118】【F:leaflet/script.php†L21-L151】【F:load/load.php†L3-L24】
+
+### 1.4 Primary runtime flow: render a walk listing page (complete flow)
 
 **Server-Side Flow:**
 ```mermaid
@@ -1306,14 +1306,14 @@ Detailed architecture documentation is available for each module:
 
 ### Core Walk Management
 - [jsonwalks/HLD.md](jsonwalks/HLD.md) - Main orchestration, domain models, display base classes
-- [jsonwalks/wm/ARCHITECTURE.md](jsonwalks/wm/ARCHITECTURE.md) - Walk Manager API integration (detailed)
+- [jsonwalks/wm/HLD.md](jsonwalks/wm/HLD.md) - Walk Manager API integration (detailed)
 - [jsonwalks/std/HLD.md](jsonwalks/std/HLD.md) - Standard display implementations
 - [jsonwalks/walk/HLD.md](jsonwalks/walk/HLD.md) - Walk domain value objects
 - [jsonwalks/leaflet/HLD.md](jsonwalks/leaflet/HLD.md) - Map marker integration
 
 ### Data Acquisition & Caching
 - [feedhelper/HLD.md](feedhelper/HLD.md) - Generic HTTP feed retrieval with caching
-- [jsonwalks/wm/ARCHITECTURE.md](jsonwalks/wm/ARCHITECTURE.md) - WM feed system (see above)
+- [jsonwalks/wm/HLD.md](jsonwalks/wm/HLD.md) - WM feed system (see above)
 
 ### Presentation & Mapping
 - [leaflet/HLD.md](leaflet/HLD.md) - Leaflet map integration, script loading, options

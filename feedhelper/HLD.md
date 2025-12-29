@@ -223,9 +223,8 @@ $feedHelper->clearCache(); // Remove all cached files
 ### Related HLD Documents
 - [errors HLD](../errors/HLD.md) - Error reporting system
 - [organisation HLD](../organisation/HLD.md) - Organisation feed usage
-- [jsonwalks/wm HLD](../jsonwalks/wm/ARCHITECTURE.md) - WM feed system (similar but specialized)
+- [jsonwalks/wm HLD](../jsonwalks/wm/HLD.md) - WM feed system (similar but specialized)
 
 ### Key Source Files
 - `feedhelper/feedhelper.php` - RFeedhelper class
-
 

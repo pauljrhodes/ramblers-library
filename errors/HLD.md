@@ -141,9 +141,9 @@ sequenceDiagram
 
 ### Used By
 - **All modules**: Universal error reporting
-- **RJsonwalksWmFeed**: WM API errors → [jsonwalks/wm HLD](../jsonwalks/wm/ARCHITECTURE.md)
+- **RJsonwalksWmFeed**: WM API errors → [jsonwalks/wm HLD](../jsonwalks/wm/HLD.md)
 - **RFeedhelper**: Feed fetch errors → [feedhelper HLD](../feedhelper/HLD.md)
-- **RJsonwalksWmFileio**: File I/O errors → [jsonwalks/wm HLD](../jsonwalks/wm/ARCHITECTURE.md)
+- **RJsonwalksWmFileio**: File I/O errors → [jsonwalks/wm HLD](../jsonwalks/wm/HLD.md)
 - **ROrganisation**: Organisation feed errors → [organisation HLD](../organisation/HLD.md)
 
 ### External Services
@@ -246,7 +246,7 @@ RErrors::notifyError(
 ## References
 
 ### Related HLD Documents
-- [jsonwalks/wm HLD](../jsonwalks/wm/ARCHITECTURE.md) - WM error usage
+- [jsonwalks/wm HLD](../jsonwalks/wm/HLD.md) - WM error usage
 - [feedhelper HLD](../feedhelper/HLD.md) - Feed error usage
 - [organisation HLD](../organisation/HLD.md) - Organisation error usage
 
@@ -255,5 +255,3 @@ RErrors::notifyError(
 
 ### External Services
 - Error Store: `https://errors.theramblers.org.uk/store_errors.php`
-
-

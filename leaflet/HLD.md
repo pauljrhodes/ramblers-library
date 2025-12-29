@@ -194,6 +194,11 @@ public $licenseKeys; // stdClass with API keys
 - **Location**: `leaflet/gpx/map.php`, `maplist.php`
 - **See**: [leaflet/gpx HLD](gpx/HLD.md)
 
+#### RLeafletGpxMaplist (folder-driven GPX index)
+- **Purpose**: Enumerate a GPX folder, cache a JSON summary, and present the list/map with downloads, elevation, and pagination.
+- **Flow**: `display()` builds a stats object from the configured folder, sorts items (title or date), sets command `ra.display.gpxFolder`, and loads `maplist.js`, tabs, and cvList assets for the client grid + map combo.【F:leaflet/gpx/maplist.php†L24-L83】
+- **Caching**: `RGpxStatistics` regenerates `0000gpx_statistics_file.json` only when the most recently modified file is not that JSON (i.e., the folder contents changed), otherwise it reuses the cached JSON for quick responses.【F:gpx/statistics.php†L16-L55】 A rebuild scans `.gpx` files, extracts meta (optionally from GPX itself), and logs diagnostics until Joomla cache expiry.【F:gpx/statistics.php†L57-L130】
+
 #### RLeafletJsonList
 - **Purpose**: Display map markers from JSON data
 - **Location**: `leaflet/json/list.php`
@@ -330,6 +335,10 @@ flowchart LR
 - **Purpose**: Route plotting functionality
 - **Dependencies**: Leaflet.js, routing libraries
 - **Integration**: Loaded for routing features
+
+##### Plot Route workflow (server ↔ client)
+- **Server**: `RLeafletMapdraw` sets the command `ra.display.plotRoute`, enables drawing-friendly options (fullscreen, fitbounds, elevation, right-click, print), and enqueues draw/upload/download/smart-route controls plus styles.【F:leaflet/mapdraw.php†L21-L54】
+- **Client**: `ra.display.plotRoute` bootstraps `ra.leafletmap`, wires Leaflet.draw with custom labels, and attaches GPX upload/download, reverse, simplify, and smart-route controls (optional ORS key). All drawn layers land in a FeatureGroup and trigger elevation refreshes and styling updates on edits.【F:media/leaflet/ra.display.plotRoute.js†L8-L188】
 
 #### `media/leaflet/ra-display-places.js`
 - **Purpose**: Place management and display
