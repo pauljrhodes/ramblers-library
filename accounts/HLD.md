@@ -159,6 +159,26 @@ sequenceDiagram
 
 ## Media Dependencies
 
+### Server-to-Client Asset Relationship
+
+```mermaid
+flowchart LR
+    Accounts[RAccounts::addMapMarkers]
+    Map[RLeafletMap]
+    Loader[RLoad]
+    BaseJS[media/js<br/>ra.js<br/>ra.map.js<br/>ra.tabs.js]
+    AccountsJS[media/accounts/accounts.js]
+    Leaflet[Leaflet core + plugins]
+
+    Accounts --> Map
+    Map --> Loader
+    Loader --> BaseJS
+    Loader --> Leaflet
+    Loader --> AccountsJS
+```
+
+`RAccounts::addMapMarkers()` invokes `RLoad` to enqueue the shared `media/js` foundation plus `media/accounts/accounts.js`, then defers to `RLeafletMap::display()`/`RLeafletScript::add()` for Leaflet setup before running the `ra.display.accountsMap` client initializer.
+
 ### JavaScript File
 
 #### `media/accounts/accounts.js`
@@ -178,6 +198,8 @@ sequenceDiagram
   - `this.load()` - Initialize map and markers
 - **Usage**: Automatically initialized when `RLeafletMap` sets command to `"ra.display.accountsMap"`
 
+**Loading**: `addMapMarkers()` calls `RLoad::addScript()` for `media/js/ra.js`, `media/js/ra.map.js`, `media/js/ra.tabs.js`, and `media/accounts/accounts.js` before invoking `RLeafletMap::display()`.
+
 ## Examples
 
 ### Example 1: Display Account List
@@ -193,6 +215,16 @@ $accounts->listLogDetails(RAccountsAccount::FORMAT_NOLOGFILE);
 $accounts = new RAccounts();
 $map = new RLeafletMap();
 $accounts->addMapMarkers($map);
+```
+
+### Asset Inclusion Example
+
+```php
+$accounts = new RAccounts();
+$map = new RLeafletMap();
+$accounts->addMapMarkers($map);
+// RLoad injects media/js/ra.js and media/accounts/accounts.js
+// RLeafletScript supplies Leaflet before ra.display.accountsMap renders markers
 ```
 
 ### Example 3: Update Accounts
@@ -237,5 +269,3 @@ $accounts->updateAccounts();
 
 ### Related Media Files
 - `media/accounts/accounts.js` - Client-side map display
-
-

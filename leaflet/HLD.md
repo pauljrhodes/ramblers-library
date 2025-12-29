@@ -274,6 +274,30 @@ sequenceDiagram
 - **RLoad**: Used for all script/stylesheet enqueuing → [load HLD](../load/HLD.md)
 - **Joomla Document**: Final script injection point
 
+## Server-to-Client Asset Relationship
+
+```mermaid
+flowchart LR
+    Map[RLeafletMap]
+    Script[RLeafletScript]
+    Loader[RLoad]
+    BaseJS[media/js<br/>ra.js<br/>ra.map.js<br/>ra.tabs.js<br/>ra.paginatedDataList.js<br/>ra.walk.js]
+    LeafletJS[Leaflet core + CSS]
+    ModuleJS[media/leaflet/ra.leafletmap.js<br/>ra.map.settings.js<br/>L.Control.*]
+    DataJS[media/leaflet/table/ramblerstable.js<br/>media/leaflet/gpx/maplist.js]
+    Vendors[media/vendors/**/* + CDN plugins]
+
+    Map --> Script
+    Script --> Loader
+    Loader --> BaseJS
+    Loader --> LeafletJS
+    Loader --> ModuleJS
+    Loader --> DataJS
+    Loader --> Vendors
+```
+
+`RLeafletScript::add()` drives asset loading through `RLoad`, first enqueuing the shared `media/js` foundation (core RA utilities, tabs, pagination, map helpers) and then loading Leaflet core/CSS, plugin modules under `media/leaflet`, data helpers like `table/ramblerstable.js`, and vendor/CDN dependencies according to the map options.
+
 ### License Management
 - **RLicense**: Provides API keys for map providers → [license HLD](../license/HLD.md)
 
@@ -468,6 +492,12 @@ $map->setCommand("ra.display.customMap");
 $map->display();
 ```
 
+### Asset Inclusion Examples
+
+- **Bootstrap chain**: `RLeafletMap::display()` → `RLeafletScript::add()` → `RLoad::addScript()` for `media/js/ra.js`, `media/js/ra.map.js`, and `media/leaflet/ra.leafletmap.js`, followed by Leaflet CDN files and any enabled controls.
+- **Data grid support**: `RLeafletCsvList::display()` adds `media/leaflet/table/ramblerstable.js`, `media/js/ra.tabs.js`, and `media/vendors/cvList/cvList.js` so map tabs and paginated tables render together.
+- **Route tools**: `RLeafletMapdraw` explicitly enqueues `media/leaflet/ra.display.plotRoute.js`, `media/leaflet/L.Control.GpxUpload.js`, `L.Control.GpxDownload.js`, and `L.Control.GpxSimplify.js` to extend the UI with drawing, import/export, and simplification controls.
+
 ## Performance Notes
 
 ### Asset Loading
@@ -535,5 +565,3 @@ $map->display();
 - `media/leaflet/table/ramblerstable.js` - Table rendering
 - `media/leaflet/gpx/maplist.js` - GPX list
 - `media/leaflet/ramblersleaflet.css` - Stylesheet
-
-

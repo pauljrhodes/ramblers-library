@@ -147,6 +147,26 @@ sequenceDiagram
 ### Used By
 - **RAccounts**: Organisation data for account updates → [accounts HLD](../accounts/HLD.md)
 
+## Server-to-Client Asset Relationship
+
+```mermaid
+flowchart LR
+    Org[ROrganisation]
+    Map[RLeafletMap]
+    Loader[RLoad]
+    BaseJS[media/js<br/>ra.js<br/>ra.map.js<br/>ra.tabs.js]
+    OrgJS[media/organisation/organisation.js]
+    Leaflet[Leaflet core + plugins]
+
+    Org --> Map
+    Map --> Loader
+    Loader --> BaseJS
+    Loader --> Leaflet
+    Loader --> OrgJS
+```
+
+`ROrganisation::display()` uses `RLoad` to enqueue the shared `media/js` foundation (core utilities, map helpers, tabs) and Leaflet dependencies before adding `media/organisation/organisation.js`, ensuring the organisation map display has access to the Ramblers UI primitives and mapping stack.
+
 ## Media Dependencies
 
 ### JavaScript File
@@ -167,6 +187,8 @@ sequenceDiagram
   - `this.data` - Organisation data (areas, groups)
   - `this.load()` - Initialize map and markers
 - **Usage**: Automatically initialized when `RLeafletMap` sets command to `"ra.display.organisationMap"`
+
+**Loading**: `ROrganisation::display()` calls `RLoad::addScript()` for `media/js/ra.js`, `media/js/ra.map.js`, `media/js/ra.tabs.js`, and `media/organisation/organisation.js`, then defers Leaflet bootstrap to `RLeafletMap::display()`.
 
 ## Examples
 
@@ -196,6 +218,16 @@ $org->colourMyArea = '#00ff00';
 $org->showCodes = false;
 $map = new RLeafletMap();
 $org->display($map);
+```
+
+### Asset Inclusion Example
+
+```php
+$org = new ROrganisation();
+$map = new RLeafletMap();
+$org->display($map);
+// RLoad enqueues media/js/ra.js and media/organisation/organisation.js
+// RLeafletScript adds Leaflet + controls before ra.display.organisationMap runs
 ```
 
 ## Performance Notes
@@ -235,5 +267,4 @@ $org->display($map);
 
 ### Related Media Files
 - `media/organisation/organisation.js` - Client-side map display
-
 

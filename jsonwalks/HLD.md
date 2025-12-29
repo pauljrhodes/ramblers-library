@@ -312,6 +312,38 @@ sequenceDiagram
 ### Domain Model
 - **Walk Components**: See [jsonwalks/walk HLD](walk/HLD.md) for detailed value object structure
 
+## Server-to-Client Asset Relationship
+
+```mermaid
+flowchart LR
+    Feed[RJsonwalksFeed]
+    DisplayClasses[RJsonwalksStdDisplay<br/>RJsonwalksStdSimplelist<br/>RJsonwalksStdWalktable]
+    LeafletMarker[RJsonwalksLeafletMapmarker]
+    Loader[RLoad]
+    Leaflet[RLeafletScript]
+    BaseJS[media/js<br/>ra.js<br/>ra.walk.js<br/>ra.tabs.js<br/>ra.paginatedDataList.js<br/>ra.feedhandler.js]
+    StdJS[media/jsonwalks/std/display.js]
+    Sr02JS[media/jsonwalks/sr02/display.js]
+    BuCss[media/jsonwalks/bu51/bu51style.css]
+    MlJS[media/jsonwalks/ml/script.js]
+    MapJS[media/jsonwalks/leaflet/mapmarker.js]
+
+    Feed --> DisplayClasses
+    DisplayClasses --> Loader
+    DisplayClasses --> LeafletMarker
+    LeafletMarker --> Loader
+    LeafletMarker --> Leaflet
+    Loader --> BaseJS
+    Loader --> StdJS
+    Loader --> Sr02JS
+    Loader --> BuCss
+    Loader --> MlJS
+    Leaflet --> MapJS
+    Leaflet --> Loader
+```
+
+Server-side display classes use `RLoad` and `RLeafletScript` to enqueue browser assets. The shared `media/js` foundation (`ra.js`, `ra.walk.js`, `ra.tabs.js`, `ra.paginatedDataList.js`, `ra.feedhandler.js`) is loaded before module-specific bundles. Display variants then add their JS/CSS from `media/jsonwalks/*`, while map-enabled presenters rely on `RLeafletScript` to prepare Leaflet plus `media/jsonwalks/leaflet/mapmarker.js`.
+
 ## Media Dependencies
 
 ### Shared JavaScript (loaded by display classes)
@@ -329,7 +361,7 @@ sequenceDiagram
 - **sr02/**: `media/jsonwalks/sr02/display.js` - SR02 display JavaScript
 - **bu51/**: `media/jsonwalks/bu51/bu51style.css` - BU51 stylesheet
 
-**Loading**: Display classes use `RLoad::addStyleSheet()` and `RLeafletScript::add()` to enqueue assets.
+**Loading**: Display classes call `RLoad::addScript()` / `addStyleSheet()` inside `DisplayWalks()` to enqueue the shared `media/js` foundation, CVList vendor assets, and module-specific JS/CSS; map-aware presenters call `RLeafletScript::add()` to inject Leaflet dependencies before `media/jsonwalks/leaflet/mapmarker.js`.
 
 ## Examples
 
@@ -341,6 +373,7 @@ $feed = new RJsonwalksFeed($options);
 $display = new RJsonwalksStdDisplay();
 RLoad::addStyleSheet('media/lib_ramblers/css/ramblerslibrary.css');
 $feed->display($display);
+// Internally loads media/js/ra.js, media/js/ra.walk.js, media/jsonwalks/std/display.js via RLoad
 ```
 
 ### Example 2: Filtered Feed with Custom Display
@@ -379,6 +412,16 @@ $allWalks = $walks->allWalks();
 foreach ($allWalks as $walk) {
     echo $walk->getWalkValue('title');
 }
+```
+
+### Example 5: Embedding Map Markers
+
+```php
+$feed = new RJsonwalksFeed(new RJsonwalksFeedoptions('BU51'));
+$display = new RJsonwalksStdWalktable();
+$feed->display($display);
+// RLoad enqueues media/jsonwalks/std/display.js and media/js/ra.tabs.js
+// RLeafletScript injects Leaflet plus media/jsonwalks/leaflet/mapmarker.js for the Map tab
 ```
 
 ## Performance Notes
@@ -436,5 +479,4 @@ foreach ($allWalks as $walk) {
 - `jsonwalks/sourcewalksmanager.php` - Walk Manager source adapter
 - `jsonwalks/sourcewalksmanagerarea.php` - Area-based source adapter
 - `jsonwalks/sourcewalkseditor.php` - Local editor source adapter
-
 
