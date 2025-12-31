@@ -59,9 +59,9 @@ public function display();
 flowchart TB
     Map[RLeafletGpxMap]
     Maplist[RLeafletGpxMaplist]
-    Stats["RGpxStatistics\nRGpxJsonlog"]
+    Stats["RGpxStatistics<br/>RGpxJsonlog"]
     Parser["RGpxFile / RGpxStatistic"]
-    Media["media/leaflet/gpx/maplist.js\nLeaflet.Elevation + leaflet-gpx"]
+    Media["media/leaflet/gpx/maplist.js<br/>Leaflet.Elevation + leaflet-gpx"]
 
     Maplist --> Stats
     Stats --> Parser
@@ -122,7 +122,7 @@ flowchart LR
     Loader[RLeafletScript + RLoad]
     BaseJS["/media/js foundation"]
     GpxJS["/media/leaflet/gpx/maplist.js"]
-    Vendors["/media/vendors\nleaflet-gpx + Leaflet.Elevation + cvList"]
+    Vendors["/media/vendors<br/>leaflet-gpx + Leaflet.Elevation + cvList"]
     Bootstrap["ra.bootstrapper → ra.display.gpxSingle/gpxFolder"]
 
     PHP --> Loader

@@ -17,17 +17,17 @@ The `geometry` module provides geographic calculation utilities, primarily great
 ```mermaid
 flowchart TB
     subgraph Geometry["Geometry Module"]
-        GreatCircle["RGeometryGreatcircle\nStatic utility class"]
+        GreatCircle["RGeometryGreatcircle<br/>Static utility class"]
     end
 
     subgraph Calculations["Calculations"]
-        Distance["Great Circle Distance\nHaversine formula"]
-        Bearing["Bearing/Azimuth\nAngle calculation"]
+        Distance["Great Circle Distance<br/>Haversine formula"]
+        Bearing["Bearing/Azimuth<br/>Angle calculation"]
     end
 
     subgraph Integration["Integration"]
-        Jsonwalks["RJsonwalksWalks\nDistance filtering"]
-        Leaflet["Leaflet Maps\nDistance display"]
+        Jsonwalks["RJsonwalksWalks<br/>Distance filtering"]
+        Leaflet["Leaflet Maps<br/>Distance display"]
     end
 
     GreatCircle --> Distance

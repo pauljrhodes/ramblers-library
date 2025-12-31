@@ -16,20 +16,20 @@ The `walkseditor` module provides the walk editing interface for creating and ma
 ```mermaid
 flowchart TB
     subgraph Server["Server Components"]
-        Loader["RWalkseditor\nAsset loader"]
-        Programme["RWalkseditorProgramme\nprogramme.php"]
-        Submit["RWalkseditorSubmitform\nsubmitform.php"]
+        Loader["RWalkseditor<br/>Asset loader"]
+        Programme["RWalkseditorProgramme<br/>programme.php"]
+        Submit["RWalkseditorSubmitform<br/>submitform.php"]
     end
 
     subgraph Client["Client Assets"]
-        EditorJS["walkeditor.js\nwalksEditorHelps.js\nviewWalks.js"]
-        FormJS["walk.js\ninputfields.js\nloader.js\nmaplocation.js\nplaceEditor.js"]
+        EditorJS["walkeditor.js<br/>walksEditorHelps.js<br/>viewWalks.js"]
+        FormJS["walk.js<br/>inputfields.js<br/>loader.js<br/>maplocation.js<br/>placeEditor.js"]
         ProgrammeJS["form/programme.js"]
         SubmitJS["form/submitwalk.js"]
-        CompJS["comp/viewAllWalks.js\ncomp/viewAllPlaces.js"]
-        Foundation["ra.tabs.js\ncvList.js"]
+        CompJS["comp/viewAllWalks.js<br/>comp/viewAllPlaces.js"]
+        Foundation["ra.tabs.js<br/>cvList.js"]
         Quill["Quill JS/CSS (CDN)"]
-        Styles["style.css\nra.tabs.css"]
+        Styles["style.css<br/>ra.tabs.css"]
     end
 
     Programme --> Loader

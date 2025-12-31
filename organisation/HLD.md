@@ -18,23 +18,23 @@ The `organisation` module manages Ramblers organisation data (areas and groups) 
 ```mermaid
 flowchart TB
     subgraph Organisation["Organisation Module"]
-        ROrganisation["ROrganisation\nMain class"]
-        Area["ROrganisationArea\nArea object"]
-        Group["ROrganisationGroup\nGroup object"]
+        ROrganisation["ROrganisation<br/>Main class"]
+        Area["ROrganisationArea<br/>Area object"]
+        Group["ROrganisationGroup<br/>Group object"]
     end
 
     subgraph Data["Data Sources"]
-        FeedHelper["RFeedhelper\nHTTP feed"]
-        OrgFeed["Organisation JSON Feed\ngroups.theramblers.org.uk"]
+        FeedHelper["RFeedhelper<br/>HTTP feed"]
+        OrgFeed["Organisation JSON Feed<br/>groups.theramblers.org.uk"]
     end
 
     subgraph Display["Display Layer"]
-        LeafletMap["RLeafletMap\nMap rendering"]
-        Html["RHtml\nHTML formatting"]
+        LeafletMap["RLeafletMap<br/>Map rendering"]
+        Html["RHtml<br/>HTML formatting"]
     end
 
     subgraph Client["Client-Side"]
-        OrgJS["organisation.js\nMap display"]
+        OrgJS["organisation.js<br/>Map display"]
     end
 
     ROrganisation --> FeedHelper
@@ -174,7 +174,7 @@ flowchart LR
     Org["ROrganisation::display"]
     Loader["RLoad::addScript"]
     Map["RLeafletMap::display"]
-    BaseJS["/media/js\nra.js, ra.map.js, ra.tabs.js"]
+    BaseJS["/media/js<br/>ra.js, ra.map.js, ra.tabs.js"]
     OrgJS["/media/organisation/organisation.js"]
     Bootstrap["ra.bootstrapper → ra.display.organisationMap"]
 

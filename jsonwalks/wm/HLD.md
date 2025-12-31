@@ -23,9 +23,9 @@ flowchart TB
     Caller["Joomla module/page"]
     Source[RJsonwalksSourcewalksmanager]
     Feed[RJsonwalksWmFeed]
-    Options["RJsonwalksWmFeedoptions\nURL + cache key"]
-    Cache["RJsonwalksWmCachefolder\nread/write/mtime"]
-    Fileio["RJsonwalksWmFileio\nHTTP/local IO, retries"]
+    Options["RJsonwalksWmFeedoptions<br/>URL + cache key"]
+    Cache["RJsonwalksWmCachefolder<br/>read/write/mtime"]
+    Fileio["RJsonwalksWmFileio<br/>HTTP/local IO, retries"]
 
     Caller --> Source
     Source --> Feed

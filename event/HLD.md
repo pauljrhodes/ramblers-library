@@ -18,9 +18,9 @@ The `event` module aggregates walk data into event collections and provides iCal
 ```mermaid
 flowchart TB
     subgraph Event["Event Classes"]
-        EventFeed["REventFeed\nICS output"]
-        EventGroup["REventGroup\nEvent collection"]
-        EventDownload["REventDownload\nDownload link"]
+        EventFeed["REventFeed<br/>ICS output"]
+        EventGroup["REventGroup<br/>Event collection"]
+        EventDownload["REventDownload<br/>Download link"]
     end
 
     subgraph Domain["Domain Integration"]
@@ -30,12 +30,12 @@ flowchart TB
     end
 
     subgraph Export["Export Layer"]
-        IcsOutput["RIcsOutput\nRFC5545 generator"]
+        IcsOutput["RIcsOutput<br/>RFC5545 generator"]
         IcsFile[RIcsFile]
     end
 
     subgraph Client["Client Integration"]
-        LeafletScript["RLeafletScript\nregisterWalks()"]
+        LeafletScript["RLeafletScript<br/>registerWalks()"]
     end
 
     EventFeed --> IcsOutput

@@ -18,19 +18,19 @@ The `html` module provides HTML formatting and text conversion utilities. It han
 ```mermaid
 flowchart TB
     subgraph Html["HTML Module"]
-        RHtml["RHtml\nStatic utility class"]
+        RHtml["RHtml<br/>Static utility class"]
     end
 
     subgraph Functions["Functions"]
-        ConvertText["convertToText\nHTML → text"]
-        RemoveTags["removeNonBasicTags\nStrip tags"]
-        ConvertMails["convert_mails\nEmail obfuscation"]
-        FetchMails["fetch_mails\nEmail extraction"]
+        ConvertText["convertToText<br/>HTML → text"]
+        RemoveTags["removeNonBasicTags<br/>Strip tags"]
+        ConvertMails["convert_mails<br/>Email obfuscation"]
+        FetchMails["fetch_mails<br/>Email extraction"]
     end
 
     subgraph Integration["Integration"]
-        Accounts["RAccounts\nHTML rendering"]
-        Other["Other modules\nText processing"]
+        Accounts["RAccounts<br/>HTML rendering"]
+        Other["Other modules<br/>Text processing"]
     end
 
     RHtml --> ConvertText

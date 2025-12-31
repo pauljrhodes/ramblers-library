@@ -17,16 +17,16 @@ The `jsonwalks/leaflet` module provides Leaflet map marker display for walk coll
 ```mermaid
 flowchart TB
     subgraph Display["Display Layer"]
-        MapMarker["RJsonwalksLeafletMapmarker\nExtends Displaybase"]
+        MapMarker["RJsonwalksLeafletMapmarker<br/>Extends Displaybase"]
     end
 
     subgraph Integration["Integration"]
-        LeafletMap["RLeafletMap\nMap container"]
-        Walks["RJsonwalksWalks\nWalk collection"]
+        LeafletMap["RLeafletMap<br/>Map container"]
+        Walks["RJsonwalksWalks<br/>Walk collection"]
     end
 
     subgraph Client["Client-Side"]
-        MapMarkerJS["mapmarker.js\nMarker rendering"]
+        MapMarkerJS["mapmarker.js<br/>Marker rendering"]
     end
 
     MapMarker --> LeafletMap
@@ -80,7 +80,7 @@ sequenceDiagram
     participant ClientJS as "mapmarker.js"
 
     Feed->>Mapmarker: "display(Mapmarker)"
-    Mapmarker->>Map: "setCommand(\"ra.display.walksMap\") + map options"
+    Mapmarker->>Map: "setCommand(ra.display.walksMap) + map options"
     Mapmarker->>Map: "setDataObject(walks as JSON)"
     Mapmarker->>Map: "display()"
     Map->>Script: "add(options)"
@@ -165,4 +165,3 @@ $feed->display($display);
 
 ### Related Media Files
 - `media/jsonwalks/leaflet/mapmarker.js` - Client-side marker rendering
-

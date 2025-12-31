@@ -13,12 +13,12 @@ The `gpxsymbols` module renders available GPX waypoint symbols within Joomla vie
 ```mermaid
 flowchart TB
     subgraph Server[Server-Side]
-        Display["RGpxsymbolsDisplay\ndisplay.php"]
-        Exists["media/gpxsymbols/exists.php\nAsset check"]
+        Display["RGpxsymbolsDisplay<br/>display.php"]
+        Exists["media/gpxsymbols/exists.php<br/>Asset check"]
     end
 
     subgraph Assets["Symbol Assets (/media/gpxsymbols)"]
-        CSS["display.css\nStyles"]
+        CSS["display.css<br/>Styles"]
         Symbols["letter/, number/, office/, transport/"]
     end
 
@@ -84,7 +84,7 @@ sequenceDiagram
     Display->>FS: "opendir()/readdir()"
     FS-->>Display: filenames
     loop each symbol
-        Display->>Browser: "<img src=\".../symbol.png\">"
+        Display->>Browser: "<img src=/media/.../symbol.png>"
     end
 ```
 
@@ -102,7 +102,7 @@ sequenceDiagram
 flowchart LR
     Display[RGpxsymbolsDisplay]
     Loader["JDocument::addStyleSheet"]
-    Assets["/media/gpxsymbols\ndisplay.css + symbol sprites"]
+    Assets["/media/gpxsymbols<br/>display.css + symbol sprites"]
     Grid[Rendered symbol grid]
 
     Display --> Loader

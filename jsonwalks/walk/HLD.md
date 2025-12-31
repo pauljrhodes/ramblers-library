@@ -17,18 +17,18 @@ The `jsonwalks/walk` module provides domain value objects representing individua
 ```mermaid
 flowchart TB
     subgraph Walk["Walk Aggregate"]
-        WalkRoot["RJsonwalksWalk\nAggregate root"]
+        WalkRoot["RJsonwalksWalk<br/>Aggregate root"]
     end
 
     subgraph Components["Value Objects"]
-        Admin["RJsonwalksWalkAdmin\nAdmin data"]
-        Basics["RJsonwalksWalkBasics\nBasic info"]
-        Items["RJsonwalksWalkItems\nItems collection"]
-        TimeLoc["RJsonwalksWalkTimelocation\nTime/location"]
-        Flags["RJsonwalksWalkFlags\nStatus flags"]
-        Bookings["RJsonwalksWalkBookings\nBooking info"]
-        MediaItem["RJsonwalksWalkMediaitem\nMedia files"]
-        WalkVO["RJsonwalksWalkWalk\nWalk details"]
+        Admin["RJsonwalksWalkAdmin<br/>Admin data"]
+        Basics["RJsonwalksWalkBasics<br/>Basic info"]
+        Items["RJsonwalksWalkItems<br/>Items collection"]
+        TimeLoc["RJsonwalksWalkTimelocation<br/>Time/location"]
+        Flags["RJsonwalksWalkFlags<br/>Status flags"]
+        Bookings["RJsonwalksWalkBookings<br/>Booking info"]
+        MediaItem["RJsonwalksWalkMediaitem<br/>Media files"]
+        WalkVO["RJsonwalksWalkWalk<br/>Walk details"]
     end
 
     WalkRoot --> Admin

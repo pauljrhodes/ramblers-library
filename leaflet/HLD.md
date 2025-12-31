@@ -19,29 +19,29 @@ The `leaflet` module provides comprehensive Leaflet.js map integration for the R
 ```mermaid
 flowchart TB
     subgraph Core["Core Map Classes"]
-        Map["RLeafletMap\nMap container"]
-        Script["RLeafletScript\nScript injection"]
-        Options["RLeafletMapoptions\nConfiguration"]
+        Map["RLeafletMap<br/>Map container"]
+        Script["RLeafletScript<br/>Script injection"]
+        Options["RLeafletMapoptions<br/>Configuration"]
     end
 
     subgraph DataSources["Data Source Adapters"]
-        CsvList["RLeafletCsvList\nCSV data"]
-        GpxMap["RLeafletGpxMap\nGPX routes"]
-        JsonList["RLeafletJsonList\nJSON data"]
-        SqlList["RLeafletSqlList\nSQL queries"]
-        TableCols["RLeafletTableColumns\nColumn definitions"]
+        CsvList["RLeafletCsvList<br/>CSV data"]
+        GpxMap["RLeafletGpxMap<br/>GPX routes"]
+        JsonList["RLeafletJsonList<br/>JSON data"]
+        SqlList["RLeafletSqlList<br/>SQL queries"]
+        TableCols["RLeafletTableColumns<br/>Column definitions"]
     end
 
     subgraph Client["Client-Side"]
-        Bootstrap["ra.bootstrapper\nInitialization"]
-        LeafletMapJS["ra.leafletmap.js\nMap management"]
-        PlacesJS["L.Control.Places.js\nPlace management"]
-        Controls["Map Controls\nMouse, Search, Tools, etc."]
+        Bootstrap["ra.bootstrapper<br/>Initialization"]
+        LeafletMapJS["ra.leafletmap.js<br/>Map management"]
+        PlacesJS["L.Control.Places.js<br/>Place management"]
+        Controls["Map Controls<br/>Mouse, Search, Tools, etc."]
     end
 
     subgraph Integration["Integration"]
-        Load["RLoad\nAsset loading"]
-        Doc["Joomla Document\nScript injection"]
+        Load["RLoad<br/>Asset loading"]
+        Doc["Joomla Document<br/>Script injection"]
     end
 
     Map --> Script
@@ -233,7 +233,7 @@ sequenceDiagram
     Display->>Map: "new()"
     Map->>Options: "new()"
     Map->>Script: "new(options)"
-    Display->>Map: "setCommand(\"ra.display.walksTabs\")"
+    Display->>Map: "setCommand(ra.display.walksTabs)"
     Display->>Map: "setDataObject(walks + config)"
     Display->>Map: "display()"
     Map->>Script: "add(options)"
@@ -259,7 +259,7 @@ sequenceDiagram
     Caller->>CsvList: "new(filename)"
     CsvList->>CsvList: "readCSV()"
     Caller->>CsvList: "display()"
-    CsvList->>Map: "setCommand(\"ra.display.csvList\")"
+    CsvList->>Map: "setCommand(ra.display.csvList)"
     CsvList->>Map: "setDataObject(csv data)"
     CsvList->>Map: "display()"
     Map->>Script: "add(options)"
@@ -307,10 +307,10 @@ flowchart LR
     Map[RLeafletMap]
     Script[RLeafletScript]
     Loader[RLoad]
-    BaseJS["media/js\nra.js\nra.map.js\nra.tabs.js\nra.paginatedDataList.js\nra.walk.js"]
+    BaseJS["media/js<br/>ra.js<br/>ra.map.js<br/>ra.tabs.js<br/>ra.paginatedDataList.js<br/>ra.walk.js"]
     LeafletJS[Leaflet core + CSS]
-    ModuleJS["media/leaflet/ra.leafletmap.js\nra.map.settings.js\nL.Control.*"]
-    DataJS["media/leaflet/table/ramblerstable.js\nmedia/leaflet/gpx/maplist.js"]
+    ModuleJS["media/leaflet/ra.leafletmap.js<br/>ra.map.settings.js<br/>L.Control.*"]
+    DataJS["media/leaflet/table/ramblerstable.js<br/>media/leaflet/gpx/maplist.js"]
     Vendors["media/vendors/**/* + CDN plugins"]
 
     Map --> Script

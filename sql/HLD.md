@@ -16,17 +16,17 @@ The `sql` module provides database utility functions for Joomla database operati
 ```mermaid
 flowchart TB
     subgraph Sql["SQL Module"]
-        SqlUtils["RSqlUtils\nStatic utility class"]
+        SqlUtils["RSqlUtils<br/>Static utility class"]
     end
 
     subgraph Functions["Functions"]
-        TableExists["tableExists\nCheck table"]
+        TableExists["tableExists<br/>Check table"]
     end
 
     subgraph Integration["Integration"]
-        Accounts["RAccounts\nTable validation"]
-        Organisation["ROrganisation\nTable checks"]
-        JoomlaDB["Joomla Database\ngetDbo()"]
+        Accounts["RAccounts<br/>Table validation"]
+        Organisation["ROrganisation<br/>Table checks"]
+        JoomlaDB["Joomla Database<br/>getDbo()"]
     end
 
     SqlUtils --> TableExists

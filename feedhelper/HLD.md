@@ -18,20 +18,20 @@ The `feedhelper` module provides generic HTTP feed retrieval with disk-based cac
 ```mermaid
 flowchart TB
     subgraph FeedHelper["Feed Helper"]
-        RFeedhelper["RFeedhelper\nMain class"]
+        RFeedhelper["RFeedhelper<br/>Main class"]
     end
 
     subgraph Cache["Cache Management"]
-        CacheFolder["Cache Folder\nJPATH_SITE/cache/..."]
-        CacheFile["Cached Files\nMD5 hash names"]
+        CacheFolder["Cache Folder<br/>JPATH_SITE/cache/..."]
+        CacheFile["Cached Files<br/>MD5 hash names"]
     end
 
     subgraph External["External Services"]
-        HTTPFeed["HTTP/HTTPS Feed\nJSON endpoint"]
+        HTTPFeed["HTTP/HTTPS Feed<br/>JSON endpoint"]
     end
 
     subgraph Integration["Integration"]
-        Errors["RErrors\nError reporting"]
+        Errors["RErrors<br/>Error reporting"]
         FileSystem[Joomla FileSystem]
     end
 

@@ -17,17 +17,17 @@ The `gpx` module provides GPX file processing utilities including file reading, 
 ```mermaid
 flowchart TB
     subgraph Parsing["Per-file Parsing"]
-        File["RGpxFile\nGPX reader"]
+        File["RGpxFile<br/>GPX reader"]
     end
 
     subgraph Stats["Statistics"]
-        Stat["RGpxStatistic\nValue object"]
-        Stats["RGpxStatistics\nFolder aggregator"]
+        Stat["RGpxStatistic<br/>Value object"]
+        Stats["RGpxStatistics<br/>Folder aggregator"]
     end
 
     subgraph Persistence["Persistence"]
-        Jsonlog["RGpxJsonlog\nJSON writer"]
-        Cache["0000gpx_statistics_file.json\nCache file"]
+        Jsonlog["RGpxJsonlog<br/>JSON writer"]
+        Cache["0000gpx_statistics_file.json<br/>Cache file"]
     end
 
     Filesystem["(GPX folder)"]

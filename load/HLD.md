@@ -17,22 +17,22 @@ The `load` module provides asset loading utilities with cache-busting support. I
 ```mermaid
 flowchart TB
     subgraph Load["Load Module"]
-        RLoad["RLoad\nStatic utility class"]
+        RLoad["RLoad<br/>Static utility class"]
     end
 
     subgraph Functions["Functions"]
-        AddScript["addScript\nLoad JS"]
-        AddStyleSheet["addStyleSheet\nLoad CSS"]
+        AddScript["addScript<br/>Load JS"]
+        AddStyleSheet["addStyleSheet<br/>Load CSS"]
     end
 
     subgraph Integration["Integration"]
-        JoomlaDoc["Joomla Document\naddScript/addStyleSheet"]
-        DisplayModules["Display Modules\nAsset loading"]
+        JoomlaDoc["Joomla Document<br/>addScript/addStyleSheet"]
+        DisplayModules["Display Modules<br/>Asset loading"]
     end
 
     subgraph CacheBusting["Cache Busting"]
-        FileMtime["filemtime()\nGet modification time"]
-        QueryString["?rev=timestamp\nVersion query"]
+        FileMtime["filemtime()<br/>Get modification time"]
+        QueryString["?rev=timestamp<br/>Version query"]
     end
 
     RLoad --> AddScript

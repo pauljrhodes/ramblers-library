@@ -20,30 +20,30 @@ The `media/js` module provides the core JavaScript library (`ra.*` namespace) th
 ```mermaid
 flowchart TB
     subgraph Core["Core Library (ra.js)"]
-        Bootstrap["ra.bootstrapper\nInitialization"]
-        Utils["ra.* utilities\nString, object, email"]
-        Events["ra.events\nEvent collection"]
-        Loading["ra.loading\nLoading indicators"]
-        Modals["ra.modals\nModal dialogs"]
-        HTML["ra.html\nDOM utilities"]
-        Filter["ra.filter\nFiltering system"]
+        Bootstrap["ra.bootstrapper<br/>Initialization"]
+        Utils["ra.* utilities<br/>String, object, email"]
+        Events["ra.events<br/>Event collection"]
+        Loading["ra.loading<br/>Loading indicators"]
+        Modals["ra.modals<br/>Modal dialogs"]
+        HTML["ra.html<br/>DOM utilities"]
+        Filter["ra.filter<br/>Filtering system"]
     end
 
     subgraph Map["Map Utilities (ra.map.js)"]
-        MapUtils["ra.map.*\nMap helpers"]
-        Icons["ra.map.icon\nIcon factory"]
-        Help["ra.map.helpBase\nHelp URLs"]
+        MapUtils["ra.map.*<br/>Map helpers"]
+        Icons["ra.map.icon<br/>Icon factory"]
+        Help["ra.map.helpBase<br/>Help URLs"]
     end
 
     subgraph Feed["Feed Handler (ra.feedhandler.js)"]
-        FeedHandler["ra.feedhandler\nLocation search"]
-        Search["Modal search form\nLocation lookup"]
+        FeedHandler["ra.feedhandler<br/>Location search"]
+        Search["Modal search form<br/>Location lookup"]
     end
 
     subgraph Display["Display Components"]
-        Tabs["ra.tabs\nTab system"]
-        Pagination["ra.paginatedTable\nPagination"]
-        Walk["ra.walk\nWalk utilities"]
+        Tabs["ra.tabs<br/>Tab system"]
+        Pagination["ra.paginatedTable<br/>Pagination"]
+        Walk["ra.walk<br/>Walk utilities"]
     end
 
     Bootstrap --> Events
@@ -90,7 +90,7 @@ flowchart TB
 ```mermaid
 flowchart LR
     PHP["RLoad::addScript"]
-    Loader["/media/js\nra.js, ra.map.js, ra.feedhandler.js, ra.paginatedDataList.js, ra.tabs.js, ra.walk.js"]
+    Loader["/media/js<br/>ra.js, ra.map.js, ra.feedhandler.js, ra.paginatedDataList.js, ra.tabs.js, ra.walk.js"]
     Module[Module-specific assets]
     Document[Joomla Document]
     Browser["ra.bootstrapper"]
@@ -309,7 +309,7 @@ sequenceDiagram
 
     User->>FilterUI: Change filter value
     FilterUI->>Filter: Update filter state
-    Filter->>Filter: "Dispatch \"reDisplayWalks\" event"
+    Filter->>Filter: "Dispatch reDisplayWalks event"
     Events->>Events: "setDisplayFilter(filter)"
     loop for each event
         Events->>Event: "setDisplayFilter(filter)"

@@ -18,21 +18,21 @@ The `ics` module provides iCalendar (RFC5545) format generation for calendar exp
 ```mermaid
 flowchart TB
     subgraph Ics["ICS Module"]
-        IcsOutput["RIcsOutput\nICS generator"]
-        IcsFile["RIcsFile\nFile handler"]
+        IcsOutput["RIcsOutput<br/>ICS generator"]
+        IcsFile["RIcsFile<br/>File handler"]
     end
 
     subgraph Functions["Functions"]
-        AddRecord["addRecord\nAdd ICS field"]
-        EscapeString["escapeString\nEscape special chars"]
-        AddSequence["addSequence\nUpdate sequence"]
-        ChunkSplit["chunk_split_unicode\nLine wrapping"]
+        AddRecord["addRecord<br/>Add ICS field"]
+        EscapeString["escapeString<br/>Escape special chars"]
+        AddSequence["addSequence<br/>Update sequence"]
+        ChunkSplit["chunk_split_unicode<br/>Line wrapping"]
     end
 
     subgraph Integration["Integration"]
-        EventFeed["REventFeed\nEvent export"]
-        EventGroup["REventGroup\nEvent collection"]
-        Walk["RJsonwalksWalk\nEvent_ics() method"]
+        EventFeed["REventFeed<br/>Event export"]
+        EventGroup["REventGroup<br/>Event collection"]
+        Walk["RJsonwalksWalk<br/>Event_ics() method"]
     end
 
     IcsOutput --> AddRecord
@@ -129,9 +129,9 @@ sequenceDiagram
     EventGroup->>IcsOutput: "new()"
     IcsOutput->>IcsOutput: "addHeader()"
     EventGroup->>Walk: "Event_ics(IcsOutput)"
-    Walk->>IcsOutput: "addRecord(\"DTSTART:\", date)"
-    Walk->>IcsOutput: "addRecord(\"SUMMARY:\", title)"
-    Walk->>IcsOutput: "addRecord(\"DESCRIPTION:\", desc)"
+    Walk->>IcsOutput: "addRecord(DTSTART:, date)"
+    Walk->>IcsOutput: "addRecord(SUMMARY:, title)"
+    Walk->>IcsOutput: "addRecord(DESCRIPTION:, desc)"
     Walk->>IcsOutput: "addSequence(updated)"
     IcsOutput->>IcsOutput: "escapeString()"
     IcsOutput->>IcsOutput: "chunk_split_unicode()"
@@ -250,4 +250,3 @@ $escaped = RIcsOutput::escapeString($text);
 ### Standards
 - **RFC5545**: iCalendar specification
 - **RFC7986**: iCalendar extensions
-

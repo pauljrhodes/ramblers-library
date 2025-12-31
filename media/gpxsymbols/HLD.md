@@ -17,19 +17,19 @@ The `media/gpxsymbols` module provides a PHP endpoint for checking GPX symbol fi
 ```mermaid
 flowchart TB
     subgraph Endpoint["PHP Endpoint"]
-        Exists["exists.php\nFile check"]
+        Exists["exists.php<br/>File check"]
     end
 
     subgraph Input["Input"]
-        GETRequest["GET Request\n?file=path"]
+        GETRequest["GET Request<br/>?file=path"]
     end
 
     subgraph Output["Output"]
-        Response["true/false\nString response"]
+        Response["true/false<br/>String response"]
     end
 
     subgraph FileSystem["File System"]
-        SymbolFiles["Symbol Image Files\nletter/, number/, etc."]
+        SymbolFiles["Symbol Image Files<br/>letter/, number/, etc."]
     end
 
     GETRequest --> Exists
@@ -77,7 +77,7 @@ sequenceDiagram
     Exists->>Exists: "htmlspecialchars(file)"
     Exists->>FileSystem: "file_exists(filepath)"
     FileSystem-->>Exists: "true/false"
-    Exists-->>Client: "true\" or \"false"
+    Exists-->>Client: "true or false"
 ```
 
 ## Integration Points
@@ -106,8 +106,8 @@ sequenceDiagram
 flowchart LR
     Client[Client widget]
     Exists["media/gpxsymbols/exists.php"]
-    Files["/media/gpxsymbols\nsymbol sprites"]
-    Response["true\" / \"false"]
+    Files["/media/gpxsymbols<br/>symbol sprites"]
+    Response["true / false"]
 
     Client --> Exists
     Exists --> Files

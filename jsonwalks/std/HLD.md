@@ -18,14 +18,14 @@ The `jsonwalks/std` module provides standard display implementations for renderi
 ```mermaid
 flowchart TB
     subgraph Base["Base Class"]
-        DisplayBase["RJsonwalksDisplaybase\nAbstract base"]
+        DisplayBase["RJsonwalksDisplaybase<br/>Abstract base"]
     end
 
     subgraph StdDisplays["Standard Display Classes"]
-        StdDisplay["RJsonwalksStdDisplay\nTabbed interface"]
-        SimpleList["RJsonwalksStdSimplelist\nSimple list"]
-        WalkTable["RJsonwalksStdWalktable\nTable format"]
-        Cancelled["RJsonwalksStdCancelledwalks\nCancelled walks"]
+        StdDisplay["RJsonwalksStdDisplay<br/>Tabbed interface"]
+        SimpleList["RJsonwalksStdSimplelist<br/>Simple list"]
+        WalkTable["RJsonwalksStdWalktable<br/>Table format"]
+        Cancelled["RJsonwalksStdCancelledwalks<br/>Cancelled walks"]
     end
 
     subgraph Integration["Integration Layer"]
@@ -36,9 +36,9 @@ flowchart TB
     end
 
     subgraph Client["Client-Side"]
-        DisplayJS["display.js\nTab management"]
-        TabsJS["ra.tabs.js\nTab functionality"]
-        CvListJS["cvList.js\nPagination"]
+        DisplayJS["display.js<br/>Tab management"]
+        TabsJS["ra.tabs.js<br/>Tab functionality"]
+        CvListJS["cvList.js<br/>Pagination"]
     end
 
     DisplayBase --> StdDisplay
@@ -204,7 +204,7 @@ sequenceDiagram
     StdDisplay->>Walks: "sort(date, time, distance)"
     StdDisplay->>Walks: "allWalks()"
     StdDisplay->>LeafletMap: "new()"
-    StdDisplay->>LeafletMap: "setCommand(\"ra.display.walksTabs\")"
+    StdDisplay->>LeafletMap: "setCommand(ra.display.walksTabs)"
     StdDisplay->>LeafletMap: "setDataObject(walks + config)"
     StdDisplay->>LeafletMap: "display()"
     LeafletMap->>LeafletScript: "add(options)"
@@ -428,4 +428,3 @@ class RJsonwalksBU51Tabs extends RJsonwalksStdDisplay {
 - `media/vendors/fullcalendar-6.1.9/index.global.js` - Calendar view
 - `media/css/ra.tabs.css` - Tab styles
 - `media/vendors/cvList/cvList.css` - Pagination styles
-

@@ -19,13 +19,13 @@ The `errors` module provides centralized error handling and telemetry for the Ra
 ```mermaid
 flowchart TB
     subgraph Errors["Error System"]
-        RErrors["RErrors\nMain class"]
+        RErrors["RErrors<br/>Main class"]
     end
 
     subgraph Collection["Error Collection"]
-        ErrorStore["Remote Error Store\nerrors.theramblers.org.uk"]
-        JoomlaMsg["Joomla Messages\nUser notifications"]
-        Email["Email Notifications\nOptional"]
+        ErrorStore["Remote Error Store<br/>errors.theramblers.org.uk"]
+        JoomlaMsg["Joomla Messages<br/>User notifications"]
+        Email["Email Notifications<br/>Optional"]
     end
 
     subgraph Context["Error Context"]
@@ -131,7 +131,7 @@ sequenceDiagram
     loop for each property
         RErrors->>RErrors: "checkJsonProperty(result, prop)"
         alt property missing
-            RErrors->>RErrors: "notifyError(\"Missing property\")"
+            RErrors->>RErrors: "notifyError(Missing property)"
         end
     end
     RErrors-->>Module: "true/false"

@@ -17,15 +17,15 @@ The `media/organisation` module provides client-side JavaScript for displaying o
 ```mermaid
 flowchart TB
     subgraph Core["Core Integration"]
-        Bootstrap["ra.bootstrapper\nInitialization"]
-        LeafletMap["ra.leafletmap\nMap wrapper"]
-        Cluster["ra.map.cluster\nMarker clustering"]
+        Bootstrap["ra.bootstrapper<br/>Initialization"]
+        LeafletMap["ra.leafletmap<br/>Map wrapper"]
+        Cluster["ra.map.cluster<br/>Marker clustering"]
     end
 
     subgraph Display["Display Function"]
-        OrgMap["ra.display.organisationMap\nOrganisation display"]
-        Markers["Area/Group Markers\nMarker rendering"]
-        Popups["Popups\nInformation display"]
+        OrgMap["ra.display.organisationMap<br/>Organisation display"]
+        Markers["Area/Group Markers<br/>Marker rendering"]
+        Popups["Popups<br/>Information display"]
     end
 
     Bootstrap --> OrgMap
@@ -93,7 +93,7 @@ sequenceDiagram
     participant Cluster as "ra.map.cluster"
     participant User as User Browser
 
-    PHP->>Doc: "setCommand(\"ra.display.organisationMap\")"
+    PHP->>Doc: "setCommand(ra.display.organisationMap)"
     PHP->>Doc: "setDataObject(areas + groups + config)"
     PHP->>Doc: "addScriptDeclaration(bootstrap)"
     Doc->>User: Render page
@@ -143,7 +143,7 @@ flowchart LR
     PHP["ROrganisation::display"]
     Loader["RLoad::addScript"]
     Map["RLeafletMap::display"]
-    BaseJS["/media/js\nra.js, ra.leafletmap.js, ra.tabs.js"]
+    BaseJS["/media/js<br/>ra.js, ra.leafletmap.js, ra.tabs.js"]
     OrgJS["/media/organisation/organisation.js"]
     Bootstrap["ra.bootstrapper → ra.display.organisationMap"]
 

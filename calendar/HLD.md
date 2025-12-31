@@ -15,12 +15,12 @@ The `calendar` module renders month-by-month calendars and injects per-day walk/
 
 ```mermaid
 flowchart TB
-    Adapter["REventCalendar\ncalendar.php"]
-    Calendar["RCalendar\ncalendar.php"]
-    Events["REventGroup\nevent/group.php"]
+    Adapter["REventCalendar<br/>calendar.php"]
+    Calendar["RCalendar<br/>calendar.php"]
+    Events["REventGroup<br/>event/group.php"]
     Feed[RJsonwalksFeed]
-    Toggle["ra.js toggleVisibilities\n("media/js/ra.js")"]
-    Styles["calendar.css\nramblerslibrary.css"]
+    Toggle["ra.js toggleVisibilities<br/>("media/js/ra.js")"]
+    Styles["calendar.css<br/>ramblerslibrary.css"]
 
     Adapter --> Calendar
     Adapter --> Events

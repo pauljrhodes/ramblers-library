@@ -13,11 +13,11 @@ The `directory` module renders simple directory listings, filtering by allowed e
 ```mermaid
 flowchart TB
     subgraph Directory["Directory Module"]
-        RDirectoryList["RDirectoryList\nListing helper"]
+        RDirectoryList["RDirectoryList<br/>Listing helper"]
     end
 
     Filesystem["(Target folder)"]
-    Joomla["Joomla APIs\nJFactory/JText/JURI"]
+    Joomla["Joomla APIs<br/>JFactory/JText/JURI"]
     Output[HTML UL links]
 
     RDirectoryList --> Filesystem

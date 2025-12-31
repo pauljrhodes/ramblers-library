@@ -18,19 +18,19 @@ The `jsonwalks` module is the core orchestration layer for walk data management 
 ```mermaid
 flowchart TB
     subgraph Sources["Data Sources"]
-        WM["RJsonwalksSourcewalksmanager\nWalk Manager"]
-        WMArea["RJsonwalksSourcewalksmanagerarea\nArea-based WM"]
-        Editor["RJsonwalksSourcewalkseditor\nLocal editor"]
+        WM["RJsonwalksSourcewalksmanager<br/>Walk Manager"]
+        WMArea["RJsonwalksSourcewalksmanagerarea<br/>Area-based WM"]
+        Editor["RJsonwalksSourcewalkseditor<br/>Local editor"]
     end
 
     subgraph Core["Core Orchestration"]
-        Feed["RJsonwalksFeed\nMain orchestrator"]
-        FeedOpts["RJsonwalksFeedoptions\nConfiguration"]
-        Walks["RJsonwalksWalks\nCollection manager"]
+        Feed["RJsonwalksFeed<br/>Main orchestrator"]
+        FeedOpts["RJsonwalksFeedoptions<br/>Configuration"]
+        Walks["RJsonwalksWalks<br/>Collection manager"]
     end
 
     subgraph Domain["Domain Model"]
-        Walk["RJsonwalksWalk\nIndividual walk"]
+        Walk["RJsonwalksWalk<br/>Individual walk"]
         Admin[RJsonwalksWalkAdmin]
         Basics[RJsonwalksWalkBasics]
         Items[RJsonwalksWalkItems]
@@ -40,7 +40,7 @@ flowchart TB
     end
 
     subgraph Display["Display Layer"]
-        Base["RJsonwalksDisplaybase\nAbstract base"]
+        Base["RJsonwalksDisplaybase<br/>Abstract base"]
         Std[RJsonwalksStdDisplay]
         Simple[RJsonwalksStdSimplelist]
         Table[RJsonwalksStdWalktable]
@@ -49,7 +49,7 @@ flowchart TB
     end
 
     subgraph Integration["External Integration"]
-        Leaflet["RLeafletMap\nRLeafletScript"]
+        Leaflet["RLeafletMap<br/>RLeafletScript"]
         Load[RLoad]
         Errors[RErrors]
     end
@@ -328,11 +328,11 @@ sequenceDiagram
 ```mermaid
 flowchart LR
     Feed[RJsonwalksFeed]
-    DisplayClasses["RJsonwalksStdDisplay\nRJsonwalksStdSimplelist\nRJsonwalksStdWalktable"]
+    DisplayClasses["RJsonwalksStdDisplay<br/>RJsonwalksStdSimplelist<br/>RJsonwalksStdWalktable"]
     LeafletMarker[RJsonwalksLeafletMapmarker]
     Loader[RLoad]
     Leaflet[RLeafletScript]
-    BaseJS["media/js\nra.js\nra.walk.js\nra.tabs.js\nra.paginatedDataList.js\nra.feedhandler.js"]
+    BaseJS["media/js<br/>ra.js<br/>ra.walk.js<br/>ra.tabs.js<br/>ra.paginatedDataList.js<br/>ra.feedhandler.js"]
     StdJS["media/jsonwalks/std/display.js"]
     Sr02JS["media/jsonwalks/sr02/display.js"]
     BuCss["media/jsonwalks/bu51/bu51style.css"]

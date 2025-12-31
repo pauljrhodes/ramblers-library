@@ -18,24 +18,24 @@ The `accounts` module manages hosted site account information, including domain 
 ```mermaid
 flowchart TB
     subgraph Accounts["Accounts Module"]
-        RAccounts["RAccounts\nMain class"]
-        Account["RAccountsAccount\nAccount object"]
-        Logfile["RAccountsLogfile\nLog file handler"]
+        RAccounts["RAccounts<br/>Main class"]
+        Account["RAccountsAccount<br/>Account object"]
+        Logfile["RAccountsLogfile<br/>Log file handler"]
     end
 
     subgraph Data["Data Sources"]
-        JoomlaDB["Joomla Database\nAccount table"]
-        Organisation["ROrganisation\nOrg data"]
+        JoomlaDB["Joomla Database<br/>Account table"]
+        Organisation["ROrganisation<br/>Org data"]
     end
 
     subgraph Display["Display Layer"]
-        LeafletMap["RLeafletMap\nMap rendering"]
-        Html["RHtml\nHTML formatting"]
-        SqlUtils["RSqlUtils\nTable checks"]
+        LeafletMap["RLeafletMap<br/>Map rendering"]
+        Html["RHtml<br/>HTML formatting"]
+        SqlUtils["RSqlUtils<br/>Table checks"]
     end
 
     subgraph Client["Client-Side"]
-        AccountsJS["accounts.js\nMap display"]
+        AccountsJS["accounts.js<br/>Map display"]
     end
 
     RAccounts --> JoomlaDB
@@ -185,7 +185,7 @@ flowchart LR
     Accounts["RAccounts::addMapMarkers"]
     Map[RLeafletMap]
     Loader[RLoad]
-    BaseJS["/media/js\nra.js, ra.map.js, ra.tabs.js"]
+    BaseJS["/media/js<br/>ra.js, ra.map.js, ra.tabs.js"]
     AccountsJS["/media/accounts/accounts.js"]
     Leaflet[Leaflet core + plugins]
 

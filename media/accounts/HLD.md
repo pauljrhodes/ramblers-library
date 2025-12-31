@@ -17,15 +17,15 @@ The `media/accounts` module provides client-side JavaScript for displaying hoste
 ```mermaid
 flowchart TB
     subgraph Core["Core Integration"]
-        Bootstrap["ra.bootstrapper\nInitialization"]
-        LeafletMap["ra.leafletmap\nMap wrapper"]
-        Cluster["ra.map.cluster\nMarker clustering"]
+        Bootstrap["ra.bootstrapper<br/>Initialization"]
+        LeafletMap["ra.leafletmap<br/>Map wrapper"]
+        Cluster["ra.map.cluster<br/>Marker clustering"]
     end
 
     subgraph Display["Display Function"]
-        AccountsMap["ra.display.accountsMap\nAccounts display"]
-        Markers["Account Markers\nMarker rendering"]
-        Popups["Popups\nAccount information"]
+        AccountsMap["ra.display.accountsMap<br/>Accounts display"]
+        Markers["Account Markers<br/>Marker rendering"]
+        Popups["Popups<br/>Account information"]
     end
 
     Bootstrap --> AccountsMap
@@ -88,7 +88,7 @@ sequenceDiagram
     participant Cluster as "ra.map.cluster"
     participant User as User Browser
 
-    PHP->>Doc: "setCommand(\"ra.display.accountsMap\")"
+    PHP->>Doc: "setCommand(ra.display.accountsMap)"
     PHP->>Doc: "setDataObject(hostedsites)"
     PHP->>Doc: "addScriptDeclaration(bootstrap)"
     Doc->>User: Render page
@@ -135,7 +135,7 @@ flowchart LR
     PHP["RAccounts::addMapMarkers"]
     Loader["RLoad::addScript"]
     Map["RLeafletMap::display"]
-    BaseJS["/media/js\nra.js, ra.leafletmap.js, ra.tabs.js"]
+    BaseJS["/media/js<br/>ra.js, ra.leafletmap.js, ra.tabs.js"]
     AccountsJS["/media/accounts/accounts.js"]
     Bootstrap["ra.bootstrapper → ra.display.accountsMap"]
 

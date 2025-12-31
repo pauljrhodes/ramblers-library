@@ -105,7 +105,7 @@ sequenceDiagram
     SrcWM->>Walks: "addWalk(walk)"
 
     Note over Presenter: Prepare render + assets
-    Presenter->>LeafletMap: "setCommand(\"ra.display.walksTabs\") + payload"
+    Presenter->>LeafletMap: "setCommand(ra.display.walksTabs) + payload"
     LeafletMap->>LeafletScript: "add(options + data)"
     LeafletScript->>RLoad: "addScript/addStyle (cache-busted)"
     RLoad->>Doc: enqueue assets + inline JSON
@@ -245,22 +245,22 @@ The Ramblers Library uses a three-layer architecture: **Server-Side PHP**, **Pre
 ```mermaid
 flowchart TB
     subgraph Server["Server-Side PHP Layer"]
-        Domain["Domain Models\nRJsonwalksWalk, RJsonwalksWalks"]
-        Orchestration["Orchestration\nRJsonwalksFeed, RJsonwalksStdDisplay"]
-        DataSources["Data Sources\nRJsonwalksWmFeed, RFeedhelper"]
+        Domain["Domain Models<br/>RJsonwalksWalk, RJsonwalksWalks"]
+        Orchestration["Orchestration<br/>RJsonwalksFeed, RJsonwalksStdDisplay"]
+        DataSources["Data Sources<br/>RJsonwalksWmFeed, RFeedhelper"]
     end
 
     subgraph Presentation["Presentation Layer"]
-        Display["Display Classes\nRJsonwalksStdDisplay, RLeafletMap"]
-        AssetLoad["Asset Loading\nRLoad, RLeafletScript"]
-        DataInjection["Data Injection\nJSON payloads, script declarations"]
+        Display["Display Classes<br/>RJsonwalksStdDisplay, RLeafletMap"]
+        AssetLoad["Asset Loading<br/>RLoad, RLeafletScript"]
+        DataInjection["Data Injection<br/>JSON payloads, script declarations"]
     end
 
     subgraph Client["Client-Side JavaScript Layer"]
-        Core["Core Library\nra.js, ra.map.js"]
-        DisplayJS["Display Modules\nra.display.walksTabs, ra.display.organisationMap"]
-        Maps["Map System\nra.leafletmap, L.Control.*"]
-        Vendors["Vendor Libraries\ncvList, Leaflet.js, FullCalendar"]
+        Core["Core Library<br/>ra.js, ra.map.js"]
+        DisplayJS["Display Modules<br/>ra.display.walksTabs, ra.display.organisationMap"]
+        Maps["Map System<br/>ra.leafletmap, L.Control.*"]
+        Vendors["Vendor Libraries<br/>cvList, Leaflet.js, FullCalendar"]
     end
 
     Server --> Presentation
@@ -323,22 +323,22 @@ flowchart LR
   Client["Browser / Client"] --> Joomla[Joomla Site]
 
   subgraph RL["Ramblers Library (site library)"]
-    JW["jsonwalks\nfeed + domain + presenters"]
-    LF["leaflet\nmap + script + options"]
-    GPX["gpx\nfolder stats + map feeds"]
-    EV["event + ics\ncalendar exports"]
-    ORG["organisation + accounts\norg feed + DB"]
-    UTIL["utilities\nerrors + load + geometry + html"]
+    JW["jsonwalks<br/>feed + domain + presenters"]
+    LF["leaflet<br/>map + script + options"]
+    GPX["gpx<br/>folder stats + map feeds"]
+    EV["event + ics<br/>calendar exports"]
+    ORG["organisation + accounts<br/>org feed + DB"]
+    UTIL["utilities<br/>errors + load + geometry + html"]
   end
 
   Joomla --> RL
 
-  JW --> WMAPI["Walk Manager API\nwalks / groups"]
+  JW --> WMAPI["Walk Manager API<br/>walks / groups"]
   ORG --> ORGFEED[Organisation JSON feeds]
-  JW --> Cache["(Disk cache\ncache/ra_wm_feed)"]
+  JW --> Cache["(Disk cache<br/>cache/ra_wm_feed)"]
   GPX --> GPXFS["Local GPX files/folders"]
   ORG --> DB["(Joomla DB tables)"]
-  LF --> JoomlaDoc["Joomla Document\nscripts + styles + JSON payload"]
+  LF --> JoomlaDoc["Joomla Document<br/>scripts + styles + JSON payload"]
   UTIL --> Log[Error telemetry + Joomla messages]
 ```
 **Notes**
@@ -349,8 +349,8 @@ flowchart LR
 ```mermaid
 flowchart TB
   subgraph Acquire["Data acquisition"]
-    FH["RFeedhelper\nHTTP + cache + errors"]
-    WM["RJsonwalksWmFeed\nWM client + caching"]
+    FH["RFeedhelper<br/>HTTP + cache + errors"]
+    WM["RJsonwalksWmFeed<br/>WM client + caching"]
   end
 
   subgraph Domain["Domain modelling"]
@@ -374,7 +374,7 @@ flowchart TB
   end
 
   subgraph Export["Exports"]
-    EG["event/feed.php\n(ICS aggregation entrypoint)"]
+    EG["event/feed.php<br/>(ICS aggregation entrypoint)"]
     Ics[RIcsOutput]
   end
 
@@ -635,7 +635,7 @@ flowchart LR
   FreshJSON --> CacheWrite[Write cache snapshot]
   CacheWrite --> CachedJSON
 
-  WmFeed --> OrgOpt["RJsonwalksWmOrganisation\noptional delta check"]
+  WmFeed --> OrgOpt["RJsonwalksWmOrganisation<br/>optional delta check"]
   OrgOpt --> OrgSlow{Slow or mismatch?}
   OrgSlow -- Yes --> Err[RErrors]
   OrgSlow -- No --> OK[Proceed]
@@ -836,40 +836,40 @@ RLeafletGpxMap --> RGpxStatistics
 ```mermaid
 flowchart LR
   FeedCtor["RJsonwalksFeed::__construct"] --> WalksCtor["RJsonwalksWalks::__construct"]
-  FeedCtor --> FeedFilters[RJsonwalksFeed: ":filter*()]"
-  FeedCtor --> FeedDisplay[RJsonwalksFeed: ":display]"
-  FeedDisplay --> StdDisplay[RJsonwalksStdDisplay: ":DisplayWalks]"
-  FeedDisplay --> Simple[RJsonwalksStdSimplelist: ":DisplayWalks]"
-  FeedDisplay --> Table[RJsonwalksStdWalktable: ":DisplayWalks]"
-  FeedDisplay --> Cancel[RJsonwalksStdCancelledwalks: ":DisplayWalks]"
-  StdDisplay --> MapCtor[RLeafletMap: ":__construct]"
-  StdDisplay --> MapCommand[RLeafletMap: ":setCommand]"
-  StdDisplay --> MapDisplay[RLeafletMap: ":display]"
-  MapDisplay --> LeafletAdd[RLeafletScript: ":add]"
-  LeafletAdd --> LoadAssets[RLoad: ":addScript/addStyleSheet]"
-  FeedDisplay --> MapMarker[RJsonwalksLeafletMapmarker: ":DisplayWalks]"
+  FeedCtor --> FeedFilters["RJsonwalksFeed: filter*()"]
+  FeedCtor --> FeedDisplay["RJsonwalksFeed: display"]
+  FeedDisplay --> StdDisplay["RJsonwalksStdDisplay: DisplayWalks"]
+  FeedDisplay --> Simple["RJsonwalksStdSimplelist: DisplayWalks"]
+  FeedDisplay --> Table["RJsonwalksStdWalktable: DisplayWalks"]
+  FeedDisplay --> Cancel["RJsonwalksStdCancelledwalks: DisplayWalks"]
+  StdDisplay --> MapCtor["RLeafletMap: __construct"]
+  StdDisplay --> MapCommand["RLeafletMap: setCommand"]
+  StdDisplay --> MapDisplay["RLeafletMap: display"]
+  MapDisplay --> LeafletAdd["RLeafletScript: add"]
+  LeafletAdd --> LoadAssets["RLoad: addScript/addStyleSheet"]
+  FeedDisplay --> MapMarker["RJsonwalksLeafletMapmarker: DisplayWalks"]
   MapMarker --> MapDisplay
-  FeedDisplay --> IcsDownload[RJsonwalksFeed: ":displayIcsDownload]"
-  IcsDownload --> EventGroup[REventGroup: ":addWalks]"
-  IcsDownload --> EventDownload[REventDownload: ":Display]"
-  EventGroup --> IcsOutput[RIcsOutput: ":addRecord/addSequence]"
+  FeedDisplay --> IcsDownload["RJsonwalksFeed: displayIcsDownload"]
+  IcsDownload --> EventGroup["REventGroup: addWalks"]
+  IcsDownload --> EventDownload["REventDownload: Display"]
+  EventGroup --> IcsOutput["RIcsOutput: addRecord/addSequence"]
 ```
 
 ### 11.2 Accounts + organisation + feedhelper + errors
 ```mermaid
 flowchart LR
   OrgLoad["ROrganisation::load"] --> OrgFeed["ROrganisation::readFeed"]
-  OrgFeed --> FHGet[RFeedhelper: ":getFeed]"
-  FHGet --> FHCache[RFeedhelper: ":createCachedFileFromUrl]"
-  FHGet --> FHError[RErrors: ":notifyError]"
-  OrgLoad --> OrgDisplay[ROrganisation: ":display]"
-  OrgDisplay --> MapSet[RLeafletMap: ":setDataObject]"
-  OrgDisplay --> LoadAssets[RLoad: ":addScript/addStyleSheet]"
+  OrgFeed --> FHGet["RFeedhelper: getFeed"]
+  FHGet --> FHCache["RFeedhelper: createCachedFileFromUrl"]
+  FHGet --> FHError["RErrors: notifyError"]
+  OrgLoad --> OrgDisplay["ROrganisation: display"]
+  OrgDisplay --> MapSet["RLeafletMap: setDataObject"]
+  OrgDisplay --> LoadAssets["RLoad: addScript/addStyleSheet"]
 
   AccUpdate["RAccounts::updateAccounts"] --> OrgConstruct["ROrganisation::__construct"]
-  AccUpdate --> DbUpdate[RAccounts: ":updateDatabase]"
-  DbUpdate --> SqlUtils[RSqlUtils: ":executeQuery]"
-  AccUpdate --> MapMarkers[RAccounts: ":addMapMarkers]"
+  AccUpdate --> DbUpdate["RAccounts: updateDatabase"]
+  DbUpdate --> SqlUtils["RSqlUtils: executeQuery"]
+  AccUpdate --> MapMarkers["RAccounts: addMapMarkers"]
   MapMarkers --> MapSet
 ```
 
@@ -877,14 +877,14 @@ flowchart LR
 ```mermaid
 flowchart LR
   GpxFolder["RLeafletGpxMaplist::display"] --> Stats["RGpxStatistics::buildStatistics"]
-  Stats --> GpxJson[RGpxStatistic: ":jsonSerialize]"
-  GpxFolder --> LeafletCmd[RLeafletMap: ":setCommand(\\"ra.display.gpxFolder\\")]"
-  GpxFolder --> LeafletData[RLeafletMap: ":setDataObject]"
-  LeafletData --> LeafletAdd[RLeafletScript: ":add]"
-  LeafletAdd --> LoadAssets[RLoad: ":addScript/addStyleSheet]"
+  Stats --> GpxJson["RGpxStatistic: jsonSerialize"]
+  GpxFolder --> LeafletCmd["RLeafletMap: setCommand(ra.display.gpxFolder)"]
+  GpxFolder --> LeafletData["RLeafletMap: setDataObject"]
+  LeafletData --> LeafletAdd["RLeafletScript: add"]
+  LeafletAdd --> LoadAssets
 
-  CsvList["RLeafletCsvList::display"] --> CsvCmd["RLeafletMap::setCommand("\\\"ra.display.tableList\\\"")"];
-  CsvList --> CsvData[RLeafletMap: ":setDataObject]"
+  CsvList["RLeafletCsvList::display"] --> CsvCmd["RLeafletMap::setCommand(ra.display.tableList)"]
+  CsvList --> CsvData["RLeafletMap: setDataObject"]
   CsvData --> LeafletAdd
 ```
 

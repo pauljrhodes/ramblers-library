@@ -18,27 +18,27 @@ The `media/jsonwalks` module provides client-side JavaScript for rendering walk 
 ```mermaid
 flowchart TB
     subgraph Core["Core Integration"]
-        Bootstrap["ra.bootstrapper\nInitialization"]
-        Events["ra.events\nEvent collection"]
+        Bootstrap["ra.bootstrapper<br/>Initialization"]
+        Events["ra.events<br/>Event collection"]
     end
 
     subgraph StdDisplay["Standard Display (display.js)"]
-        WalksTabs["ra.display.walksTabs\nTabbed interface"]
-        GradesView["Grades View\nGrade-based display"]
-        ListView["List View\nList format"]
-        TableView["Table View\nTable format"]
-        CalendarView["Calendar View\nFullCalendar"]
-        MapView["Map View\nLeaflet map"]
+        WalksTabs["ra.display.walksTabs<br/>Tabbed interface"]
+        GradesView["Grades View<br/>Grade-based display"]
+        ListView["List View<br/>List format"]
+        TableView["Table View<br/>Table format"]
+        CalendarView["Calendar View<br/>FullCalendar"]
+        MapView["Map View<br/>Leaflet map"]
     end
 
     subgraph MapDisplay["Map Marker Display (mapmarker.js)"]
-        WalksMap["ra.display.walksMap\nMap markers"]
+        WalksMap["ra.display.walksMap<br/>Map markers"]
         Cluster[Marker clustering]
     end
 
     subgraph Specialized["Specialized Displays"]
-        MLScript["ml/script.js\nMonthly listing"]
-        SR02Display["sr02/display.js\nSR02 custom format"]
+        MLScript["ml/script.js<br/>Monthly listing"]
+        SR02Display["sr02/display.js<br/>SR02 custom format"]
     end
 
     Bootstrap --> WalksTabs
@@ -203,7 +203,7 @@ sequenceDiagram
     participant Tabs as "ra.tabs"
     participant User as User Browser
 
-    PHP->>Doc: "setCommand(\"ra.display.walksTabs\")"
+    PHP->>Doc: "setCommand(ra.display.walksTabs)"
     PHP->>Doc: "setDataObject(walks + config)"
     PHP->>Doc: "addScriptDeclaration(bootstrap)"
     Doc->>User: Render page
@@ -229,7 +229,7 @@ sequenceDiagram
     participant Events as "ra.events"
 
     User->>Tabs: Click tab button
-    Tabs->>Tabs: "Dispatch \"displayTabContents\" event"
+    Tabs->>Tabs: "Dispatch displayTabContents event"
     WalksTabs->>WalksTabs: "displayWalks()"
     alt Tab == "List"
         WalksTabs->>Display: "displayWalksList(tag)"
@@ -254,7 +254,7 @@ sequenceDiagram
     participant WalksTabs as "ra.display.walksTabs"
 
     User->>FilterUI: Change filter
-    FilterUI->>FilterUI: "Dispatch \"reDisplayWalks\" event"
+    FilterUI->>FilterUI: "Dispatch reDisplayWalks event"
     WalksTabs->>Events: "setDisplayFilter(filter)"
     Events->>Events: "forEach(event => setDisplayFilter)"
     Events->>WalksTabs: Trigger re-render
@@ -295,10 +295,10 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    PHP["RJsonwalksStdDisplay\nRJsonwalksLeafletMapmarker"]
+    PHP["RJsonwalksStdDisplay<br/>RJsonwalksLeafletMapmarker"]
     Loader["RLoad::addScript"]
     Leaflet["RLeafletScript::add"]
-    BaseJS["/media/js\nra.js, ra.tabs.js, ra.paginatedDataList.js, ra.walk.js"]
+    BaseJS["/media/js<br/>ra.js, ra.tabs.js, ra.paginatedDataList.js, ra.walk.js"]
     StdJS["/media/jsonwalks/std/display.js"]
     MapJS["/media/jsonwalks/leaflet/mapmarker.js"]
     Bootstrap["ra.bootstrapper → ra.display.walksTabs / ra.display.walksMap"]

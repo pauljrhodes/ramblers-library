@@ -19,25 +19,25 @@ The `media/walkseditor` module provides a complete walk editing interface with b
 ```mermaid
 flowchart TB
     subgraph Frontend["JavaScript Frontend"]
-        WalkEditor["ra.walkseditor.walkeditor\nMain editor"]
-        InputFields["ra.walkseditor.inputFields\nForm fields"]
-        PlaceEditor["ra.walkseditor.placeEditor\nPlace editing"]
-        MapLocation["ra.walkseditor.maplocation\nMap integration"]
-        ViewWalks["ra.walkseditor.viewWalks\nWalk viewing"]
-        FormSubmit["form/submitwalk.js\nForm submission"]
-        Programme["form/programme.js\nProgramme management"]
+        WalkEditor["ra.walkseditor.walkeditor<br/>Main editor"]
+        InputFields["ra.walkseditor.inputFields<br/>Form fields"]
+        PlaceEditor["ra.walkseditor.placeEditor<br/>Place editing"]
+        MapLocation["ra.walkseditor.maplocation<br/>Map integration"]
+        ViewWalks["ra.walkseditor.viewWalks<br/>Walk viewing"]
+        FormSubmit["form/submitwalk.js<br/>Form submission"]
+        Programme["form/programme.js<br/>Programme management"]
     end
 
     subgraph Backend["PHP Backend"]
-        SendEmail["sendemail.php\nEmail handler"]
-        PHPMailer["PHPMailer.php\nEmail library"]
-        SMTP["SMTP.php\nSMTP transport"]
-        Exception["Exception.php\nError handling"]
+        SendEmail["sendemail.php<br/>Email handler"]
+        PHPMailer["PHPMailer.php<br/>Email library"]
+        SMTP["SMTP.php<br/>SMTP transport"]
+        Exception["Exception.php<br/>Error handling"]
     end
 
     subgraph Integration["Integration"]
-        JoomlaConfig["Joomla Configuration\nEmail settings"]
-        LeafletMap["Leaflet Map\nLocation selection"]
+        JoomlaConfig["Joomla Configuration<br/>Email settings"]
+        LeafletMap["Leaflet Map<br/>Location selection"]
     end
 
     WalkEditor --> InputFields
@@ -276,9 +276,9 @@ sequenceDiagram
 flowchart LR
     PHP["RWalkseditorProgramme / Submitform"]
     Loader["RLoad::addScript"]
-    BaseJS["/media/js\nra.tabs.js"]
+    BaseJS["/media/js<br/>ra.tabs.js"]
     Vendors["/media/vendors/cvList/cvList.js"]
-    EditorJS["/media/walkseditor/js\nwalkeditor.js, walk.js, form/*.js"]
+    EditorJS["/media/walkseditor/js<br/>walkeditor.js, walk.js, form/*.js"]
     Bootstrap["Bootstrap script → ra.walkseditor.walkeditor"]
 
     PHP --> Loader
