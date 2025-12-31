@@ -19,25 +19,25 @@ The `media/walkseditor` module provides a complete walk editing interface with b
 ```mermaid
 flowchart TB
     subgraph Frontend["JavaScript Frontend"]
-        WalkEditor[ra.walkseditor.walkeditor<br/>Main editor]
-        InputFields[ra.walkseditor.inputFields<br/>Form fields]
-        PlaceEditor[ra.walkseditor.placeEditor<br/>Place editing]
-        MapLocation[ra.walkseditor.maplocation<br/>Map integration]
-        ViewWalks[ra.walkseditor.viewWalks<br/>Walk viewing]
-        FormSubmit[form/submitwalk.js<br/>Form submission]
-        Programme[form/programme.js<br/>Programme management]
+        WalkEditor["ra.walkseditor.walkeditor\nMain editor"]
+        InputFields["ra.walkseditor.inputFields\nForm fields"]
+        PlaceEditor["ra.walkseditor.placeEditor\nPlace editing"]
+        MapLocation["ra.walkseditor.maplocation\nMap integration"]
+        ViewWalks["ra.walkseditor.viewWalks\nWalk viewing"]
+        FormSubmit["form/submitwalk.js\nForm submission"]
+        Programme["form/programme.js\nProgramme management"]
     end
 
     subgraph Backend["PHP Backend"]
-        SendEmail[sendemail.php<br/>Email handler]
-        PHPMailer[PHPMailer.php<br/>Email library]
-        SMTP[SMTP.php<br/>SMTP transport]
-        Exception[Exception.php<br/>Error handling]
+        SendEmail["sendemail.php\nEmail handler"]
+        PHPMailer["PHPMailer.php\nEmail library"]
+        SMTP["SMTP.php\nSMTP transport"]
+        Exception["Exception.php\nError handling"]
     end
 
     subgraph Integration["Integration"]
-        JoomlaConfig[Joomla Configuration<br/>Email settings]
-        LeafletMap[Leaflet Map<br/>Location selection]
+        JoomlaConfig["Joomla Configuration\nEmail settings"]
+        LeafletMap["Leaflet Map\nLocation selection"]
     end
 
     WalkEditor --> InputFields
@@ -199,32 +199,32 @@ sequenceDiagram
     participant Editor as Walk Editor JS
     participant Validate as Form Validation
     participant AJAX as AJAX Request
-    participant SendEmail as sendemail.php
+    participant SendEmail as "sendemail.php"
     participant PHPMailer as PHPMailer
     participant SMTP as SMTP Server
     participant Coordinator as Coordinator Email
 
     User->>Editor: Fill walk form
     User->>Editor: Click submit
-    Editor->>Validate: validateForm()
-    Validate-->>Editor: valid/invalid
+    Editor->>Validate: "validateForm()"
+    Validate-->>Editor: "valid/invalid"
     alt Valid
-        Editor->>AJAX: POST walk data (JSON)
+        Editor->>AJAX: "POST walk data (JSON)"
         AJAX->>SendEmail: Receive POST
-        SendEmail->>SendEmail: json_decode(data)
-        SendEmail->>SendEmail: checkDecode()
-        SendEmail->>PHPMailer: new PHPMailer()
-        SendEmail->>PHPMailer: Configure (SMTP/mail)
-        SendEmail->>PHPMailer: setFrom(), addAddress()
-        SendEmail->>PHPMailer: AddStringAttachment(walk JSON)
-        SendEmail->>PHPMailer: msgHTML(body)
+        SendEmail->>SendEmail: "json_decode(data)"
+        SendEmail->>SendEmail: "checkDecode()"
+        SendEmail->>PHPMailer: "new PHPMailer()"
+        SendEmail->>PHPMailer: "Configure (SMTP/mail)"
+        SendEmail->>PHPMailer: "setFrom(), addAddress()"
+        SendEmail->>PHPMailer: "AddStringAttachment(walk JSON)"
+        SendEmail->>PHPMailer: "msgHTML(body)"
         PHPMailer->>SMTP: Send email
         SMTP->>Coordinator: Deliver email
-        PHPMailer-->>SendEmail: Success/failure
+        PHPMailer-->>SendEmail: "Success/failure"
         SendEmail->>SendEmail: Create response object
         SendEmail-->>AJAX: JSON response
-        AJAX->>Editor: handleResponse()
-        Editor->>User: Show success/error message
+        AJAX->>Editor: "handleResponse()"
+        Editor->>User: "Show success/error message"
     else Invalid
         Editor->>User: Show validation errors
     end
@@ -244,7 +244,7 @@ sequenceDiagram
     User->>Map: Select location
     Map-->>PlaceEditor: Coordinates
     PlaceEditor->>PlaceEditor: Save place data
-    PlaceEditor->>Storage: Store place (localStorage/API)
+    PlaceEditor->>Storage: "Store place (localStorage/API)"
 ```
 
 ## Integration Points
@@ -274,12 +274,12 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    PHP[RWalkseditorProgramme / Submitform]
-    Loader[RLoad::addScript]
-    BaseJS[/media/js<br/>ra.tabs.js]
-    Vendors[/media/vendors/cvList/cvList.js]
-    EditorJS[/media/walkseditor/js<br/>walkeditor.js, walk.js, form/*.js]
-    Bootstrap[Bootstrap script → ra.walkseditor.walkeditor]
+    PHP["RWalkseditorProgramme / Submitform"]
+    Loader["RLoad::addScript"]
+    BaseJS["/media/js\nra.tabs.js"]
+    Vendors["/media/vendors/cvList/cvList.js"]
+    EditorJS["/media/walkseditor/js\nwalkeditor.js, walk.js, form/*.js"]
+    Bootstrap["Bootstrap script → ra.walkseditor.walkeditor"]
 
     PHP --> Loader
     Loader --> BaseJS

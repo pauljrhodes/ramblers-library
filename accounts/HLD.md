@@ -18,24 +18,24 @@ The `accounts` module manages hosted site account information, including domain 
 ```mermaid
 flowchart TB
     subgraph Accounts["Accounts Module"]
-        RAccounts[RAccounts<br/>Main class]
-        Account[RAccountsAccount<br/>Account object]
-        Logfile[RAccountsLogfile<br/>Log file handler]
+        RAccounts["RAccounts\nMain class"]
+        Account["RAccountsAccount\nAccount object"]
+        Logfile["RAccountsLogfile\nLog file handler"]
     end
 
     subgraph Data["Data Sources"]
-        JoomlaDB[Joomla Database<br/>Account table]
-        Organisation[ROrganisation<br/>Org data]
+        JoomlaDB["Joomla Database\nAccount table"]
+        Organisation["ROrganisation\nOrg data"]
     end
 
     subgraph Display["Display Layer"]
-        LeafletMap[RLeafletMap<br/>Map rendering]
-        Html[RHtml<br/>HTML formatting]
-        SqlUtils[RSqlUtils<br/>Table checks]
+        LeafletMap["RLeafletMap\nMap rendering"]
+        Html["RHtml\nHTML formatting"]
+        SqlUtils["RSqlUtils\nTable checks"]
     end
 
     subgraph Client["Client-Side"]
-        AccountsJS[accounts.js<br/>Map display]
+        AccountsJS["accounts.js\nMap display"]
     end
 
     RAccounts --> JoomlaDB
@@ -135,14 +135,14 @@ sequenceDiagram
     participant Organisation as ROrganisation
     participant Account as Account Record
 
-    RAccounts->>DB: getAccounts()
+    RAccounts->>DB: "getAccounts()"
     DB-->>RAccounts: accounts[]
-    RAccounts->>Organisation: new()
-    Organisation->>Organisation: load()
-    Organisation-->>RAccounts: areas, groups
+    RAccounts->>Organisation: "new()"
+    Organisation->>Organisation: "load()"
+    Organisation-->>RAccounts: "areas, groups"
     loop for each account
-        RAccounts->>RAccounts: updateAccount(item, org)
-        RAccounts->>DB: updateDatabaseRecord()
+        RAccounts->>RAccounts: "updateAccount(item, org)"
+        RAccounts->>DB: "updateDatabaseRecord()"
     end
 ```
 
@@ -182,11 +182,11 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    Accounts[RAccounts::addMapMarkers]
+    Accounts["RAccounts::addMapMarkers"]
     Map[RLeafletMap]
     Loader[RLoad]
-    BaseJS[/media/js<br/>ra.js, ra.map.js, ra.tabs.js]
-    AccountsJS[/media/accounts/accounts.js]
+    BaseJS["/media/js\nra.js, ra.map.js, ra.tabs.js"]
+    AccountsJS["/media/accounts/accounts.js"]
     Leaflet[Leaflet core + plugins]
 
     Accounts --> Map

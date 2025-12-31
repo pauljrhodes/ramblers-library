@@ -13,11 +13,11 @@ The `directory` module renders simple directory listings, filtering by allowed e
 ```mermaid
 flowchart TB
     subgraph Directory["Directory Module"]
-        RDirectoryList[RDirectoryList<br/>Listing helper]
+        RDirectoryList["RDirectoryList\nListing helper"]
     end
 
-    Filesystem[(Target folder)]
-    Joomla[Joomla APIs<br/>JFactory/JText/JURI]
+    Filesystem["(Target folder)"]
+    Joomla["Joomla APIs\nJFactory/JText/JURI"]
     Output[HTML UL links]
 
     RDirectoryList --> Filesystem
@@ -42,14 +42,14 @@ sequenceDiagram
     participant Joomla
     participant Browser
 
-    Caller->>Dir: listItems(folder, sort)
+    Caller->>Dir: "listItems(folder, sort)"
     Dir->>FS: Validate folder exists
     alt missing
-        Dir->>Joomla: enqueueMessage(error)
+        Dir->>Joomla: "enqueueMessage(error)"
         Dir-->>Caller: return
     end
     Dir->>FS: scan dir + descriptions
-    Dir->>Browser: echo <ul> with links
+    Dir->>Browser: "echo <ul> with links"
 ```
 
 ## Integration Points

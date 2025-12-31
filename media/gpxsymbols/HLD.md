@@ -17,19 +17,19 @@ The `media/gpxsymbols` module provides a PHP endpoint for checking GPX symbol fi
 ```mermaid
 flowchart TB
     subgraph Endpoint["PHP Endpoint"]
-        Exists[exists.php<br/>File check]
+        Exists["exists.php\nFile check"]
     end
 
     subgraph Input["Input"]
-        GETRequest[GET Request<br/>?file=path]
+        GETRequest["GET Request\n?file=path"]
     end
 
     subgraph Output["Output"]
-        Response[true/false<br/>String response]
+        Response["true/false\nString response"]
     end
 
     subgraph FileSystem["File System"]
-        SymbolFiles[Symbol Image Files<br/>letter/, number/, etc.]
+        SymbolFiles["Symbol Image Files\nletter/, number/, etc."]
     end
 
     GETRequest --> Exists
@@ -70,14 +70,14 @@ GET /media/lib_ramblers/gpxsymbols/exists.php?file=<filepath>
 sequenceDiagram
     autonumber
     participant Client as JavaScript Client
-    participant Exists as exists.php
+    participant Exists as "exists.php"
     participant FileSystem as File System
 
-    Client->>Exists: GET ?file=media/.../symbol.png
-    Exists->>Exists: htmlspecialchars(file)
-    Exists->>FileSystem: file_exists(filepath)
-    FileSystem-->>Exists: true/false
-    Exists-->>Client: "true" or "false"
+    Client->>Exists: "GET ?file=media/.../symbol.png"
+    Exists->>Exists: "htmlspecialchars(file)"
+    Exists->>FileSystem: "file_exists(filepath)"
+    FileSystem-->>Exists: "true/false"
+    Exists-->>Client: "true\" or \"false"
 ```
 
 ## Integration Points
@@ -105,9 +105,9 @@ sequenceDiagram
 ```mermaid
 flowchart LR
     Client[Client widget]
-    Exists[media/gpxsymbols/exists.php]
-    Files[/media/gpxsymbols<br/>symbol sprites]
-    Response["true" / "false"]
+    Exists["media/gpxsymbols/exists.php"]
+    Files["/media/gpxsymbols\nsymbol sprites"]
+    Response["true\" / \"false"]
 
     Client --> Exists
     Exists --> Files

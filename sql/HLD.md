@@ -16,17 +16,17 @@ The `sql` module provides database utility functions for Joomla database operati
 ```mermaid
 flowchart TB
     subgraph Sql["SQL Module"]
-        SqlUtils[RSqlUtils<br/>Static utility class]
+        SqlUtils["RSqlUtils\nStatic utility class"]
     end
 
     subgraph Functions["Functions"]
-        TableExists[tableExists<br/>Check table]
+        TableExists["tableExists\nCheck table"]
     end
 
     subgraph Integration["Integration"]
-        Accounts[RAccounts<br/>Table validation]
-        Organisation[ROrganisation<br/>Table checks]
-        JoomlaDB[Joomla Database<br/>getDbo()]
+        Accounts["RAccounts\nTable validation"]
+        Organisation["ROrganisation\nTable checks"]
+        JoomlaDB["Joomla Database\ngetDbo()"]
     end
 
     SqlUtils --> TableExists
@@ -64,13 +64,13 @@ sequenceDiagram
     participant JoomlaDB as Joomla Database
     participant Tables as Table List
 
-    Caller->>SqlUtils: tableExists('table_name')
-    SqlUtils->>JoomlaDB: getDbo()
-    SqlUtils->>JoomlaDB: replacePrefix('#__table')
-    SqlUtils->>JoomlaDB: getTableList()
+    Caller->>SqlUtils: "tableExists('table_name')"
+    SqlUtils->>JoomlaDB: "getDbo()"
+    SqlUtils->>JoomlaDB: "replacePrefix('#__table')"
+    SqlUtils->>JoomlaDB: "getTableList()"
     JoomlaDB-->>SqlUtils: tables[]
     SqlUtils->>SqlUtils: Check if table in list
-    SqlUtils-->>Caller: true/false
+    SqlUtils-->>Caller: "true/false"
 ```
 
 ## Integration Points

@@ -12,9 +12,9 @@ The `license` module provides license key management for map providers and exter
 
 ```mermaid
 flowchart TB
-    RLicense[RLicense<br/>License lookup]
-    Joomla[Joomla Config<br/>Component params]
-    Consumers[RLeafletMapoptions<br/>Leaflet presenters]
+    RLicense["RLicense\nLicense lookup"]
+    Joomla["Joomla Config\nComponent params"]
+    Consumers["RLeafletMapoptions\nLeaflet presenters"]
 
     RLicense --> Joomla
     RLicense --> Consumers
@@ -41,9 +41,9 @@ sequenceDiagram
     participant License as RLicense
     participant Joomla as Joomla Config
 
-    Caller->>License: get...LicenseKey()
+    Caller->>License: "get...LicenseKey()"
     License->>Joomla: read component params
-    Joomla-->>License: key or ""
+    Joomla-->>License: "key or \"\""
     License-->>Caller: key string
 ```
 

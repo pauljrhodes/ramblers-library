@@ -17,16 +17,16 @@ The `jsonwalks/leaflet` module provides Leaflet map marker display for walk coll
 ```mermaid
 flowchart TB
     subgraph Display["Display Layer"]
-        MapMarker[RJsonwalksLeafletMapmarker<br/>Extends Displaybase]
+        MapMarker["RJsonwalksLeafletMapmarker\nExtends Displaybase"]
     end
 
     subgraph Integration["Integration"]
-        LeafletMap[RLeafletMap<br/>Map container]
-        Walks[RJsonwalksWalks<br/>Walk collection]
+        LeafletMap["RLeafletMap\nMap container"]
+        Walks["RJsonwalksWalks\nWalk collection"]
     end
 
     subgraph Client["Client-Side"]
-        MapMarkerJS[mapmarker.js<br/>Marker rendering]
+        MapMarkerJS["mapmarker.js\nMarker rendering"]
     end
 
     MapMarker --> LeafletMap
@@ -77,16 +77,16 @@ sequenceDiagram
     participant Script as RLeafletScript
     participant Load as RLoad
     participant Browser as Browser
-    participant ClientJS as mapmarker.js
+    participant ClientJS as "mapmarker.js"
 
-    Feed->>Mapmarker: display(Mapmarker)
-    Mapmarker->>Map: setCommand("ra.display.walksMap") + map options
-    Mapmarker->>Map: setDataObject(walks as JSON)
-    Mapmarker->>Map: display()
-    Map->>Script: add(options)
-    Script->>Load: enqueue Leaflet + /media/js + mapmarker.js
-    Load->>Browser: inject scripts/styles with cache-busting
-    Browser->>ClientJS: ra.display.walksMap(data)
+    Feed->>Mapmarker: "display(Mapmarker)"
+    Mapmarker->>Map: "setCommand(\"ra.display.walksMap\") + map options"
+    Mapmarker->>Map: "setDataObject(walks as JSON)"
+    Mapmarker->>Map: "display()"
+    Map->>Script: "add(options)"
+    Script->>Load: "enqueue Leaflet + /media/js + mapmarker.js"
+    Load->>Browser: "inject scripts/styles with cache-busting"
+    Browser->>ClientJS: "ra.display.walksMap(data)"
     ClientJS-->>Browser: render markers + popups
 ```
 

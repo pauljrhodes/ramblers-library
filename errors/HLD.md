@@ -19,18 +19,18 @@ The `errors` module provides centralized error handling and telemetry for the Ra
 ```mermaid
 flowchart TB
     subgraph Errors["Error System"]
-        RErrors[RErrors<br/>Main class]
+        RErrors["RErrors\nMain class"]
     end
 
     subgraph Collection["Error Collection"]
-        ErrorStore[Remote Error Store<br/>errors.theramblers.org.uk]
-        JoomlaMsg[Joomla Messages<br/>User notifications]
-        Email[Email Notifications<br/>Optional]
+        ErrorStore["Remote Error Store\nerrors.theramblers.org.uk"]
+        JoomlaMsg["Joomla Messages\nUser notifications"]
+        Email["Email Notifications\nOptional"]
     end
 
     subgraph Context["Error Context"]
         Domain[Domain name]
-        Action[Action/component]
+        Action["Action/component"]
         ErrorText[Error message]
         StackTrace[Stack trace]
     end
@@ -108,13 +108,13 @@ sequenceDiagram
     participant JoomlaApp as Joomla Application
     participant User as User Browser
 
-    Module->>RErrors: notifyError(text, action, level)
-    RErrors->>URI: getInstance()
+    Module->>RErrors: "notifyError(text, action, level)"
+    RErrors->>URI: "getInstance()"
     URI-->>RErrors: domain
-    RErrors->>RErrors: debug_backtrace(5 levels)
-    RErrors->>ErrorStore: cURL POST (domain, action, error, trace)
+    RErrors->>RErrors: "debug_backtrace(5 levels)"
+    RErrors->>ErrorStore: "cURL POST (domain, action, error, trace)"
     ErrorStore-->>RErrors: HTTP status
-    RErrors->>JoomlaApp: enqueueMessage(text, level)
+    RErrors->>JoomlaApp: "enqueueMessage(text, level)"
     JoomlaApp->>User: Display message
 ```
 
@@ -126,15 +126,15 @@ sequenceDiagram
     participant RErrors as RErrors
     participant Result as JSON Result
 
-    Module->>RErrors: checkJsonFeed(feed, title, result, props)
-    RErrors->>RErrors: checkJsonProperties(result, props)
+    Module->>RErrors: "checkJsonFeed(feed, title, result, props)"
+    RErrors->>RErrors: "checkJsonProperties(result, props)"
     loop for each property
-        RErrors->>RErrors: checkJsonProperty(result, prop)
+        RErrors->>RErrors: "checkJsonProperty(result, prop)"
         alt property missing
-            RErrors->>RErrors: notifyError("Missing property")
+            RErrors->>RErrors: "notifyError(\"Missing property\")"
         end
     end
-    RErrors-->>Module: true/false
+    RErrors-->>Module: "true/false"
 ```
 
 ## Integration Points

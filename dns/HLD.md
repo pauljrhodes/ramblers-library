@@ -12,9 +12,9 @@ The `dns` module resolves mail-related DNS records to help the library discover 
 
 ```mermaid
 flowchart TB
-    Dns[RDnsRecord<br/>Resolver]
-    DNS[dns_get_record(DNS_ALL)<br/>External DNS]
-    Host[SSL mail host<br/>mail<octet>.extendcp.co.uk]
+    Dns["RDnsRecord\nResolver"]
+    DNS["dns_get_record(DNS_ALL)\nExternal DNS"]
+    Host["SSL mail host\nmail<octet>.extendcp.co.uk"]
 
     Dns --> DNS
     DNS --> Dns
@@ -36,11 +36,11 @@ sequenceDiagram
     participant Resolver as RDnsRecord
     participant DNS as dns_get_record
 
-    Caller->>Resolver: new(domain)
-    Caller->>Resolver: getSSLMailServer()
-    Resolver->>DNS: dns_get_record(mail.domain, DNS_ALL)
+    Caller->>Resolver: "new(domain)"
+    Caller->>Resolver: "getSSLMailServer()"
+    Resolver->>DNS: "dns_get_record(mail.domain, DNS_ALL)"
     DNS-->>Resolver: records[]
-    Resolver->>Caller: derived host or ""
+    Resolver->>Caller: "derived host or \"\""
 ```
 
 ## Integration Points

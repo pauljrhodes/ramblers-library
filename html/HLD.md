@@ -18,19 +18,19 @@ The `html` module provides HTML formatting and text conversion utilities. It han
 ```mermaid
 flowchart TB
     subgraph Html["HTML Module"]
-        RHtml[RHtml<br/>Static utility class]
+        RHtml["RHtml\nStatic utility class"]
     end
 
     subgraph Functions["Functions"]
-        ConvertText[convertToText<br/>HTML → text]
-        RemoveTags[removeNonBasicTags<br/>Strip tags]
-        ConvertMails[convert_mails<br/>Email obfuscation]
-        FetchMails[fetch_mails<br/>Email extraction]
+        ConvertText["convertToText\nHTML → text"]
+        RemoveTags["removeNonBasicTags\nStrip tags"]
+        ConvertMails["convert_mails\nEmail obfuscation"]
+        FetchMails["fetch_mails\nEmail extraction"]
     end
 
     subgraph Integration["Integration"]
-        Accounts[RAccounts<br/>HTML rendering]
-        Other[Other modules<br/>Text processing]
+        Accounts["RAccounts\nHTML rendering"]
+        Other["Other modules\nText processing"]
     end
 
     RHtml --> ConvertText
@@ -112,12 +112,12 @@ sequenceDiagram
     participant HTML as HTML String
     participant Text as Plain Text
 
-    Caller->>RHtml: convertToText(html)
+    Caller->>RHtml: "convertToText(html)"
     RHtml->>HTML: Replace line breaks
     RHtml->>HTML: Remove &nbsp;
-    RHtml->>HTML: strip_tags()
-    RHtml->>HTML: htmlspecialchars_decode()
-    RHtml->>HTML: trim()
+    RHtml->>HTML: "strip_tags()"
+    RHtml->>HTML: "htmlspecialchars_decode()"
+    RHtml->>HTML: "trim()"
     RHtml-->>Caller: Plain text
 ```
 

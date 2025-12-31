@@ -59,9 +59,9 @@ public function display();
 flowchart TB
     Map[RLeafletGpxMap]
     Maplist[RLeafletGpxMaplist]
-    Stats[RGpxStatistics<br/>RGpxJsonlog]
-    Parser[RGpxFile / RGpxStatistic]
-    Media[/media/leaflet/gpx/maplist.js<br/>Leaflet.Elevation + leaflet-gpx/]
+    Stats["RGpxStatistics\nRGpxJsonlog"]
+    Parser["RGpxFile / RGpxStatistic"]
+    Media["media/leaflet/gpx/maplist.js\nLeaflet.Elevation + leaflet-gpx"]
 
     Maplist --> Stats
     Stats --> Parser
@@ -74,17 +74,17 @@ flowchart TB
 ```mermaid
 sequenceDiagram
     participant Caller
-    participant Map as RLeafletGpxMap(list)
+    participant Map as "RLeafletGpxMap(list)"
     participant Stats as RGpxStatistics
-    participant Media as ra.display.gpxFolder/ra.display.gpxSingle
+    participant Media as "ra.display.gpxFolder/ra.display.gpxSingle"
 
-    Caller->>Map: display()/displayPath()
+    Caller->>Map: "display()/displayPath()"
     alt folder mode
-        Map->>Stats: build 0000gpx_statistics_file.json
+        Map->>Stats: "build 0000gpx_statistics_file.json"
         Stats-->>Map: cached JSON
-        Map->>Media: setCommand('ra.display.gpxFolder') + data
+        Map->>Media: "setCommand('ra.display.gpxFolder') + data"
     else single file
-        Map->>Media: setCommand('ra.display.gpxSingle') + file metadata
+        Map->>Media: "setCommand('ra.display.gpxSingle') + file metadata"
     end
     Media-->>Caller: HTML + bootstrap with asset list
 ```
@@ -118,12 +118,12 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    PHP[RLeafletGpxMap / Maplist]
+    PHP["RLeafletGpxMap / Maplist"]
     Loader[RLeafletScript + RLoad]
-    BaseJS[/media/js foundation]
-    GpxJS[/media/leaflet/gpx/maplist.js]
-    Vendors[/media/vendors<br/>leaflet-gpx + Leaflet.Elevation + cvList]
-    Bootstrap[ra.bootstrapper → ra.display.gpxSingle/gpxFolder]
+    BaseJS["/media/js foundation"]
+    GpxJS["/media/leaflet/gpx/maplist.js"]
+    Vendors["/media/vendors\nleaflet-gpx + Leaflet.Elevation + cvList"]
+    Bootstrap["ra.bootstrapper → ra.display.gpxSingle/gpxFolder"]
 
     PHP --> Loader
     Loader --> BaseJS

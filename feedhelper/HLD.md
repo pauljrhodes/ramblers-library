@@ -18,20 +18,20 @@ The `feedhelper` module provides generic HTTP feed retrieval with disk-based cac
 ```mermaid
 flowchart TB
     subgraph FeedHelper["Feed Helper"]
-        RFeedhelper[RFeedhelper<br/>Main class]
+        RFeedhelper["RFeedhelper\nMain class"]
     end
 
     subgraph Cache["Cache Management"]
-        CacheFolder[Cache Folder<br/>JPATH_SITE/cache/...]
-        CacheFile[Cached Files<br/>MD5 hash names]
+        CacheFolder["Cache Folder\nJPATH_SITE/cache/..."]
+        CacheFile["Cached Files\nMD5 hash names"]
     end
 
     subgraph External["External Services"]
-        HTTPFeed[HTTP/HTTPS Feed<br/>JSON endpoint]
+        HTTPFeed["HTTP/HTTPS Feed\nJSON endpoint"]
     end
 
     subgraph Integration["Integration"]
-        Errors[RErrors<br/>Error reporting]
+        Errors["RErrors\nError reporting"]
         FileSystem[Joomla FileSystem]
     end
 
@@ -105,31 +105,31 @@ const FEEDFOPEN = 3;
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Caller as Module/Page
+    participant Caller as "Module/Page"
     participant FeedHelper as RFeedhelper
     participant Cache as Cache Folder
     participant HTTPFeed as HTTP Feed
     participant Errors as RErrors
 
-    Caller->>FeedHelper: getFeed(url, title)
-    FeedHelper->>FeedHelper: normalize URL (HTTP→HTTPS)
+    Caller->>FeedHelper: "getFeed(url, title)"
+    FeedHelper->>FeedHelper: "normalize URL (HTTP→HTTPS)"
     FeedHelper->>FeedHelper: validate protocol
     
     alt Cache hit and fresh
         FeedHelper->>Cache: read cached file
         Cache-->>FeedHelper: contents
     else Cache miss or stale
-        FeedHelper->>HTTPFeed: file_get_contents(url)
+        FeedHelper->>HTTPFeed: "file_get_contents(url)"
         alt Success
             HTTPFeed-->>FeedHelper: contents
             FeedHelper->>Cache: write cached file
         else Failure
-            HTTPFeed-->>FeedHelper: false/error
-            FeedHelper->>Errors: notifyError()
-            FeedHelper->>Cache: use stale cache (if exists)
+            HTTPFeed-->>FeedHelper: "false/error"
+            FeedHelper->>Errors: "notifyError()"
+            FeedHelper->>Cache: "use stale cache (if exists)"
         end
     end
-    FeedHelper-->>Caller: {status, contents}
+    FeedHelper-->>Caller: "{status, contents}"
 ```
 
 ## Integration Points

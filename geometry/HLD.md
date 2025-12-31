@@ -17,17 +17,17 @@ The `geometry` module provides geographic calculation utilities, primarily great
 ```mermaid
 flowchart TB
     subgraph Geometry["Geometry Module"]
-        GreatCircle[RGeometryGreatcircle<br/>Static utility class]
+        GreatCircle["RGeometryGreatcircle\nStatic utility class"]
     end
 
     subgraph Calculations["Calculations"]
-        Distance[Great Circle Distance<br/>Haversine formula]
-        Bearing[Bearing/Azimuth<br/>Angle calculation]
+        Distance["Great Circle Distance\nHaversine formula"]
+        Bearing["Bearing/Azimuth\nAngle calculation"]
     end
 
     subgraph Integration["Integration"]
-        Jsonwalks[RJsonwalksWalks<br/>Distance filtering]
-        Leaflet[Leaflet Maps<br/>Distance display]
+        Jsonwalks["RJsonwalksWalks\nDistance filtering"]
+        Leaflet["Leaflet Maps\nDistance display"]
     end
 
     GreatCircle --> Distance
@@ -83,9 +83,9 @@ sequenceDiagram
     participant GreatCircle as RGeometryGreatcircle
     participant Result as Distance Result
 
-    Caller->>GreatCircle: distance(lat1, lon1, lat2, lon2, unit)
-    GreatCircle->>GreatCircle: validateRadius(unit)
-    GreatCircle->>GreatCircle: deg2rad(coordinates)
+    Caller->>GreatCircle: "distance(lat1, lon1, lat2, lon2, unit)"
+    GreatCircle->>GreatCircle: "validateRadius(unit)"
+    GreatCircle->>GreatCircle: "deg2rad(coordinates)"
     GreatCircle->>GreatCircle: Haversine formula
     GreatCircle-->>Caller: distance in units
 ```

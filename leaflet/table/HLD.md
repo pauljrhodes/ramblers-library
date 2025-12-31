@@ -16,7 +16,7 @@ The `leaflet/table` module provides table column definition utilities for Leafle
 flowchart TB
     Columns[RLeafletTableColumns]
     Column[RLeafletTableColumn]
-    Sources[CSV/JSON/SQL lists]
+    Sources["CSV/JSON/SQL lists"]
 
     Columns --> Column
     Sources --> Columns

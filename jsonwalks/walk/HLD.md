@@ -17,18 +17,18 @@ The `jsonwalks/walk` module provides domain value objects representing individua
 ```mermaid
 flowchart TB
     subgraph Walk["Walk Aggregate"]
-        WalkRoot[RJsonwalksWalk<br/>Aggregate root]
+        WalkRoot["RJsonwalksWalk\nAggregate root"]
     end
 
     subgraph Components["Value Objects"]
-        Admin[RJsonwalksWalkAdmin<br/>Admin data]
-        Basics[RJsonwalksWalkBasics<br/>Basic info]
-        Items[RJsonwalksWalkItems<br/>Items collection]
-        TimeLoc[RJsonwalksWalkTimelocation<br/>Time/location]
-        Flags[RJsonwalksWalkFlags<br/>Status flags]
-        Bookings[RJsonwalksWalkBookings<br/>Booking info]
-        MediaItem[RJsonwalksWalkMediaitem<br/>Media files]
-        WalkVO[RJsonwalksWalkWalk<br/>Walk details]
+        Admin["RJsonwalksWalkAdmin\nAdmin data"]
+        Basics["RJsonwalksWalkBasics\nBasic info"]
+        Items["RJsonwalksWalkItems\nItems collection"]
+        TimeLoc["RJsonwalksWalkTimelocation\nTime/location"]
+        Flags["RJsonwalksWalkFlags\nStatus flags"]
+        Bookings["RJsonwalksWalkBookings\nBooking info"]
+        MediaItem["RJsonwalksWalkMediaitem\nMedia files"]
+        WalkVO["RJsonwalksWalkWalk\nWalk details"]
     end
 
     WalkRoot --> Admin
@@ -93,17 +93,17 @@ flowchart TB
 sequenceDiagram
     participant Source as RJsonwalksSource*
     participant Walk as RJsonwalksWalk
-    participant Components as Admin/Basics/Items/Flags/Bookings/Mediaitem
+    participant Components as "Admin/Basics/Items/Flags/Bookings/Mediaitem"
     participant Collection as RJsonwalksWalks
     participant Presenter as RJsonwalksDisplaybase subclass
 
-    Source->>Walk: new RJsonwalksWalk()
+    Source->>Walk: "new RJsonwalksWalk()"
     Source->>Components: build component objects
-    Components-->>Walk: add*(component)
-    Walk-->>Collection: addWalk(Walk)
-    Presenter->>Collection: allWalks()
-    Presenter->>Walk: getWalkValue(), isCancelled(), distanceFromLatLong()
-    Walk-->>Presenter: formatted values/status
+    Components-->>Walk: "add*(component)"
+    Walk-->>Collection: "addWalk(Walk)"
+    Presenter->>Collection: "allWalks()"
+    Presenter->>Walk: "getWalkValue(), isCancelled(), distanceFromLatLong()"
+    Walk-->>Presenter: "formatted values/status"
 ```
 
 ## Integration Points

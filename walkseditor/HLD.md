@@ -16,20 +16,20 @@ The `walkseditor` module provides the walk editing interface for creating and ma
 ```mermaid
 flowchart TB
     subgraph Server["Server Components"]
-        Loader[RWalkseditor<br/>Asset loader]
-        Programme[RWalkseditorProgramme<br/>programme.php]
-        Submit[RWalkseditorSubmitform<br/>submitform.php]
+        Loader["RWalkseditor\nAsset loader"]
+        Programme["RWalkseditorProgramme\nprogramme.php"]
+        Submit["RWalkseditorSubmitform\nsubmitform.php"]
     end
 
     subgraph Client["Client Assets"]
-        EditorJS[walkeditor.js<br/>walksEditorHelps.js<br/>viewWalks.js]
-        FormJS[walk.js<br/>inputfields.js<br/>loader.js<br/>maplocation.js<br/>placeEditor.js]
-        ProgrammeJS[form/programme.js]
-        SubmitJS[form/submitwalk.js]
-        CompJS[comp/viewAllWalks.js<br/>comp/viewAllPlaces.js]
-        Foundation[ra.tabs.js<br/>cvList.js]
-        Quill[Quill JS/CSS (CDN)]
-        Styles[style.css<br/>ra.tabs.css]
+        EditorJS["walkeditor.js\nwalksEditorHelps.js\nviewWalks.js"]
+        FormJS["walk.js\ninputfields.js\nloader.js\nmaplocation.js\nplaceEditor.js"]
+        ProgrammeJS["form/programme.js"]
+        SubmitJS["form/submitwalk.js"]
+        CompJS["comp/viewAllWalks.js\ncomp/viewAllPlaces.js"]
+        Foundation["ra.tabs.js\ncvList.js"]
+        Quill["Quill JS/CSS (CDN)"]
+        Styles["style.css\nra.tabs.css"]
     end
 
     Programme --> Loader
@@ -68,24 +68,24 @@ public function display()
 
 ```mermaid
 sequenceDiagram
-    participant Joomla as Joomla Page/Module
+    participant Joomla as "Joomla Page/Module"
     participant Programme as RWalkseditorProgramme
     participant Submit as RWalkseditorSubmitform
     participant Loader as RWalkseditor
     participant RLoad as RLoad
     participant Browser as Browser
-    participant ClientJS as walkeditor.js/form scripts
+    participant ClientJS as "walkeditor.js/form scripts"
 
-    Joomla->>Programme: display()
-    Programme->>Loader: addScriptsandCss()
-    Loader->>RLoad: addScript/addStyle for foundation + editor bundles
+    Joomla->>Programme: "display()"
+    Programme->>Loader: "addScriptsandCss()"
+    Loader->>RLoad: "addScript/addStyle for foundation + editor bundles"
     RLoad-->>Browser: inject assets
-    Browser->>ClientJS: initialize tabs, forms, lists
+    Browser->>ClientJS: "initialize tabs, forms, lists"
 
-    Joomla->>Submit: display()
-    Submit->>Loader: addScriptsandCss()
+    Joomla->>Submit: "display()"
+    Submit->>Loader: "addScriptsandCss()"
     Loader->>RLoad: enqueue submit form assets + Quill
-    Browser->>ClientJS: bind validation, map/location pickers
+    Browser->>ClientJS: "bind validation, map/location pickers"
 ```
 
 ## Integration Points

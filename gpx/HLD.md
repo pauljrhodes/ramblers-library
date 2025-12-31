@@ -17,20 +17,20 @@ The `gpx` module provides GPX file processing utilities including file reading, 
 ```mermaid
 flowchart TB
     subgraph Parsing["Per-file Parsing"]
-        File[RGpxFile<br/>GPX reader]
+        File["RGpxFile\nGPX reader"]
     end
 
     subgraph Stats["Statistics"]
-        Stat[RGpxStatistic<br/>Value object]
-        Stats[RGpxStatistics<br/>Folder aggregator]
+        Stat["RGpxStatistic\nValue object"]
+        Stats["RGpxStatistics\nFolder aggregator"]
     end
 
     subgraph Persistence["Persistence"]
-        Jsonlog[RGpxJsonlog<br/>JSON writer]
-        Cache[0000gpx_statistics_file.json<br/>Cache file]
+        Jsonlog["RGpxJsonlog\nJSON writer"]
+        Cache["0000gpx_statistics_file.json\nCache file"]
     end
 
-    Filesystem[(GPX folder)]
+    Filesystem["(GPX folder)"]
 
     Filesystem --> File
     File --> Stat
@@ -79,20 +79,20 @@ sequenceDiagram
     participant Parser as RGpxFile
     participant Json as RGpxJsonlog
 
-    Caller->>Stats: new(folder, getMetaFromGPX)
-    Stats->>FS: latestFile()
+    Caller->>Stats: "new(folder, getMetaFromGPX)"
+    Stats->>FS: "latestFile()"
     alt Cache stale or missing
-        Stats->>Json: new(JSONFILE)
-        Stats->>FS: processFolder()
+        Stats->>Json: "new(JSONFILE)"
+        Stats->>FS: "processFolder()"
         loop for each .gpx file
-            Stats->>Parser: new RGpxFile(path)
-            Parser-->>Stats: metadata + tracks/routes
+            Stats->>Parser: "new RGpxFile(path)"
+            Parser-->>Stats: "metadata + tracks/routes"
             Stats->>Stats: build RGpxStatistic
-            Stats->>Json: addItem(id, stat)
+            Stats->>Json: "addItem(id, stat)"
         end
-        Stats->>Json: writeFile()
+        Stats->>Json: "writeFile()"
     end
-    Caller->>Stats: getJson()
+    Caller->>Stats: "getJson()"
     Stats-->>Caller: JSON string
 ```
 

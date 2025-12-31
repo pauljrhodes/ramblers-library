@@ -17,22 +17,22 @@ The `load` module provides asset loading utilities with cache-busting support. I
 ```mermaid
 flowchart TB
     subgraph Load["Load Module"]
-        RLoad[RLoad<br/>Static utility class]
+        RLoad["RLoad\nStatic utility class"]
     end
 
     subgraph Functions["Functions"]
-        AddScript[addScript<br/>Load JS]
-        AddStyleSheet[addStyleSheet<br/>Load CSS]
+        AddScript["addScript\nLoad JS"]
+        AddStyleSheet["addStyleSheet\nLoad CSS"]
     end
 
     subgraph Integration["Integration"]
-        JoomlaDoc[Joomla Document<br/>addScript/addStyleSheet]
-        DisplayModules[Display Modules<br/>Asset loading]
+        JoomlaDoc["Joomla Document\naddScript/addStyleSheet"]
+        DisplayModules["Display Modules\nAsset loading"]
     end
 
     subgraph CacheBusting["Cache Busting"]
-        FileMtime[filemtime()<br/>Get modification time]
-        QueryString[?rev=timestamp<br/>Version query]
+        FileMtime["filemtime()\nGet modification time"]
+        QueryString["?rev=timestamp\nVersion query"]
     end
 
     RLoad --> AddScript
@@ -89,17 +89,17 @@ sequenceDiagram
     participant JoomlaDoc as Joomla Document
     participant Browser as Browser
 
-    Display->>RLoad: addScript('path/to/file.js')
+    Display->>RLoad: "addScript('path/to/file.js')"
     RLoad->>RLoad: Check if HTTP URL
     alt Local file
-        RLoad->>FileSystem: filemtime('path/to/file.js')
+        RLoad->>FileSystem: "filemtime('path/to/file.js')"
         FileSystem-->>RLoad: timestamp
         RLoad->>RLoad: Append ?rev=timestamp
     else HTTP URL
         RLoad->>RLoad: Use ?rev=0
     end
-    RLoad->>JoomlaDoc: addScript('path/to/file.js?rev=timestamp')
-    JoomlaDoc->>Browser: Inject <script> tag
+    RLoad->>JoomlaDoc: "addScript('path/to/file.js?rev=timestamp')"
+    JoomlaDoc->>Browser: "Inject <script> tag"
 ```
 
 ## Integration Points

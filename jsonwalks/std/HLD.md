@@ -18,14 +18,14 @@ The `jsonwalks/std` module provides standard display implementations for renderi
 ```mermaid
 flowchart TB
     subgraph Base["Base Class"]
-        DisplayBase[RJsonwalksDisplaybase<br/>Abstract base]
+        DisplayBase["RJsonwalksDisplaybase\nAbstract base"]
     end
 
     subgraph StdDisplays["Standard Display Classes"]
-        StdDisplay[RJsonwalksStdDisplay<br/>Tabbed interface]
-        SimpleList[RJsonwalksStdSimplelist<br/>Simple list]
-        WalkTable[RJsonwalksStdWalktable<br/>Table format]
-        Cancelled[RJsonwalksStdCancelledwalks<br/>Cancelled walks]
+        StdDisplay["RJsonwalksStdDisplay\nTabbed interface"]
+        SimpleList["RJsonwalksStdSimplelist\nSimple list"]
+        WalkTable["RJsonwalksStdWalktable\nTable format"]
+        Cancelled["RJsonwalksStdCancelledwalks\nCancelled walks"]
     end
 
     subgraph Integration["Integration Layer"]
@@ -36,9 +36,9 @@ flowchart TB
     end
 
     subgraph Client["Client-Side"]
-        DisplayJS[display.js<br/>Tab management]
-        TabsJS[ra.tabs.js<br/>Tab functionality]
-        CvListJS[cvList.js<br/>Pagination]
+        DisplayJS["display.js\nTab management"]
+        TabsJS["ra.tabs.js\nTab functionality"]
+        CvListJS["cvList.js\nPagination"]
     end
 
     DisplayBase --> StdDisplay
@@ -196,22 +196,22 @@ sequenceDiagram
     participant LeafletMap as RLeafletMap
     participant LeafletScript as RLeafletScript
     participant Load as RLoad
-    participant JS as display.js
+    participant JS as "display.js"
     participant Browser as Browser
 
-    Feed->>StdDisplay: display(StdDisplay)
-    Feed->>StdDisplay: DisplayWalks(Walks)
-    StdDisplay->>Walks: sort(date, time, distance)
-    StdDisplay->>Walks: allWalks()
-    StdDisplay->>LeafletMap: new()
-    StdDisplay->>LeafletMap: setCommand("ra.display.walksTabs")
-    StdDisplay->>LeafletMap: setDataObject(walks + config)
-    StdDisplay->>LeafletMap: display()
-    LeafletMap->>LeafletScript: add(options)
-    LeafletScript->>Load: addScript/Style()
+    Feed->>StdDisplay: "display(StdDisplay)"
+    Feed->>StdDisplay: "DisplayWalks(Walks)"
+    StdDisplay->>Walks: "sort(date, time, distance)"
+    StdDisplay->>Walks: "allWalks()"
+    StdDisplay->>LeafletMap: "new()"
+    StdDisplay->>LeafletMap: "setCommand(\"ra.display.walksTabs\")"
+    StdDisplay->>LeafletMap: "setDataObject(walks + config)"
+    StdDisplay->>LeafletMap: "display()"
+    LeafletMap->>LeafletScript: "add(options)"
+    LeafletScript->>Load: "addScript/Style()"
     Load->>Browser: Inject assets
-    JS->>Browser: Initialize tabs, filters, pagination
-    JS->>Browser: Render List/Table/Calendar/Map views
+    JS->>Browser: "Initialize tabs, filters, pagination"
+    JS->>Browser: "Render List/Table/Calendar/Map views"
 ```
 
 ### Simple List Flow
@@ -223,12 +223,12 @@ sequenceDiagram
     participant Walks as RJsonwalksWalks
     participant Walk as RJsonwalksWalk
 
-    Feed->>SimpleList: display(SimpleList)
-    Feed->>SimpleList: DisplayWalks(Walks)
-    SimpleList->>Walks: sort(date, time, distance)
-    SimpleList->>Walks: allWalks()
+    Feed->>SimpleList: "display(SimpleList)"
+    Feed->>SimpleList: "DisplayWalks(Walks)"
+    SimpleList->>Walks: "sort(date, time, distance)"
+    SimpleList->>Walks: "allWalks()"
     loop for each walk
-        SimpleList->>Walk: getWalkValue() for each format token
+        SimpleList->>Walk: "getWalkValue() for each format token"
         Walk-->>SimpleList: formatted value
         SimpleList->>SimpleList: render HTML row
     end

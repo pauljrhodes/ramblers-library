@@ -13,13 +13,13 @@ The `gpxsymbols` module renders available GPX waypoint symbols within Joomla vie
 ```mermaid
 flowchart TB
     subgraph Server[Server-Side]
-        Display[RGpxsymbolsDisplay<br/>display.php]
-        Exists[media/gpxsymbols/exists.php<br/>Asset check]
+        Display["RGpxsymbolsDisplay\ndisplay.php"]
+        Exists["media/gpxsymbols/exists.php\nAsset check"]
     end
 
-    subgraph Assets[Symbol Assets (/media/gpxsymbols)]
-        CSS[display.css<br/>Styles]
-        Symbols[letter/, number/, office/, transport/]
+    subgraph Assets["Symbol Assets (/media/gpxsymbols)"]
+        CSS["display.css\nStyles"]
+        Symbols["letter/, number/, office/, transport/"]
     end
 
     subgraph Client[Client Browser]
@@ -78,13 +78,13 @@ sequenceDiagram
     participant FS as File System
     participant Browser as Browser
 
-    Caller->>Display: new()
-    Display->>Doc: addStyleSheet(/media/lib_ramblers/gpxsymbols/display.css)
-    Caller->>Display: listFolder(media/.../gpxsymbols/letter)
-    Display->>FS: opendir()/readdir()
+    Caller->>Display: "new()"
+    Display->>Doc: "addStyleSheet(/media/lib_ramblers/gpxsymbols/display.css)"
+    Caller->>Display: "listFolder(media/.../gpxsymbols/letter)"
+    Display->>FS: "opendir()/readdir()"
     FS-->>Display: filenames
     loop each symbol
-        Display->>Browser: <img src=".../symbol.png">
+        Display->>Browser: "<img src=\".../symbol.png\">"
     end
 ```
 
@@ -101,8 +101,8 @@ sequenceDiagram
 ```mermaid
 flowchart LR
     Display[RGpxsymbolsDisplay]
-    Loader[JDocument::addStyleSheet]
-    Assets[/media/gpxsymbols<br/>display.css + symbol sprites]
+    Loader["JDocument::addStyleSheet"]
+    Assets["/media/gpxsymbols\ndisplay.css + symbol sprites"]
     Grid[Rendered symbol grid]
 
     Display --> Loader

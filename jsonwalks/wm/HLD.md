@@ -20,12 +20,12 @@ The `jsonwalks/wm` module provides the Walks Manager integration layer for Rambl
 
 ```mermaid
 flowchart TB
-    Caller[Joomla module/page]
+    Caller["Joomla module/page"]
     Source[RJsonwalksSourcewalksmanager]
     Feed[RJsonwalksWmFeed]
-    Options[RJsonwalksWmFeedoptions<br/>URL + cache key]
-    Cache[RJsonwalksWmCachefolder<br/>read/write/mtime]
-    Fileio[RJsonwalksWmFileio<br/>HTTP/local IO, retries]
+    Options["RJsonwalksWmFeedoptions\nURL + cache key"]
+    Cache["RJsonwalksWmCachefolder\nread/write/mtime"]
+    Fileio["RJsonwalksWmFileio\nHTTP/local IO, retries"]
 
     Caller --> Source
     Source --> Feed

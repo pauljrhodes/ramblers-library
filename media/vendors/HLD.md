@@ -17,25 +17,25 @@ The `media/vendors` module contains third-party vendor libraries that are either
 ```mermaid
 flowchart TB
     subgraph Pagination["Pagination"]
-        CvList[cvList.js<br/>List pagination]
-        CvListES6[cvList_ES6.js<br/>ES6 version]
+        CvList["cvList.js\nList pagination"]
+        CvListES6["cvList_ES6.js\nES6 version"]
     end
 
     subgraph GPX["GPX Processing"]
-        LeafletGpx[leaflet-gpx-1.3.1/gpx.js<br/>GPX parser]
-        Elevation[Leaflet.Elevation-0.0.4-ra<br/>Elevation profiles]
+        LeafletGpx["leaflet-gpx-1.3.1/gpx.js\nGPX parser"]
+        Elevation["Leaflet.Elevation-0.0.4-ra\nElevation profiles"]
     end
 
     subgraph Coordinates["Coordinate Systems"]
-        Geodesy[geodesy/<br/>Coordinate conversion]
-        OsGridRef[osgridref.js<br/>OS Grid Reference]
-        LatLon[latlon-ellipsoidal.js<br/>Lat/Lon calculations]
+        Geodesy["geodesy/\nCoordinate conversion"]
+        OsGridRef["osgridref.js\nOS Grid Reference"]
+        LatLon["latlon-ellipsoidal.js\nLat/Lon calculations"]
     end
 
     subgraph Integration["Integration Points"]
-        Display[Display Modules<br/>Use cvList]
-        GpxDisplay[GPX Display<br/>Use gpx.js + elevation]
-        MapControls[Map Controls<br/>Use geodesy]
+        Display["Display Modules\nUse cvList"]
+        GpxDisplay["GPX Display\nUse gpx.js + elevation"]
+        MapControls["Map Controls\nUse geodesy"]
     end
 
     CvList --> Display
@@ -186,15 +186,15 @@ sequenceDiagram
     participant Pagination as Pagination Control
     participant User as User
 
-    Display->>CvList: new cvList(container)
-    Display->>CvList: addItem(element) for each item
-    Display->>CvList: display()
-    CvList->>CvList: _calcKeys() (apply filters)
-    CvList->>Pagination: createPagination(options)
-    CvList->>Pagination: setPagination(keys)
+    Display->>CvList: "new cvList(container)"
+    Display->>CvList: "addItem(element) for each item"
+    Display->>CvList: "display()"
+    CvList->>CvList: "_calcKeys() (apply filters)"
+    CvList->>Pagination: "createPagination(options)"
+    CvList->>Pagination: "setPagination(keys)"
     CvList->>User: Render paginated items
-    User->>Pagination: Change page/items per page
-    Pagination->>CvList: Dispatch "cvList-redisplay"
+    User->>Pagination: "Change page/items per page"
+    Pagination->>CvList: "Dispatch \"cvList-redisplay\""
     CvList->>User: Update display
 ```
 
@@ -202,20 +202,20 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant GpxDisplay as ra.display.gpxSingle
-    participant GpxLib as L.GPX
-    participant Elevation as L.Control.Elevation
+    participant GpxDisplay as "ra.display.gpxSingle"
+    participant GpxLib as "L.GPX"
+    participant Elevation as "L.Control.Elevation"
     participant Map as Leaflet Map
 
-    GpxDisplay->>GpxLib: new L.GPX(file, options)
-    GpxLib->>GpxLib: Parse GPX file (async)
+    GpxDisplay->>GpxLib: "new L.GPX(file, options)"
+    GpxLib->>GpxLib: "Parse GPX file (async)"
     GpxLib->>GpxLib: Dispatch 'addline' event
-    GpxLib->>Elevation: addData(line)
+    GpxLib->>Elevation: "addData(line)"
     Elevation->>Elevation: Calculate elevation data
     Elevation->>Elevation: Render D3 chart
-    GpxLib->>Map: addTo(map)
+    GpxLib->>Map: "addTo(map)"
     GpxLib->>GpxLib: Dispatch 'loaded' event
-    GpxDisplay->>GpxDisplay: displayGpxdetails()
+    GpxDisplay->>GpxDisplay: "displayGpxdetails()"
 ```
 
 ## Integration Points
@@ -248,11 +248,11 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    PHP[RJsonwalksStdDisplay<br/>RWalkseditorProgramme<br/>RLeafletScript]
-    Loader[RLoad::addScript]
-    Vendors[/media/vendors<br/>cvList, Leaflet.Elevation, leaflet-gpx, geodesy]
-    BaseJS[/media/js foundation]
-    Bootstrap[ra.bootstrapper + map bootstraps]
+    PHP["RJsonwalksStdDisplay\nRWalkseditorProgramme\nRLeafletScript"]
+    Loader["RLoad::addScript"]
+    Vendors["/media/vendors\ncvList, Leaflet.Elevation, leaflet-gpx, geodesy"]
+    BaseJS["/media/js foundation"]
+    Bootstrap["ra.bootstrapper + map bootstraps"]
 
     PHP --> Loader
     Loader --> Vendors
