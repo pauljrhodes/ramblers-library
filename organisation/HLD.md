@@ -156,6 +156,14 @@ sequenceDiagram
 ### Joomla Integration
 - **Document pipeline**: Assets and payloads injected via `RLoad` and `RLeafletMap::display()`, respecting Joomla base paths and cache-busting.
 
+### Key Features (`ROrganisation`)
+- Fetches, caches, and converts the organisation feed into area/group domain objects.
+- Provides display configuration flags (links, codes, colours) consumable by client scripts.
+- Emits map-ready JSON and bootstrap commands for `ra.display.organisationMap`.
+
+## Media Integration
+
+### Server-to-Client Asset Relationship
 ### Vendor Library Integration
 - **Leaflet.js + markercluster** loaded through `RLeafletScript`.
 
@@ -178,6 +186,15 @@ flowchart LR
 ```
 
 `ROrganisation::display()` enqueues `/media/organisation/organisation.js` plus the shared `/media/js` stack through `RLoad`; `RLeafletMap::display()` then injects the bootstrapper, so the browser spins up `ra.display.organisationMap` with the JSON data from PHP.
+
+### Media Asset Loading
+- **JavaScript entry point**: `/media/organisation/organisation.js` (instantiates `ra.display.organisationMap`).
+- **Server-to-client flow**: PHP sets the command/data on `RLeafletMap`, leverages `RLoad` to add `/media` assets, and relies on `RLeafletScript::add()` for Leaflet dependencies before the client bootstrap runs.
+
+### Key Features (`organisation.js`)
+- Renders area and group markers with scope-aware colours and clustering.
+- Popups surface names, codes, descriptions, and links when configured.
+- Supports centring/highlighting a specific group and toggling visibility flags supplied by PHP.
 
 ## Examples
 

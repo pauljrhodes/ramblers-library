@@ -166,6 +166,12 @@ sequenceDiagram
 - **Server**: `RAccounts::listLogDetails()` (tables) and `RAccounts::addMapMarkers()` (map) prepare payloads.
 - **Client**: `ra.display.accountsMap` in `/media/accounts/accounts.js` renders markers/popups.
 
+### Key Features (`RAccounts`)
+- Loads hosted site accounts, enriches them with organisation data, and exposes table/log displays.
+- Configures Leaflet map commands/data for `ra.display.accountsMap` with minimal caller setup.
+- Supports multiple display formats and integrates log file analysis for each account.
+
+## Media Integration
 ### Joomla Integration
 - **Document pipeline**: `RLoad::addScript()` and `RLeafletMap::display()` publish cache-busted assets and the bootstrap JSON/command for the browser.
 
