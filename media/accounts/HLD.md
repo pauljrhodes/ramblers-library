@@ -17,15 +17,15 @@ The `media/accounts` module provides client-side JavaScript for displaying hoste
 ```mermaid
 flowchart TB
     subgraph Core["Core Integration"]
-        Bootstrap[ra.bootstrapper<br/>Initialization]
-        LeafletMap[ra.leafletmap<br/>Map wrapper]
-        Cluster[ra.map.cluster<br/>Marker clustering]
+        Bootstrap["ra.bootstrapper<br/>Initialization"]
+        LeafletMap["ra.leafletmap<br/>Map wrapper"]
+        Cluster["ra.map.cluster<br/>Marker clustering"]
     end
 
     subgraph Display["Display Function"]
-        AccountsMap[ra.display.accountsMap<br/>Accounts display]
-        Markers[Account Markers<br/>Marker rendering]
-        Popups[Popups<br/>Account information]
+        AccountsMap["ra.display.accountsMap<br/>Accounts display"]
+        Markers["Account Markers<br/>Marker rendering"]
+        Popups["Popups<br/>Account information"]
     end
 
     Bootstrap --> AccountsMap
@@ -82,27 +82,27 @@ sequenceDiagram
     autonumber
     participant PHP as RAccounts
     participant Doc as Joomla Document
-    participant Bootstrap as ra.bootstrapper
-    participant AccountsMap as ra.display.accountsMap
-    participant LeafletMap as ra.leafletmap
-    participant Cluster as ra.map.cluster
+    participant Bootstrap as "ra.bootstrapper"
+    participant AccountsMap as "ra.display.accountsMap"
+    participant LeafletMap as "ra.leafletmap"
+    participant Cluster as "ra.map.cluster"
     participant User as User Browser
 
-    PHP->>Doc: setCommand("ra.display.accountsMap")
-    PHP->>Doc: setDataObject(hostedsites)
-    PHP->>Doc: addScriptDeclaration(bootstrap)
+    PHP->>Doc: "setCommand(ra.display.accountsMap)"
+    PHP->>Doc: "setDataObject(hostedsites)"
+    PHP->>Doc: "addScriptDeclaration(bootstrap)"
     Doc->>User: Render page
-    User->>Bootstrap: ra.bootstrapper(jv, class, opts, data)
-    Bootstrap->>AccountsMap: new AccountsMap(options, data)
-    AccountsMap->>AccountsMap: load()
-    AccountsMap->>LeafletMap: new ra.leafletmap(div, options)
-    AccountsMap->>Cluster: new ra.map.cluster(map)
-    AccountsMap->>AccountsMap: addMarkers(hostedsites)
+    User->>Bootstrap: "ra.bootstrapper(jv, class, opts, data)"
+    Bootstrap->>AccountsMap: "new AccountsMap(options, data)"
+    AccountsMap->>AccountsMap: "load()"
+    AccountsMap->>LeafletMap: "new ra.leafletmap(div, options)"
+    AccountsMap->>Cluster: "new ra.map.cluster(map)"
+    AccountsMap->>AccountsMap: "addMarkers(hostedsites)"
     loop for each site (if not DELETED)
-        AccountsMap->>AccountsMap: addMarker(site)
+        AccountsMap->>AccountsMap: "addMarker(site)"
     end
-    AccountsMap->>Cluster: addClusterMarkers()
-    AccountsMap->>Cluster: zoomAll()
+    AccountsMap->>Cluster: "addClusterMarkers()"
+    AccountsMap->>Cluster: "zoomAll()"
     AccountsMap->>User: Display map
 ```
 
@@ -132,12 +132,12 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    PHP[RAccounts::addMapMarkers]
-    Loader[RLoad::addScript]
-    Map[RLeafletMap::display]
-    BaseJS[/media/js<br/>ra.js, ra.leafletmap.js, ra.tabs.js]
-    AccountsJS[/media/accounts/accounts.js]
-    Bootstrap[ra.bootstrapper → ra.display.accountsMap]
+    PHP["RAccounts::addMapMarkers"]
+    Loader["RLoad::addScript"]
+    Map["RLeafletMap::display"]
+    BaseJS["/media/js<br/>ra.js, ra.leafletmap.js, ra.tabs.js"]
+    AccountsJS["/media/accounts/accounts.js"]
+    Bootstrap["ra.bootstrapper → ra.display.accountsMap"]
 
     PHP --> Loader
     Loader --> BaseJS

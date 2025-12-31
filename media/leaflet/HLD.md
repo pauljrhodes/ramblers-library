@@ -20,38 +20,38 @@ The `media/leaflet` module provides comprehensive Leaflet.js integration for int
 ```mermaid
 flowchart TB
     subgraph Core["Core Map System"]
-        LeafletMap[ra.leafletmap<br/>Map wrapper]
-        LeafletMapInternal[ra._leafletmap<br/>Internal map]
-        Settings[ra.map.Settings<br/>Settings panel]
+        LeafletMap["ra.leafletmap<br/>Map wrapper"]
+        LeafletMapInternal["ra._leafletmap<br/>Internal map"]
+        Settings["ra.map.Settings<br/>Settings panel"]
     end
 
     subgraph Layers["Map Layers"]
-        BaseLayers[Base Layers<br/>OSM, OS, ESRI]
-        VectorLayers[Vector Layers<br/>MapLibre GL]
-        CRS[Coordinate Systems<br/>EPSG:27700, 3857]
+        BaseLayers["Base Layers<br/>OSM, OS, ESRI"]
+        VectorLayers["Vector Layers<br/>MapLibre GL"]
+        CRS["Coordinate Systems<br/>EPSG:27700, 3857"]
     end
 
     subgraph Controls["Map Controls"]
-        Places[L.Control.Places<br/>Place management]
-        Search[L.Control.Search<br/>Location search]
-        Tools[L.Control.Tools<br/>Map tools]
-        SmartRoute[L.Control.SmartRoute<br/>Routing]
-        GpxUpload[L.Control.GpxUpload<br/>GPX upload]
-        GpxDownload[L.Control.GpxDownload<br/>GPX download]
-        Mouse[L.Control.Mouse<br/>Mouse position]
-        MyLocation[L.Control.MyLocation<br/>User location]
+        Places["L.Control.Places<br/>Place management"]
+        Search["L.Control.Search<br/>Location search"]
+        Tools["L.Control.Tools<br/>Map tools"]
+        SmartRoute["L.Control.SmartRoute<br/>Routing"]
+        GpxUpload["L.Control.GpxUpload<br/>GPX upload"]
+        GpxDownload["L.Control.GpxDownload<br/>GPX download"]
+        Mouse["L.Control.Mouse<br/>Mouse position"]
+        MyLocation["L.Control.MyLocation<br/>User location"]
     end
 
     subgraph Display["Display Functions"]
-        GpxSingle[ra.display.gpxSingle<br/>GPX route]
-        TableList[ra.display.tableList<br/>Table data]
-        MapCompare[ra.display.mapCompare<br/>Map comparison]
-        PlotRoute[ra.display.plotRoute<br/>Route plotting]
+        GpxSingle["ra.display.gpxSingle<br/>GPX route"]
+        TableList["ra.display.tableList<br/>Table data"]
+        MapCompare["ra.display.mapCompare<br/>Map comparison"]
+        PlotRoute["ra.display.plotRoute<br/>Route plotting"]
     end
 
     subgraph Utilities["Utilities"]
-        Cluster[ra.map.cluster<br/>Marker clustering]
-        Table[ramblerstable.js<br/>Table rendering]
+        Cluster["ra.map.cluster<br/>Marker clustering"]
+        Table["ramblerstable.js<br/>Table rendering"]
     end
 
     LeafletMap --> LeafletMapInternal
@@ -278,22 +278,22 @@ sequenceDiagram
     autonumber
     participant PHP as RLeafletMap
     participant Doc as Joomla Document
-    participant Bootstrap as ra.bootstrapper
-    participant LeafletMap as ra.leafletmap
-    participant InternalMap as ra._leafletmap
-    participant LeafletJS as Leaflet.js
+    participant Bootstrap as "ra.bootstrapper"
+    participant LeafletMap as "ra.leafletmap"
+    participant InternalMap as "ra._leafletmap"
+    participant LeafletJS as "Leaflet.js"
     participant User as User Browser
 
-    PHP->>Doc: setCommand("ra.display.*")
-    PHP->>Doc: setDataObject(data)
-    PHP->>Doc: addScriptDeclaration(bootstrap)
+    PHP->>Doc: "setCommand(ra.display.*)"
+    PHP->>Doc: "setDataObject(data)"
+    PHP->>Doc: "addScriptDeclaration(bootstrap)"
     Doc->>User: Render page
-    User->>Bootstrap: ra.bootstrapper(jv, class, opts, data)
-    Bootstrap->>LeafletMap: new ra.leafletmap(tag, options)
-    LeafletMap->>InternalMap: new ra._leafletmap(tag, copyright, options)
-    InternalMap->>LeafletJS: new L.Map(div, options)
+    User->>Bootstrap: "ra.bootstrapper(jv, class, opts, data)"
+    Bootstrap->>LeafletMap: "new ra.leafletmap(tag, options)"
+    LeafletMap->>InternalMap: "new ra._leafletmap(tag, copyright, options)"
+    InternalMap->>LeafletJS: "new L.Map(div, options)"
     InternalMap->>InternalMap: Create base layers
-    InternalMap->>InternalMap: Setup vector layers (if keys)
+    InternalMap->>InternalMap: "Setup vector layers (if keys)"
     InternalMap->>InternalMap: Initialize controls
     LeafletMap->>User: Display map
 ```
@@ -302,15 +302,15 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant InternalMap as ra._leafletmap
+    participant InternalMap as "ra._leafletmap"
     participant Control as Map Control
     participant Map as Leaflet Map
 
     InternalMap->>InternalMap: Check control options
     alt Control enabled
-        InternalMap->>Control: new Control(options)
-        Control->>Control: onAdd(map)
-        Control->>Map: addControl(control)
+        InternalMap->>Control: "new Control(options)"
+        Control->>Control: "onAdd(map)"
+        Control->>Map: "addControl(control)"
         Control->>User: Render control UI
     end
 ```
@@ -319,21 +319,21 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Bootstrap as ra.bootstrapper
-    participant GpxDisplay as ra.display.gpxSingle
-    participant GPXLib as L.GPX
+    participant Bootstrap as "ra.bootstrapper"
+    participant GpxDisplay as "ra.display.gpxSingle"
+    participant GPXLib as "L.GPX"
     participant Elevation as Elevation Control
     participant Map as Leaflet Map
 
-    Bootstrap->>GpxDisplay: new GpxDisplay(options, data)
-    GpxDisplay->>GpxDisplay: load()
-    GpxDisplay->>GPXLib: new L.GPX(file, options)
+    Bootstrap->>GpxDisplay: "new GpxDisplay(options, data)"
+    GpxDisplay->>GpxDisplay: "load()"
+    GpxDisplay->>GPXLib: "new L.GPX(file, options)"
     GPXLib->>GPXLib: Parse GPX file
-    GPXLib->>Map: addTo(map)
+    GPXLib->>Map: "addTo(map)"
     GPXLib->>GPXLib: Dispatch 'addline' event
-    GPXLib->>Elevation: addData(line)
+    GPXLib->>Elevation: "addData(line)"
     GPXLib->>GPXLib: Dispatch 'loaded' event
-    GpxDisplay->>GpxDisplay: displayGpxdetails()
+    GpxDisplay->>GpxDisplay: "displayGpxdetails()"
     GpxDisplay->>User: Show route and stats
 ```
 
@@ -369,12 +369,12 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    PHP[RLeafletScript::add]
-    Loader[RLoad::addScript]
-    BaseJS[/media/js<br/>ra.js, ra.map.js, ra.tabs.js]
+    PHP["RLeafletScript::add"]
+    Loader["RLoad::addScript"]
+    BaseJS["/media/js<br/>ra.js, ra.map.js, ra.tabs.js"]
     LeafletJS[Leaflet core + CSS]
-    ModuleJS[/media/leaflet<br/>ra.leafletmap.js, ra.map.settings.js, L.Control.*]
-    Bootstrap[ra.bootstrapper → ra.display.*]
+    ModuleJS["/media/leaflet<br/>ra.leafletmap.js, ra.map.settings.js, L.Control.*"]
+    Bootstrap["ra.bootstrapper → ra.display.*"]
 
     PHP --> Loader
     Loader --> BaseJS

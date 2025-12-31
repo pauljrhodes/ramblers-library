@@ -17,15 +17,15 @@ The `media/organisation` module provides client-side JavaScript for displaying o
 ```mermaid
 flowchart TB
     subgraph Core["Core Integration"]
-        Bootstrap[ra.bootstrapper<br/>Initialization]
-        LeafletMap[ra.leafletmap<br/>Map wrapper]
-        Cluster[ra.map.cluster<br/>Marker clustering]
+        Bootstrap["ra.bootstrapper<br/>Initialization"]
+        LeafletMap["ra.leafletmap<br/>Map wrapper"]
+        Cluster["ra.map.cluster<br/>Marker clustering"]
     end
 
     subgraph Display["Display Function"]
-        OrgMap[ra.display.organisationMap<br/>Organisation display]
-        Markers[Area/Group Markers<br/>Marker rendering]
-        Popups[Popups<br/>Information display]
+        OrgMap["ra.display.organisationMap<br/>Organisation display"]
+        Markers["Area/Group Markers<br/>Marker rendering"]
+        Popups["Popups<br/>Information display"]
     end
 
     Bootstrap --> OrgMap
@@ -87,30 +87,30 @@ sequenceDiagram
     autonumber
     participant PHP as ROrganisation
     participant Doc as Joomla Document
-    participant Bootstrap as ra.bootstrapper
-    participant OrgMap as ra.display.organisationMap
-    participant LeafletMap as ra.leafletmap
-    participant Cluster as ra.map.cluster
+    participant Bootstrap as "ra.bootstrapper"
+    participant OrgMap as "ra.display.organisationMap"
+    participant LeafletMap as "ra.leafletmap"
+    participant Cluster as "ra.map.cluster"
     participant User as User Browser
 
-    PHP->>Doc: setCommand("ra.display.organisationMap")
-    PHP->>Doc: setDataObject(areas + groups + config)
-    PHP->>Doc: addScriptDeclaration(bootstrap)
+    PHP->>Doc: "setCommand(ra.display.organisationMap)"
+    PHP->>Doc: "setDataObject(areas + groups + config)"
+    PHP->>Doc: "addScriptDeclaration(bootstrap)"
     Doc->>User: Render page
-    User->>Bootstrap: ra.bootstrapper(jv, class, opts, data)
-    Bootstrap->>OrgMap: new OrgMap(options, data)
-    OrgMap->>OrgMap: load()
-    OrgMap->>LeafletMap: new ra.leafletmap(div, options)
-    OrgMap->>Cluster: new ra.map.cluster(map)
-    OrgMap->>OrgMap: addMarkers(areas)
+    User->>Bootstrap: "ra.bootstrapper(jv, class, opts, data)"
+    Bootstrap->>OrgMap: "new OrgMap(options, data)"
+    OrgMap->>OrgMap: "load()"
+    OrgMap->>LeafletMap: "new ra.leafletmap(div, options)"
+    OrgMap->>Cluster: "new ra.map.cluster(map)"
+    OrgMap->>OrgMap: "addMarkers(areas)"
     loop for each area
-        OrgMap->>OrgMap: addMarker(area)
+        OrgMap->>OrgMap: "addMarker(area)"
         loop for each group in area
-            OrgMap->>OrgMap: addMarker(group, area)
+            OrgMap->>OrgMap: "addMarker(group, area)"
         end
     end
-    OrgMap->>Cluster: addClusterMarkers()
-    OrgMap->>Cluster: zoomAll()
+    OrgMap->>Cluster: "addClusterMarkers()"
+    OrgMap->>Cluster: "zoomAll()"
     OrgMap->>User: Display map
 ```
 
@@ -140,12 +140,12 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    PHP[ROrganisation::display]
-    Loader[RLoad::addScript]
-    Map[RLeafletMap::display]
-    BaseJS[/media/js<br/>ra.js, ra.leafletmap.js, ra.tabs.js]
-    OrgJS[/media/organisation/organisation.js]
-    Bootstrap[ra.bootstrapper → ra.display.organisationMap]
+    PHP["ROrganisation::display"]
+    Loader["RLoad::addScript"]
+    Map["RLeafletMap::display"]
+    BaseJS["/media/js<br/>ra.js, ra.leafletmap.js, ra.tabs.js"]
+    OrgJS["/media/organisation/organisation.js"]
+    Bootstrap["ra.bootstrapper → ra.display.organisationMap"]
 
     PHP --> Loader
     Loader --> BaseJS
