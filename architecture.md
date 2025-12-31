@@ -1,12 +1,12 @@
 # Ramblers Library Architecture 
 Comprehensive Architectural Overview + High-Level Design (HLD)
 
-> **Scope**: Ramblers Library as a Joomla *site library* aggregating `jsonwalks`, `leaflet`, `event`, `organisation`, `accounts`, and shared utilities (caching, errors, geometry, HTML).【F:ramblers.xml†L2-L58】
+> **Scope**: Ramblers Library as a Joomla *site library* aggregating `jsonwalks`, `leaflet`, `event`, `organisation`, `accounts`, and shared utilities (caching, errors, geometry, HTML).
 
 ## 0. Quick orientation
 
 ### 0.1 What this library does (in one sentence)
-It retrieves walk/event data (primarily from Walk Manager), normalises it into a domain model, then renders listings, maps, and calendar exports consistently across Joomla sites.【F:jsonwalks/feed.php†L18-L200】【F:leaflet/script.php†L21-L151】【F:ics/output.php†L14-L78】
+It retrieves walk/event data (primarily from Walk Manager), normalises it into a domain model, then renders listings, maps, and calendar exports consistently across Joomla sites using a shared asset pipeline.
 
 ### 0.2 Key Classes by Module
 
@@ -16,6 +16,7 @@ It retrieves walk/event data (primarily from Walk Manager), normalises it into a
 | **jsonwalks/std** | `RJsonwalksStdDisplay`, `RJsonwalksStdSimplelist`, `RJsonwalksStdWalktable` | Standard display presenters |
 | **jsonwalks/wm** | `RJsonwalksWmFeed`, `RJsonwalksWmFileio`, `RJsonwalksWmCachefolder` | Walk Manager API integration |
 | **leaflet** | `RLeafletMap`, `RLeafletScript`, `RLeafletMapoptions` | Interactive map rendering |
+| **gpx** | `RGpxStatistics`, `RGpxFile`, `RGpxStatistic` | GPX folder scanning, stats, elevation metadata |
 | **event** | `REventFeed`, `REventGroup`, `REventDownload` | Event aggregation |
 | **ics** | `RIcsOutput`, `RIcsFile` | iCalendar export generation |
 | **organisation** | `ROrganisation`, `ROrganisationArea`, `ROrganisationGroup` | Organisation data management |
@@ -34,6 +35,7 @@ It retrieves walk/event data (primarily from Walk Manager), normalises it into a
 - [jsonwalks/walk HLD](jsonwalks/walk/HLD.md)
 - [jsonwalks/leaflet HLD](jsonwalks/leaflet/HLD.md)
 - [leaflet HLD](leaflet/HLD.md)
+- [gpx HLD](gpx/HLD.md)
 - [event HLD](event/HLD.md)
 - [ics HLD](ics/HLD.md)
 - [organisation HLD](organisation/HLD.md)
@@ -47,15 +49,15 @@ It retrieves walk/event data (primarily from Walk Manager), normalises it into a
 
 ### 0.3 Integration overview (API, boundaries, caching, media assets)
 
-- **Walk Manager API (OpenAPI-driven)**: `RJsonwalksWmFeed` constructs query-string calls to the WM Volunteer API (group codes, date ranges, walk/event/wellbeing toggles) and validates JSON payload shape before conversion.【F:jsonwalks/wm/feed.php†L9-L129】【F:jsonwalks/wm/feedoptions.php†L7-L85】  
-- **Joomla boundaries**: The library is packaged as a Joomla *site library* (`ramblers.xml`) and pushes assets + JSON data into `JDocument` via `RLeafletScript`/`RLoad`, keeping presentation concerns inside Joomla’s document pipeline.【F:ramblers.xml†L2-L58】【F:leaflet/script.php†L12-L164】【F:load/load.php†L3-L24】  
-- **Caching**: Walk Manager responses are cached on disk (`RJsonwalksWmCachefolder`) with a fixed 10-minute TTL, including fallback to stale cache on upstream failure.【F:jsonwalks/wm/feed.php†L52-L118】【F:jsonwalks/wm/cachefolder.php†L14-L65】  
-- **Media asset pipeline**: PHP presenters delegate to `RLoad` for cache-busted scripts/styles and to `RLeafletScript` for JSON payload injection, enabling JS bootstrap (`ra.bootstrapper`) to hydrate maps, tabs, and tables.【F:jsonwalks/std/display.php†L60-L133】【F:leaflet/script.php†L21-L151】【F:load/load.php†L3-L24】
+- **Walk Manager API (OpenAPI-driven)**: `RJsonwalksWmFeed` constructs query-string calls to the WM Volunteer API (group codes, date ranges, walk/event/wellbeing toggles) and validates JSON payload shape before conversion.  
+- **Joomla boundaries**: The library is packaged as a Joomla *site library* and pushes assets + JSON data into `JDocument` via `RLeafletScript`/`RLoad`, keeping presentation concerns inside Joomla’s document pipeline.  
+- **Caching**: Walk Manager responses are cached on disk (`RJsonwalksWmCachefolder`) with a fixed 10-minute TTL, including fallback to stale cache on upstream failure.  
+- **Media asset pipeline**: PHP presenters delegate to `RLoad` for cache-busted scripts/styles and to `RLeafletScript` for JSON payload injection, enabling JS bootstrap (`ra.bootstrapper`) to hydrate maps, tabs, and tables.
 
 ### 0.4 Key execution "spines"
-- **Walk listing spine**: `RJsonwalksFeed → RJsonwalksWalks → presenter (RJsonwalksDisplaybase subclasses) → Leaflet bridge (RLeafletMap / RLeafletScript) → Joomla document injection`.【F:jsonwalks/feed.php†L18-L200】【F:leaflet/map.php†L21-L42】【F:leaflet/script.php†L21-L151】  
-- **Walk Manager spine**: `RJsonwalksSourcewalksmanager → RJsonwalksWmFeed → cache folder + file IO → WM API → error escalation`.【F:jsonwalks/sourcewalksmanager.php†L13-L176】【F:jsonwalks/wm/feed.php†L16-L189】  
-- **Calendar spine**: `event/feed.php → RIcsOutput (RFC5545 output)` with optional shared JS dataset exposure via `RLeafletScript::registerWalks`.【F:event/feed.php†L13-L28】【F:ics/output.php†L14-L78】【F:leaflet/script.php†L153-L164】
+- **Walk listing spine**: `RJsonwalksFeed → RJsonwalksWalks → presenter (RJsonwalksDisplaybase subclasses) → Leaflet bridge (RLeafletMap / RLeafletScript) → Joomla document injection`.  
+- **Walk Manager spine**: `RJsonwalksSourcewalksmanager → RJsonwalksWmFeed → cache folder + file IO → WM API → error escalation`.  
+- **Calendar spine**: `event/feed.php → RIcsOutput (RFC5545 output)` with optional shared JS dataset exposure via `RLeafletScript::registerWalks`.
 
 ### 0.5 Data Flow Overview
 
@@ -121,15 +123,24 @@ sequenceDiagram
 - Leaflet integration injects assets and JSON payloads into Joomla document
 - See [jsonwalks/wm HLD](jsonwalks/wm/HLD.md) for detailed WM feed architecture
 
-## 0.6 Discrepancies and resolutions (updated)
-
-1. **ICS entrypoint naming**: `REventFeed` (in `event/feed.php`) remains the ICS aggregation entrypoint and extends `RIcsOutput`; `REventGroup` is the collector that adds walk data and registers it with `RLeafletScript`.【F:event/feed.php†L9-L25】【F:event/group.php†L11-L61】  
-2. **Configuration surface**: module parameters are the primary integration point for site builders, but direct PHP construction is fully supported and uses the same `RJsonwalksFeedoptions` methods (e.g., `addWalksMangerGroupWalks`) and feed orchestration path.【F:jsonwalks/feed.php†L18-L200】【F:jsonwalks/feedoptions.php†L15-L129】  
-3. **Method naming**: diagrams now use the actual method identifiers—`RLeafletMapoptions::setinitialviewView` (note casing) and `RJsonwalksFeedoptions::addWalksMangerGroupWalks` / `addWalksManagerGroupsInArea`—so terminology aligns with code.【F:leaflet/mapoptions.php†L8-L32】【F:jsonwalks/feedoptions.php†L63-L90】
+### 0.6 Separation of concerns
+- **Acquisition**: Feedhelper + Walk Manager adapters (jsonwalks/wm) isolate HTTP/caching from domain logic.
+- **Domain**: jsonwalks aggregates walk entities and filtering/sorting rules.
+- **Presentation**: jsonwalks/std and jsonwalks/leaflet presenters shape data for browsers, while leaflet/load manage asset/bootstrap responsibilities.
+- **Exports**: event + ics convert walk collections into calendar formats without presentation dependencies.
+- **Org/Accounts**: organisation/accounts add hosted-site intelligence using shared utilities without altering the walks domain.
+- **Cross-cutting**: errors, geometry, html, and load offer reusable services without holding business state.
 
 ### 0.7 Integration Points
 
 The library modules integrate through well-defined interfaces across three layers:
+
+#### External interfaces
+- **Walk Manager API** for walks/events/wellbeing data (jsonwalks/wm).
+- **Organisation JSON feeds** for group metadata (organisation module).
+- **Local GPX files/folders** for route and elevation summaries (gpx module feeding leaflet displays).
+- **Joomla database tables** for accounts/organisation data persistence.
+- **CDN/vendor assets** such as Leaflet, FullCalendar, cvList, Quill (loaded via `RLoad`/`RLeafletScript`).
 
 #### Server-Side Integration (PHP Module Interactions)
 
@@ -147,6 +158,7 @@ The library modules integrate through well-defined interfaces across three layer
 - **jsonwalks/displaybase** → Abstract base for all display presenters
 - **jsonwalks/std** → Standard display implementations (tabs, lists, tables, cancelled)
 - **leaflet** → Map rendering and script injection
+- **gpx** → Folder statistics and GPX map/list renderers feeding Leaflet commands
 - **load** → Asset loading with cache-busting (used by all display modules)
 
 **Export Layer:**
@@ -164,10 +176,10 @@ The library modules integrate through well-defined interfaces across three layer
 - **sql** → Used by `accounts` and `organisation` for database operations
 
 #### Leaflet data-source adapters (commands + payloads)
-- **CSV/JSON/SQL lists**: `RLeafletCsvList`, `RLeafletJsonList`, and `RLeafletSqlList` read external files/queries, then call `setCommand('ra.display.tableList.display')` with table/pagination metadata for `ra.leafletmap` to render tabbed tables and markers.【F:leaflet/csv/list.php†L24-L63】【F:leaflet/sql/list.php†L20-L61】【F:leaflet/json/list.php†L23-L66】
-- **Single GPX**: `RLeafletGpxMap::displayPath()` injects a single GPX track and elevation payload via `ra.display.gpxSingle`.【F:leaflet/gpx/map.php†L15-L78】
-- **GPX folder list**: `RLeafletGpxMaplist` builds an item list from a folder (using `RGpxStatistics` for cached summaries) and publishes it through `ra.display.gpxFolder` with download state and styling options.【F:leaflet/gpx/maplist.php†L24-L83】【F:gpx/statistics.php†L16-L130】
-- **Route plotting**: `RLeafletMapdraw` sets `ra.display.plotRoute` and loads drawing/upload/download controls so the JS client (`ra.display.plotRoute`) can capture, style, and export user-drawn routes.【F:leaflet/mapdraw.php†L21-L54】【F:media/leaflet/ra.display.plotRoute.js†L8-L188】
+- **CSV/JSON/SQL lists**: `RLeafletCsvList`, `RLeafletJsonList`, and `RLeafletSqlList` read external files/queries, then call `setCommand('ra.display.tableList.display')` with table/pagination metadata for `ra.leafletmap` to render tabbed tables and markers.
+- **Single GPX**: `RLeafletGpxMap::displayPath()` injects a single GPX track and elevation payload via `ra.display.gpxSingle`.
+- **GPX folder list**: `RLeafletGpxMaplist` builds an item list from a folder (using `RGpxStatistics` for cached summaries) and publishes it through `ra.display.gpxFolder` with download state and styling options.
+- **Route plotting**: `RLeafletMapdraw` sets `ra.display.plotRoute` and loads drawing/upload/download controls so the JS client (`ra.display.plotRoute`) can capture, style, and export user-drawn routes.
 
 #### Client-Side Integration (JavaScript Module Interactions)
 
@@ -313,6 +325,7 @@ flowchart LR
   subgraph RL["Ramblers Library (site library)"]
     JW[jsonwalks\nfeed + domain + presenters]
     LF[leaflet\nmap + script + options]
+    GPX[gpx\nfolder stats + map feeds]
     EV[event + ics\ncalendar exports]
     ORG[organisation + accounts\norg feed + DB]
     UTIL[utilities\nerrors + load + geometry + html]
@@ -323,13 +336,14 @@ flowchart LR
   JW --> WMAPI[Walk Manager API\nwalks / groups]
   ORG --> ORGFEED[Organisation JSON feeds]
   JW --> Cache[(Disk cache\ncache/ra_wm_feed)]
+  GPX --> GPXFS[Local GPX files/folders]
   ORG --> DB[(Joomla DB tables)]
   LF --> JoomlaDoc[Joomla Document\nscripts + styles + JSON payload]
   UTIL --> Log[Error telemetry + Joomla messages]
 ```
 **Notes**
-- Walk/event data is predominantly sourced from Walk Manager; organisation feeds are separate JSON endpoints.【F:jsonwalks/wm/feed.php†L16-L189】【F:organisation/organisation.php†L34-L103】  
-- JS/CSS assets and JSON payloads are injected via Joomla’s Document pipeline using `RLoad` and `RLeafletScript`.【F:leaflet/script.php†L21-L151】【F:load/load.php†L3-L24】
+- Walk/event data is predominantly sourced from Walk Manager; organisation feeds are separate JSON endpoints.  
+- JS/CSS assets and JSON payloads are injected via Joomla’s Document pipeline using `RLoad` and `RLeafletScript`.
 
 ### 1.2 Component map by tier
 ```mermaid
@@ -352,6 +366,8 @@ flowchart TB
     Table[RJsonwalksStdWalktable]
     Cancel[RJsonwalksStdCancelledwalks]
     Marker[RJsonwalksLeafletMapmarker]
+    GpxMap[RLeafletGpxMap]
+    GpxList[RLeafletGpxMaplist]
     Map[RLeafletMap]
     Script[RLeafletScript]
     Load[RLoad]
@@ -382,9 +398,12 @@ flowchart TB
   Base --> Table
   Base --> Cancel
   Base --> Marker
+  Base --> GpxMap
 
   Std --> Map
   Marker --> Map
+  GpxMap --> Map
+  GpxList --> Map
   Map --> Script --> Load
 
   Feed --> WM
@@ -397,7 +416,7 @@ flowchart TB
   Acc --> Sql
   Acc --> Html
 ```
-This is the “shape” of the library: `jsonwalks` does orchestration + domain; presenters render; Leaflet is a shared bootstrap; event/ICS exports reuse the domain objects; organisation/accounts reuse feed and mapping utilities.【F:jsonwalks/feed.php†L18-L200】【F:leaflet/script.php†L12-L164】【F:accounts/accounts.php†L24-L205】
+This is the “shape” of the library: `jsonwalks` does orchestration + domain; presenters render; Leaflet is a shared bootstrap; GPX helpers plug into Leaflet for route/folder visualisation; event/ICS exports reuse the domain objects; organisation/accounts reuse feed and mapping utilities.
 
 ### 1.3 Integration + cache + asset-loading view (component/sequence hybrid)
 ```mermaid
@@ -437,7 +456,7 @@ sequenceDiagram
   Browser->>Browser: ra.bootstrapper initialises modules
 ```
 
-**Highlights:** External WM API calls, cache freshness checks, and the RLoad-driven media pipeline that hands the bootstrapper JSON payloads for client-side rendering.【F:jsonwalks/wm/feed.php†L52-L118】【F:leaflet/script.php†L21-L151】【F:load/load.php†L3-L24】
+**Highlights:** External WM API calls, cache freshness checks, and the RLoad-driven media pipeline that hands the bootstrapper JSON payloads for client-side rendering.
 
 ### 1.4 Primary runtime flow: render a walk listing page (complete flow)
 
@@ -477,49 +496,65 @@ sequenceDiagram
   Display-->>Page: HTML output
 ```
 
+### 1.5 Module summary (top-level + jsonwalks/wm and jsonwalks/std)
+
+| Module | Role | Key Touchpoints |
+|--------|------|-----------------|
+| **jsonwalks** | Walk feed orchestration, domain model, filtering/sorting | Consumes Walk Manager adapters; feeds presenters and exports |
+| **jsonwalks/wm** | Walk Manager API client, cache, IO, optional org delta checks | Called by jsonwalks sources; uses `RErrors` for telemetry |
+| **jsonwalks/std** | Standard presenters (tabs/list/table/cancelled) plus schema injection | Calls `RLeafletMap`/`RLeafletScript`/`RLoad`; depends on `RJsonwalksWalks` |
+| **leaflet** | Map container, options, script injection, data-source adapters (CSV/JSON/SQL/GPX) | Provides bootstrap + plugin loading for all map views |
+| **gpx** | Folder scanning, cached statistics, GPX map/list renderers | Supplies `ra.display.gpxSingle/gpxFolder` payloads into Leaflet |
+| **event + ics** | Aggregates walks into events and outputs ICS downloads | Uses `RJsonwalksFeed`/`RJsonwalksWalks`; exposes ICS text/download helpers |
+| **organisation + accounts** | Hosted-site and area intelligence, DB-backed summaries, maps | Reuse `RFeedhelper`, `RLeafletMap`, `RSqlUtils`, `RHtml` |
+| **walkseditor** | Asset loader and UI wiring for walk editing/programme/submit forms | Uses `RLoad`, Quill CDN, Ramblers JS foundation |
+| **load + media/js** | Asset loading and shared JS foundations (tabs, pagination, bootstrapper) | Called by presenters and map scripts |
+| **errors + geometry + html + sql** | Cross-cutting utilities for telemetry, geo maths, HTML formatting, DB helpers | Used across modules without owning business state |
+
 ---
 
 ## 2. Architecture overview (packaging, tiers, interactions)
 
 ### 2.1 Context and Packaging
-Ramblers Library is delivered as a Joomla site library that aggregates multiple feature folders—such as jsonwalks, leaflet, event, organisation, and supporting utilities—to deliver Ramblers walk management, mapping, and integration capabilities in a reusable package.【F:ramblers.xml†L2-L58】
+Ramblers Library is delivered as a Joomla site library that aggregates multiple feature folders—such as jsonwalks, leaflet, event, organisation, and supporting utilities—to deliver Ramblers walk management, mapping, and integration capabilities in a reusable package.
 
 ### 2.2 Component Map (structural tiers)
-- **Data acquisition and caching**: Feed handling lives in feedhelper, which wraps external HTTP retrieval with Joomla-aware caching and error reporting. This capability is reused by organisation lookups and other consumers that depend on remote JSON feeds.【F:feedhelper/feedhelper.php†L13-L119】  
-- **Domain modelling for walks**: The jsonwalks folder contains feed orchestration, aggregate walk collections, and individual walk entities with filtering, sorting, and augmentation logic that power downstream displays and exports.【F:jsonwalks/feed.php†L13-L200】【F:jsonwalks/walks.php†L5-L240】【F:jsonwalks/walk.php†L6-L188】  
-- **Presentation and interaction services**: The leaflet module coordinates client-side asset loading and data injection for interactive maps, collaborating with reusable loaders in load to handle cache-busting and Joomla document integration.【F:leaflet/map.php†L9-L42】【F:leaflet/script.php†L12-L164】【F:load/load.php†L3-L24】  
-- **Events and calendaring**: The event and ics folders expose iCalendar-compatible exports layered atop the walks domain model to support downloads and calendar integration.【F:event/feed.php†L3-L30】【F:ics/output.php†L14-L78】  
-- **Organisational intelligence**: organisation and accounts combine feed ingestion, database updates, and presentation helpers to surface hosted-site inventories and geographic context, again leveraging shared utilities for SQL and mapping.【F:organisation/organisation.php†L14-L193】【F:accounts/accounts.php†L16-L205】【F:sql/utils.php†L9-L23】  
-- **Cross-cutting utilities**: Error propagation (errors), geometry helpers (geometry), and HTML formatting (html) provide reusable services consumed across the library.【F:errors/errors.php†L10-L150】【F:geometry/greatcircle.php†L8-L107】【F:html/html.php†L3-L103】
+- **Data acquisition and caching**: Feed handling lives in feedhelper, which wraps external HTTP retrieval with Joomla-aware caching and error reporting. This capability is reused by organisation lookups and other consumers that depend on remote JSON feeds.  
+- **Domain modelling for walks**: The jsonwalks folder contains feed orchestration, aggregate walk collections, and individual walk entities with filtering, sorting, and augmentation logic that power downstream displays and exports.  
+- **Presentation and interaction services**: The leaflet module coordinates client-side asset loading and data injection for interactive maps, collaborating with reusable loaders in load to handle cache-busting and Joomla document integration.  
+- **GPX processing**: The gpx module scans GPX folders, caches statistics, and feeds map/list payloads to Leaflet renderers.  
+- **Events and calendaring**: The event and ics folders expose iCalendar-compatible exports layered atop the walks domain model to support downloads and calendar integration.  
+- **Organisational intelligence**: organisation and accounts combine feed ingestion, database updates, and presentation helpers to surface hosted-site inventories and geographic context, again leveraging shared utilities for SQL and mapping.  
+- **Cross-cutting utilities**: Error propagation (errors), geometry helpers (geometry), and HTML formatting (html) provide reusable services consumed across the library.
 
 ### 2.3 Runtime interactions (typical request)
-1. External feeds are retrieved through `RFeedhelper`, which caches responses to disk, normalises URLs, and uses `RErrors` to raise structured Joomla messages when fetches fail.【F:feedhelper/feedhelper.php†L13-L116】【F:errors/errors.php†L10-L130】  
-2. JSON responses populate domain models in `jsonwalks`; `RJsonwalksFeed` hydrates `RJsonwalksWalks`, applies filters, and marks bookings / “new” statuses.【F:jsonwalks/feed.php†L18-L200】  
-3. Presenters pass data to `RLeafletMap` / `RLeafletScript`, which inject assets and JSON payloads via `RLoad` into the Joomla document.【F:leaflet/map.php†L21-L42】【F:leaflet/script.php†L21-L151】【F:load/load.php†L3-L24】  
-4. Calendar helpers output iCalendar feeds through `RIcsOutput` (RFC5545), managing escaping/wrapping and sequencing.【F:event/feed.php†L13-L28】【F:ics/output.php†L14-L78】  
-5. Organisation and account features orchestrate `RFeedhelper`, `RSqlUtils`, and Leaflet wrappers for tables/maps and DB hydration.【F:organisation/organisation.php†L34-L193】【F:accounts/accounts.php†L92-L205】【F:sql/utils.php†L9-L23】
+1. External feeds are retrieved through `RFeedhelper`, which caches responses to disk, normalises URLs, and uses `RErrors` to raise structured Joomla messages when fetches fail.  
+2. JSON responses populate domain models in `jsonwalks`; `RJsonwalksFeed` hydrates `RJsonwalksWalks`, applies filters, and marks bookings / “new” statuses.  
+3. Presenters pass data to `RLeafletMap` / `RLeafletScript`, which inject assets and JSON payloads via `RLoad` into the Joomla document.  
+4. Calendar helpers output iCalendar feeds through `RIcsOutput` (RFC5545), managing escaping/wrapping and sequencing.  
+5. Organisation and account features orchestrate `RFeedhelper`, `RSqlUtils`, and Leaflet wrappers for tables/maps and DB hydration.
 
 ---
 
 ## 3. High-Level Design (HLD)
 
 ### 3.1 Feed acquisition and error handling (shared helper)
-`RFeedhelper` encapsulates remote retrieval with disk caching keyed by URL, sanitised filenames, and refresh windows; escalates problems through `RErrors::notifyError` for consistent observability.【F:feedhelper/feedhelper.php†L13-L119】【F:errors/errors.php†L10-L69】
+`RFeedhelper` encapsulates remote retrieval with disk caching keyed by URL, sanitised filenames, and refresh windows; escalates problems through `RErrors::notifyError` for consistent observability.
 
 ### 3.2 Walks domain layer (jsonwalks core)
-`RJsonwalksFeed` orchestrates loading and filtering; `RJsonwalksWalks` provides dedupe/filter/sort and booking flags; `RJsonwalksWalk` aggregates sub-records and exposes getters and helpers used by filters and presenters.【F:jsonwalks/feed.php†L18-L200】【F:jsonwalks/walks.php†L5-L240】【F:jsonwalks/walk.php†L6-L188】
+`RJsonwalksFeed` orchestrates loading and filtering; `RJsonwalksWalks` provides dedupe/filter/sort and booking flags; `RJsonwalksWalk` aggregates sub-records and exposes getters and helpers used by filters and presenters.
 
 ### 3.3 Mapping and client integration (leaflet + load)
-`RLeafletMap` owns `RLeafletMapoptions` and delegates injection to `RLeafletScript`, which loads assets via `RLoad` (with cache-busting via file mtimes for local assets).【F:leaflet/map.php†L9-L42】【F:leaflet/mapoptions.php†L8-L82】【F:leaflet/script.php†L12-L151】【F:load/load.php†L3-L24】
+`RLeafletMap` owns `RLeafletMapoptions` and delegates injection to `RLeafletScript`, which loads assets via `RLoad` (with cache-busting via file mtimes for local assets).
 
 ### 3.4 Events and calendaring (event + ics)
-`event/feed.php` (aka “REventFeed” in older notes) renders ICS payloads through `RIcsOutput`, which handles RFC5545 formatting, escaping, wrapping, and sequencing.【F:event/feed.php†L13-L28】【F:ics/output.php†L14-L78】
+`event/feed.php` (aka “REventFeed” in older notes) renders ICS payloads through `RIcsOutput`, which handles RFC5545 formatting, escaping, wrapping, and sequencing.
 
 ### 3.5 Organisation and account features (organisation + accounts)
-Organisation discovery uses `RFeedhelper` to fetch national group feeds; accounts uses `RSqlUtils` for conditional table access and renders HTML via `RHtml`, optionally projecting results onto Leaflet maps.【F:organisation/organisation.php†L34-L193】【F:accounts/accounts.php†L34-L205】【F:sql/utils.php†L9-L23】【F:html/html.php†L3-L103】
+Organisation discovery uses `RFeedhelper` to fetch national group feeds; accounts uses `RSqlUtils` for conditional table access and renders HTML via `RHtml`, optionally projecting results onto Leaflet maps.
 
 ### 3.6 Supporting utilities
-`RErrors` for telemetry + validation; `RGeometryGreatcircle` for geo maths; `RLoad` for asset injection and cache invalidation via versioning.【F:errors/errors.php†L10-L150】【F:geometry/greatcircle.php†L8-L107】【F:load/load.php†L3-L24】
+`RErrors` for telemetry + validation; `RGeometryGreatcircle` for geo maths; `RLoad` for asset injection and cache invalidation via versioning.
 
 ---
 
@@ -538,6 +573,8 @@ class RLeafletMap
 class RLeafletMapoptions
 class RLeafletScript
 class RLoad
+class RLeafletGpxMap
+class RGpxStatistics
 
 class RFeedhelper
 class RErrors
@@ -552,6 +589,8 @@ RJsonwalksFeed --> RLeafletMap : publish map payload
 RLeafletMap --> RLeafletMapoptions : owns
 RLeafletMap --> RLeafletScript : delegates injection
 RLeafletScript --> RLoad : enqueue assets
+RLeafletGpxMap --> RGpxStatistics : folder stats/elevation
+RLeafletGpxMap --> RLeafletMap : map payload
 
 RFeedhelper --> RErrors : errors/validation
 ROrganisation --> RFeedhelper : organisation feed retrieval
@@ -561,21 +600,21 @@ RAccounts --> RHtml : render tables
 RAccounts --> RLeafletMap : hosted site markers
 ROrganisation --> RLeafletMap : area map overlays
 ```
-【F:jsonwalks/feed.php†L18-L200】【F:leaflet/script.php†L12-L164】【F:feedhelper/feedhelper.php†L13-L119】【F:accounts/accounts.php†L24-L205】
+
 
 ---
 
 ## 5. jsonwalks package structure and extension model
 (unchanged; retained for completeness)
 
-- **std/** – standard display suite.【F:jsonwalks/std/display.php†L14-L133】【F:jsonwalks/std/walktable.php†L11-L135】【F:jsonwalks/std/cancelledwalks.php†L11-L69】  
-- **walk/** – domain value objects.【F:jsonwalks/walk/admin.php†L9-L114】【F:jsonwalks/walk/timelocation.php†L14-L145】【F:jsonwalks/walk/walk.php†L6-L200】  
-- **leaflet/** – map bridge helpers.【F:jsonwalks/leaflet/mapmarker.php†L8-L59】  
-- **wm/** – Walk Manager gateway.【F:jsonwalks/wm/feed.php†L16-L189】【F:jsonwalks/wm/cachefolder.php†L14-L65】【F:jsonwalks/wm/fileio.php†L9-L69】【F:jsonwalks/wm/organisation.php†L13-L113】  
-- **ml/** – print-friendly monthly listings.【F:jsonwalks/ml/print.php†L11-L105】  
-- **ns/** – document export workflows.【F:jsonwalks/ns/walksprinted.php†L16-L199】  
+- **std/** – standard display suite.  
+- **walk/** – domain value objects.  
+- **leaflet/** – map bridge helpers.  
+- **wm/** – Walk Manager gateway.  
+- **ml/** – print-friendly monthly listings.  
+- **ns/** – document export workflows.  
 
-Area lookups reuse `RJsonwalksSourcewalksmanagerarea` via the same adapter with geo filters.【F:jsonwalks/sourcewalksmanagerarea.php†L23-L48】【F:jsonwalks/sourcewalksmanager.php†L13-L176】
+Area lookups reuse `RJsonwalksSourcewalksmanagerarea` via the same adapter with geo filters.
 
 ---
 
@@ -604,7 +643,7 @@ flowchart LR
   IO -->|failure| Err
   WmFeed -->|escalation| Err
 ```
-【F:jsonwalks/wm/feed.php†L22-L176】【F:jsonwalks/wm/fileio.php†L9-L69】【F:jsonwalks/wm/organisation.php†L13-L113】
+
 
 ---
 
@@ -642,7 +681,7 @@ flowchart TB
   Script --> Load[RLoad]
   Load --> Doc[Joomla Document]
 ```
-【F:jsonwalks/displaybase.php†L28-L57】【F:jsonwalks/std/display.php†L14-L133】【F:leaflet/script.php†L12-L164】
+
 
 ---
 
@@ -673,7 +712,7 @@ RJsonwalksWalkItems --> RJsonwalksWalkTimelocation : time/location nodes
 RJsonwalksWalk "1" --> "0..1" RJsonwalksWalkFlags
 RJsonwalksWalk "1" --> "0..1" RJsonwalksWalkBookings
 ```
-【F:jsonwalks/walk.php†L6-L200】【F:jsonwalks/walk/items.php†L9-L45】【F:jsonwalks/walk/timelocation.php†L14-L145】
+
 
 ---
 
@@ -692,7 +731,7 @@ flowchart TB
   Acc --> Sql[RSqlUtils]
   Acc --> Map
 ```
-【F:organisation/organisation.php†L34-L193】【F:accounts/accounts.php†L92-L205】
+
 
 ---
 
@@ -717,6 +756,9 @@ class RLeafletMap
 class RLeafletMapoptions
 class RLeafletScript
 class RLoad
+class RLeafletGpxMap
+class RLeafletGpxMaplist
+class RGpxStatistics
 
 class RJsonwalksSourcewalksmanager
 class RJsonwalksSourcewalksmanagerarea
@@ -749,6 +791,9 @@ RJsonwalksStdSimplelist --> RLeafletScript
 RJsonwalksStdWalktable --> RLeafletScript
 RJsonwalksStdCancelledwalks --> RLeafletScript
 RJsonwalksLeafletMapmarker --> RLeafletMap
+RLeafletGpxMap --> RLeafletMap
+RLeafletGpxMaplist --> RLeafletMap
+RLeafletGpxMaplist --> RGpxStatistics
 
 RLeafletMap --> RLeafletMapoptions
 RLeafletMap --> RLeafletScript
@@ -777,530 +822,76 @@ ROrganisation --> RLeafletMap
 RJsonwalksWalk --> RIcsOutput
 REventDownload --> RIcsOutput
 RIcsOutput --> RErrors
+RGpxStatistics --> RGpxFile
+RGpxStatistics --> RGpxStatistic
+RLeafletGpxMap --> RGpxStatistics
 ```
-【F:jsonwalks/std/display.php†L14-L133】【F:jsonwalks/leaflet/mapmarker.php†L15-L56】【F:jsonwalks/wm/feed.php†L22-L176】【F:leaflet/script.php†L21-L151】【F:accounts/accounts.php†L24-L115】【F:organisation/organisation.php†L34-L193】【F:feedhelper/feedhelper.php†L13-L119】
+
 
 ---
 
-## 11. Method catalogue (full; converted to Mermaid)
-> Converted from the PlantUML “Method Catalogue and Dependencies” sections in file 3 into Mermaid, keeping method names as shown in that source block.
+## 11. Method dependency trees (focused views)
 
-### 11.1 Display presenters (methods)
-```mermaid
-classDiagram
-direction TB
-
-class RJsonwalksDisplaybase {
-  <<abstract>>
-  #DisplayWalks(walks)
-  +__construct()
-  +alwaysDisplayStartTime(value)
-  +alwaysDisplayStartDescription(value)
-}
-
-class RJsonwalksStdDisplay {
-  +DisplayWalks(walks)
-  +setWalksClass(value)
-  +setTabOrder(value)
-  +setCustomListFormat(value)
-  +setCustomTableFormat(value)
-  +setCustomGradesFormat(value)
-  +setCustomCalendarFormat(value)
-  -addGotoWalk()
-  -noCancelledWalks(walks)
-}
-
-class RJsonwalksStdSimplelist {
-  +customFormat(format)
-  +DisplayWalks(walks)
-  +inLineDisplay()
-  +setWalksClass(class)
-  +setWalkClass(class)
-  -displayWalk(walk,oddeven)
-}
-
-class RJsonwalksStdWalktable {
-  +customFormat(format)
-  +DisplayWalks(walks)
-  +setMonthlyReminder(clss,method)
-  +setRowClass(clss,method)
-  +setWalksClass(class)
-  +setWalkClass(class)
-  +setTableClass(class)
-  -displayTableHeader()
-  -displayWalk_Table(walk,class,odd)
-}
-
-class RJsonwalksStdCancelledwalks {
-  +DisplayWalks(walks)
-  +getWalksOutput(walks)
-  +setWalksClass(class)
-  +setWalkClass(class)
-  -displayWalk(walk)
-}
-
-class RJsonwalksLeafletMapmarker {
-  +__construct()
-  +getMap()
-  +mapHeight(height)
-  +mapWidth(width)
-  +setLegend(position)
-  +DisplayWalks(walks)
-}
-
-RJsonwalksStdDisplay --|> RJsonwalksDisplaybase
-RJsonwalksStdSimplelist --|> RJsonwalksDisplaybase
-RJsonwalksStdWalktable --|> RJsonwalksDisplaybase
-RJsonwalksStdCancelledwalks --|> RJsonwalksDisplaybase
-RJsonwalksLeafletMapmarker --|> RJsonwalksDisplaybase
-```
-【F:jsonwalks/displaybase.php†L14-L57】【F:jsonwalks/std/display.php†L14-L133】【F:jsonwalks/std/simplelist.php†L70-L109】【F:jsonwalks/std/walktable.php†L11-L135】【F:jsonwalks/std/cancelledwalks.php†L11-L69】【F:jsonwalks/leaflet/mapmarker.php†L13-L44】
-
-### 11.2 jsonwalks core (methods)
-```mermaid
-classDiagram
-direction TB
-
-class RJsonwalksFeed {
-  +__construct(options)
-  -setBookings()
-  +setNewWalks(days)
-  +setDisplayLimit(no)
-  +filterCancelled()
-  +filterStatus(status)
-  +filterWalksDistance(minDistance,maxDistance)
-  +filterDistanceFrom(easting,northing,distanceKm)
-  +filterDistanceFromLatLong(lat,lon,distanceKm)
-  +filterGroups(filter)
-  +filterStrands(filter)
-  +filterEvents()
-  +filterWalks()
-  +filterTitle(filter,option="remove")
-  +filterTitleContains(filter,option="remove")
-  +filterNationalGrade(grades)
-  +filterFestivals(filter)
-  +noFestivals()
-  +allFestivals()
-  +filterDateRange(datefrom,dateto)
-  +filterDayofweek(days)
-  +filterFlags(flags,include=true)
-  +limitNumberWalks(no)
-  +noWalks(no)
-  +numberWalks()
-  +walksInFuture(period)
-  +noCancelledWalks()
-  +appendWalkTitle(group,title)
-  +display(displayclass)
-  +displayIcsDownload(name,pretext,linktext,posttext)
-  +getWalks()
-  +clearCache()
-  +filterFeed(filter)
-  +testFilters()
-}
-
-class RJsonwalksWalks {
-  +__construct()
-  +addWalk(walk)
-  +hasMeetPlace()
-  +setNewWalks(days)
-  +setBookings()
-  +removeWalk(key)
-  +filterDistanceFromLatLong(lat,lon,distanceKm)
-  +filterGroups(groups)
-  -contains(needle,haystack)
-  +filterStatus(status)
-  +filterCancelled()
-  +filterDayofweek(days)
-  +filterDateRange(fromdate,todate)
-  +filterTitle(filter,option="remove")
-  +filterTitleContains(filter,option="remove")
-  +filterNationalGrade(grades)
-  +filterDistance(distanceMin,distanceMax)
-  +filterFlags(flags,include=true)
-  +filterEvents()
-  +filterWalks()
-  +limitNumberWalks(no)
-  +noWalks(no)
-  +appendWalkTitle(titles)
-  +walksInFuture(period)
-  +sort(sortorder1,sortorder2,sortorder3)
-  -sortData1(a,b)
-  -sortData2(a,b)
-  -sortData3(a,b)
-  +allWalks()
-  +totalWalks()
-  +events()
-  +__destruct()
-}
-
-class RJsonwalksWalk {
-  +__construct()
-  +addAdmin(admin)
-  +addBasics(basics)
-  -addBookings(bookings)
-  +addWalk(walk)
-  +addMeeting(meet)
-  +addStart(start)
-  +addFinish(finish)
-  +addContact(contact)
-  +addMedia(media)
-  +isWalk(walk)
-  +setFlags(flags)
-  +filterFlags(flags,include=true)
-  +getSortValue(type)
-  +hasMeetPlace()
-  +isCancelled()
-  +setNewWalk(date)
-  +setBookings(ids)
-  +notInGroup(groups)
-  +notInDayList(days)
-  +isStatus(status)
-  +titleIs(filter)
-  +titleContains(filter)
-  +notInGradeList(grades)
-  +appendWalkTitle(group,title)
-  +flagsExists(flags)
-  +filterDateRange(fromdate,todate)
-  +_getWalkSchema()
-  +EventDate()
-  +EventText()
-  +EventList(display,class)
-  +EventLink(display,text)
-  +EventStatus()
-  +Event_ics(icsfile)
-  -dateTimetoUTC(date)
-  -addIcsTimes(icsfile)
-  -getFirstTime()
-  -getFinishTime()
-  +_firstTime(time1,time2)
-  +_lastTime(time1,time2)
-  +filterDistance(distanceMin,distanceMax)
-  +distanceFromLatLong(lat,long)
-  +filterEvents()
-  +filterWalks()
-  +getMedia(item)
-  +groupByMonth(items)
-  +getMonthGroup()
-  +setCustomValues(clss,method)
-  +getWalkValues(items,link=true)
-  +getWalkValue(option)
-  +getIntValue(section,option)
-  -getPrefix(walkOption)
-  -_addWalkLink(id,text,class="")
-  -addWalkLink(id,text,class="")
-  +addTooltip(text)
-  -contains(needle,haystack)
-  +EventDateYYYYMMDD()
-  +jsonSerialize()
-}
-
-RJsonwalksFeed --> RJsonwalksWalks
-RJsonwalksWalks "1" --> "0..*" RJsonwalksWalk
-```
-【F:jsonwalks/feed.php†L18-L200】【F:jsonwalks/walks.php†L5-L240】【F:jsonwalks/walk.php†L6-L188】
-
-### 11.3 Walk Manager gateway (methods)
-```mermaid
-classDiagram
-direction TB
-
-class RJsonwalksWmFeed {
-  +__construct()
-  +getGroupFutureItems(groups,readwalks,readevents,readwellbeingwalks)
-  +getItemsWithinArea(latitude,longitude,distance,readwalks,readevents,readwellbeingwalks)
-  -getFeed(feedOpts)
-  -whichSource(cachedWalksFileName)
-  -convertResults(result,feedurl)
-  -checkJsonFileProperties(json,properties)
-  -checkJsonProperties(item,properties)
-  -checkJsonProperty(item,property)
-  -errorMsg(url,msg)
-  -debugMsg(url,msg)
-  -startsWith(string,startString)
-}
-
-class RJsonwalksWmFileio {
-  +setSecretStrings(values)
-  +getLastTimeElapsedSecs()
-  +getLastError()
-  +readFile(url)
-  +writeFile(filename,data)
-  -file_get_contents(file)
-  -removeSecretStrings(str)
-  +errorMsg(msg)
-}
-
-class RJsonwalksWmCachefolder {
-  +__construct(cacheLocation)
-  +clearOldFiles()
-  +fileExists(filename)
-  +lastModified(filename)
-  +readFile(filename)
-  +writeFile(filename,data)
-  -createCacheFolder()
-}
-
-class RJsonwalksWmOrganisation {
-  +__construct(cacheFolder,apiKey)
-  +whereToGetWalksFrom(feedOpts)
-  -getOrganisationData(feedOpts)
-  -removeProperties(groups)
-  -startsWith(string,startString)
-}
-
-class RErrors {
-  +notifyError(errorText,action,level,returncode=null)
-  -emailError(errorText,action,level)
-  +checkJsonFeed(feed,feedTitle,result,properties)
-  -checkJsonProperties(item,properties)
-  -checkJsonProperty(item,property)
-}
-
-RJsonwalksWmFileio --> RErrors : on failure
-RJsonwalksWmFeed --> RErrors : escalation
-RJsonwalksWmOrganisation --> RErrors : report slowness/decisions
-```
-【F:jsonwalks/wm/feed.php†L16-L189】【F:jsonwalks/wm/fileio.php†L9-L69】【F:jsonwalks/wm/cachefolder.php†L14-L65】【F:jsonwalks/wm/organisation.php†L13-L113】【F:errors/errors.php†L10-L150】
-
-### 11.4 Leaflet + load (methods)
-```mermaid
-classDiagram
-direction TB
-
-class RLeafletMap {
-  +__construct()
-  +setCommand(command)
-  +setDataObject(value)
-  +display()
-}
-
-class RLeafletMapoptions {
-  +__construct()
-  +setinitialviewView(latitude,longitude,zoom)
-  +setLicenses()
-}
-
-class RLeafletScript {
-  +__construct()
-  +setCommand(command)
-  +setDataObject(value)
-  +add(options)
-  -addScriptsandStyles(options)
-  +registerWalks(walks)
-}
-
-class RLoad {
-  +addScript(path,type="text/javascript")
-  +addStyleSheet(path,type="text/css")
-}
-
-RLeafletMap --> RLeafletMapoptions
-RLeafletMap --> RLeafletScript
-RLeafletScript --> RLoad
-```
-【F:leaflet/map.php†L21-L42】【F:leaflet/mapoptions.php†L12-L82】【F:leaflet/script.php†L12-L164】【F:load/load.php†L3-L24】
-
-### 11.5 Organisation + accounts + shared helper (methods)
-```mermaid
-classDiagram
-direction TB
-
-class RFeedhelper {
-  +__construct(cacheLocation,cacheTime)
-  +setReadTimeout(value)
-  +getFeed(feedurl,title)
-  +clearCache()
-  -createCachedFileFromUrl(url,title)
-  -file_get_contents(file)
-  -getCacheName(feedname)
-  -createCacheFolder()
-  -startsWith(string,startString)
-}
-
-class ROrganisation {
-  +__construct()
-  +load()
-  -readFeed(rafeedurl)
-  -convert(json)
-  +listAreas()
-  +display(map)
-  +myGroup(myGroup,zoom)
-  -createGroup(code,name,groups)
-  -checkJsonProperties(item)
-  -checkJsonProperty(item,property)
-  -CacheLocation()
-}
-
-class RAccounts {
-  +__construct()
-  +updateAccounts()
-  +listLogDetails(format)
-  +addMapMarkers(map)
-  +readAccounts()
-  +getResults()
-  -getAccounts(sortbystatus)
-  -updateDatabase(org)
-  -updateAccount(item,org)
-  -updateDatabaseRecord(id,group,area,uppCode)
-  -defaultDatabaseRecord(id,uppCode,domain)
-}
-
-class RErrors {
-  +notifyError(errorText,action,level,returncode=null)
-  +checkJsonFeed(feed,feedTitle,result,properties)
-}
-
-RFeedhelper --> RErrors : feed errors
-ROrganisation --> RFeedhelper : group feed retrieval
-RAccounts --> ROrganisation : updateAccounts()
-```
-【F:feedhelper/feedhelper.php†L13-L119】【F:organisation/organisation.php†L14-L193】【F:accounts/accounts.php†L16-L205】【F:errors/errors.php†L10-L150】
-
-### 11.6 Event + ICS output (methods)
-```mermaid
-classDiagram
-direction TB
-
-class REventGroup {
-  +__construct()
-  +setWalkClass(class)
-  +addWalks(feed)
-  +addWalksArray(arrayofwalks)
-  +getEvents()
-  +getLastDate()
-  +addEvent(display,text,currentDate)
-  +getIcalendarFile(icsfile)
-}
-
-class REventDownload {
-  +__construct()
-  +setLinkText(value)
-  +setPreText(value)
-  +setPostText(value)
-  +DisplayWalks(walks)
-  +Display(filename,events)
-  +getText(events)
-}
-
-class RIcsOutput {
-  +__construct()
-  +text()
-  +addRecord(command,content="",html=false)
-  +escapeString(string)
-  +addSequence(dateUpdated)
-  -addHeader()
-  -chunk_split_unicode(str,l=73,e="\\r\\n")
-  +__destruct()
-}
-
-REventGroup --> RIcsOutput : ICS export
-REventDownload --> RIcsOutput : render text
-RIcsOutput --> RErrors : encoding issues
-```
-【F:event/feed.php†L13-L28】【F:ics/output.php†L14-L78】【F:errors/errors.php†L10-L150】
-
----
-
-## 12. Method dependency tree (converted to Mermaid)
-> Converted from the PlantUML “Method Dependency Tree” in file 3 into Mermaid flowchart form.
-
+### 11.1 jsonwalks + leaflet + exports
 ```mermaid
 flowchart LR
-  A[RJsonwalksFeed::__construct] --> B[RJsonwalksWalks::__construct]
-  A --> C[RJsonwalksWalks::setBookings]
-  A --> D[RJsonwalksWalks::setNewWalks]
-
-  E[RJsonwalksFeed::display] --> F[RJsonwalksStdDisplay::DisplayWalks]
-  E --> G[RJsonwalksStdSimplelist::DisplayWalks]
-  E --> H[RJsonwalksStdWalktable::DisplayWalks]
-  E --> I[RJsonwalksStdCancelledwalks::DisplayWalks]
-
-  J[RJsonwalksFeed::displayIcsDownload] --> K[REventGroup::addWalks]
-  J --> L[REventDownload::Display]
-
-  F --> M[RJsonwalksWalks::sort]
-  F --> N[RJsonwalksStdCancelledwalks::DisplayWalks]
-  F --> O[RLeafletMap::__construct]
-  F --> P[RLeafletMap::setCommand]
-  F --> Q[RLeafletMap::display]
-  F --> R[RLeafletScript::registerWalks]
-  F --> S[RLoad::addScript]
-
-  G --> M
-  G --> R
-
-  H --> M
-  H --> R
-
-  I --> R
-
-  T[RJsonwalksLeafletMapmarker::__construct] --> O
-  U[RJsonwalksLeafletMapmarker::DisplayWalks] --> V[RLeafletMap::setDataObject]
-  U --> Q
-  U --> S
-
-  W[RJsonwalksWmFeed::getFeed] --> X[RJsonwalksWmCachefolder::fileExists]
-  W --> Y[RJsonwalksWmCachefolder::lastModified]
-  W --> Z[RJsonwalksWmCachefolder::readFile]
-  W --> AA[RJsonwalksWmCachefolder::writeFile]
-  W --> AB[RJsonwalksWmFileio::readFile]
-  W --> AC[RJsonwalksWmFileio::errorMsg]
-  W --> AD[RErrors::notifyError]
-
-  AE[RJsonwalksWmOrganisation::whereToGetWalksFrom] --> X
-  AE --> Y
-  AE --> Z
-  AE --> AA
-  AE --> AB
-  AE --> AD
-
-  AB --> AF[RJsonwalksWmFileio::file_get_contents]
-  AC --> AD
-
-  AG[RLeafletScript::add] --> AH[RLeafletMapoptions::setLicenses]
-  AG --> AI[RLeafletScript::addScriptsandStyles]
-  AI --> AJ[RLoad::addScript]
-  AI --> AK[RLoad::addStyleSheet]
-
-  AL[RFeedhelper::getFeed] --> AM[RFeedhelper::createCachedFileFromUrl]
-  AL --> AN[RFeedhelper::file_get_contents]
-  AL --> AD
-
-  AO[ROrganisation::load] --> AP[RFeedhelper::__construct]
-  AO --> AQ[ROrganisation::readFeed]
-
-  AR[ROrganisation::display] --> P
-  AR --> V
-  AR --> Q
-  AR --> AJ
-  AR --> AK
-
-  AS[RAccounts::updateAccounts] --> AT[RAccounts::getAccounts]
-  AS --> AU[ROrganisation::__construct]
-  AS --> AV[RAccounts::updateDatabase]
-
-  AW[RAccounts::addMapMarkers] --> AJ
-  AW --> AK
-  AW --> P
-  AW --> V
-
-  AX[REventGroup::addWalks] --> R
-  AY[REventGroup::getIcalendarFile] --> AZ[RJsonwalksWalk::Event_ics]
-  BA[REventDownload::Display] --> BB[RIcsOutput::addRecord]
-  BC[REventDownload::getText] --> BB
-
-  BB --> BD[RIcsOutput::escapeString]
-  BB --> BE[RIcsOutput::chunk_split_unicode]
-  BF[RIcsOutput::addSequence] --> BB
-
-  AZ --> BB
-  AZ --> BF
+  FeedCtor[RJsonwalksFeed::__construct] --> WalksCtor[RJsonwalksWalks::__construct]
+  FeedCtor --> FeedFilters[RJsonwalksFeed::filter*()]
+  FeedCtor --> FeedDisplay[RJsonwalksFeed::display]
+  FeedDisplay --> StdDisplay[RJsonwalksStdDisplay::DisplayWalks]
+  FeedDisplay --> Simple[RJsonwalksStdSimplelist::DisplayWalks]
+  FeedDisplay --> Table[RJsonwalksStdWalktable::DisplayWalks]
+  FeedDisplay --> Cancel[RJsonwalksStdCancelledwalks::DisplayWalks]
+  StdDisplay --> MapCtor[RLeafletMap::__construct]
+  StdDisplay --> MapCommand[RLeafletMap::setCommand]
+  StdDisplay --> MapDisplay[RLeafletMap::display]
+  MapDisplay --> LeafletAdd[RLeafletScript::add]
+  LeafletAdd --> LoadAssets[RLoad::addScript/addStyleSheet]
+  FeedDisplay --> MapMarker[RJsonwalksLeafletMapmarker::DisplayWalks]
+  MapMarker --> MapDisplay
+  FeedDisplay --> IcsDownload[RJsonwalksFeed::displayIcsDownload]
+  IcsDownload --> EventGroup[REventGroup::addWalks]
+  IcsDownload --> EventDownload[REventDownload::Display]
+  EventGroup --> IcsOutput[RIcsOutput::addRecord/addSequence]
 ```
-【F:jsonwalks/std/display.php†L14-L133】【F:jsonwalks/leaflet/mapmarker.php†L15-L56】【F:jsonwalks/wm/feed.php†L22-L176】【F:leaflet/script.php†L21-L151】【F:feedhelper/feedhelper.php†L13-L119】【F:organisation/organisation.php†L34-L193】【F:accounts/accounts.php†L24-L205】【F:ics/output.php†L14-L78】
+
+### 11.2 Accounts + organisation + feedhelper + errors
+```mermaid
+flowchart LR
+  OrgLoad[ROrganisation::load] --> OrgFeed[ROrganisation::readFeed]
+  OrgFeed --> FHGet[RFeedhelper::getFeed]
+  FHGet --> FHCache[RFeedhelper::createCachedFileFromUrl]
+  FHGet --> FHError[RErrors::notifyError]
+  OrgLoad --> OrgDisplay[ROrganisation::display]
+  OrgDisplay --> MapSet[RLeafletMap::setDataObject]
+  OrgDisplay --> LoadAssets[RLoad::addScript/addStyleSheet]
+
+  AccUpdate[RAccounts::updateAccounts] --> OrgConstruct[ROrganisation::__construct]
+  AccUpdate --> DbUpdate[RAccounts::updateDatabase]
+  DbUpdate --> SqlUtils[RSqlUtils::executeQuery]
+  AccUpdate --> MapMarkers[RAccounts::addMapMarkers]
+  MapMarkers --> MapSet
+```
+
+### 11.3 GPX + data-source adapters
+```mermaid
+flowchart LR
+  GpxFolder[RLeafletGpxMaplist::display] --> Stats[RGpxStatistics::buildStatistics]
+  Stats --> GpxJson[RGpxStatistic::jsonSerialize]
+  GpxFolder --> LeafletCmd[RLeafletMap::setCommand(\"ra.display.gpxFolder\")]
+  GpxFolder --> LeafletData[RLeafletMap::setDataObject]
+  LeafletData --> LeafletAdd[RLeafletScript::add]
+  LeafletAdd --> LoadAssets[RLoad::addScript/addStyleSheet]
+
+  CsvList[RLeafletCsvList::display] --> CsvCmd[RLeafletMap::setCommand(\"ra.display.tableList\")];
+  CsvList --> CsvData[RLeafletMap::setDataObject]
+  CsvData --> LeafletAdd
+```
+
 
 ---
 
-## 13. High-Level Design (HLD) Documents
+## 12. High-Level Design (HLD) Documents
 
 Detailed architecture documentation is available for each module:
 
@@ -1361,16 +952,16 @@ Each HLD document includes: component architecture diagrams, public interfaces, 
 
 ---
 
-## 14. Maintainers' notes (operational debugging)
+## 13. Maintainers' notes (operational debugging)
 
 ### 13.1 Debugging “no walks” or “stale walks”
-- Confirm which adapter was selected (`RJsonwalksSourcewalksmanager` vs area variant).【F:jsonwalks/sourcewalksmanagerarea.php†L23-L48】【F:jsonwalks/sourcewalksmanager.php†L13-L176】  
+- Confirm which adapter was selected (`RJsonwalksSourcewalksmanager` vs area variant).  
 - Check cache presence/age and whether WM requests are failing and falling back to cached artefacts (see §6).  
-- If enabling organisation delta checks, remember the groups endpoint can be slow and is treated as experimental.【F:jsonwalks/wm/feed.php†L57-L70】【F:jsonwalks/wm/organisation.php†L5-L57】  
+- If enabling organisation delta checks, remember the groups endpoint can be slow and is treated as experimental.  
 
 ### 13.2 Debugging “map loads but no markers”
-- Validate the presenter is calling `registerWalks()` or setting `RLeafletMap::setDataObject()` (see §7).【F:leaflet/map.php†L26-L32】【F:leaflet/script.php†L153-L164】  
-- Confirm scripts/styles were enqueued via `RLoad` and required plugins are enabled.【F:leaflet/script.php†L52-L151】【F:load/load.php†L3-L24】  
+- Validate the presenter is calling `registerWalks()` or setting `RLeafletMap::setDataObject()` (see §7).  
+- Confirm scripts/styles were enqueued via `RLoad` and required plugins are enabled.  
 
 ---
 _End of merged document._

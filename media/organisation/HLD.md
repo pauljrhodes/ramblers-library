@@ -116,18 +116,27 @@ sequenceDiagram
 
 ## Integration Points
 
-### PHP Integration
-- **ROrganisation**: Supplies organisation data and enqueues `/media/organisation/organisation.js` plus shared `/media/js` assets via `RLoad::addScript()` → [organisation HLD](../../organisation/HLD.md)
-- **RLeafletMap**: Provides map options, command (`ra.display.organisationMap`), and JSON payload to the browser → [leaflet HLD](../../leaflet/HLD.md)
+### Used By
+- **ROrganisation::display()**: PHP entry point that sets the command/data on `RLeafletMap` and renders the organisation map → [organisation HLD](../../organisation/HLD.md#integration-points).
 
-### Core JavaScript Integration
-- **ra.js**: Core utilities/bootstrapper → [media/js HLD](../js/HLD.md)
-- **ra.leafletmap.js**: Map wrapper → [media/leaflet HLD](../leaflet/HLD.md)
-- **ra.map.cluster**: Marker clustering → [media/leaflet HLD](../leaflet/HLD.md)
+### Uses
+- **RLoad**: Enqueues `/media/js` foundations and `/media/organisation/organisation.js` → [load HLD](../../load/HLD.md#integration-points).
+- **RLeafletMap**: Hosts the map container and passes map options and organisation data → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **ra.map.cluster**: Provides clustering helpers for markers → [media/leaflet HLD](../leaflet/HLD.md#integration-points).
 
-## Media Integration
+### Data Sources
+- **Organisation data**: Areas and groups JSON payload built by `ROrganisation` → [organisation HLD](../../organisation/HLD.md#data-flow).
 
-### Server-to-Client Asset Relationship
+### Display Layer
+- **Client renderer**: `ra.display.organisationMap` builds markers/popups on `ra.leafletmap` → [media/leaflet HLD](../leaflet/HLD.md#display-layer).
+
+### Joomla Integration
+- **Document pipeline**: Assets and bootstrapper are injected into `JDocument` via `RLoad` and `RLeafletMap::display()`.
+
+### Vendor Library Integration
+- **Leaflet.js** and **Leaflet.markercluster** for map rendering and clustering.
+
+### Media Asset Relationships (Server → Client)
 
 ```mermaid
 flowchart LR
@@ -147,12 +156,6 @@ flowchart LR
 
 `ROrganisation::display()` queues the `/media/js` foundation and `/media/organisation/organisation.js` through `RLoad`. `RLeafletMap::display()` then emits the bootstrapper so the browser instantiates `ra.display.organisationMap` with the JSON data provided by PHP.
 
-### PHP Integration
-- **Asset enqueue**: `RLoad::addScript()` loads `/media/js/ra.js`, `/media/js/ra.leafletmap.js`, `/media/js/ra.tabs.js`, and `/media/organisation/organisation.js` before outputting the map container.
-
-### Core JavaScript Integration
-- **Entry point**: `ra.display.organisationMap` consumes the injected JSON and uses `ra.leafletmap` plus `ra.map.cluster` to render markers and popups.
-
 ### Key Features (`media/organisation/organisation.js`)
 - Renders clustered area and group markers with configurable colours.
 - Popups include codes, descriptions, and optional links from server data.
@@ -171,6 +174,16 @@ ra.bootstrapper(
     '{"areas":{...},"showLinks":true,"showCodes":true}'
 );
 ```
+
+## Performance Observations
+- **Marker clustering** keeps rendering performant for large area/group sets; zoom-to-bounds runs after marker creation.
+- **Asset loading** leverages cached `/media/js` foundations; the organisation bundle is small and loads quickly.
+- **Map initialization** cost scales primarily with marker count; filtering at the PHP level reduces client work.
+
+## Error Handling
+- **Missing containers/options**: `ra.display.organisationMap` validates inputs and shows an error when required data is absent.
+- **Empty datasets**: Renders an empty map gracefully without markers.
+- **Leaflet failures**: Relies on Leaflet to surface map errors; clustering guards against null coordinates when adding markers.
 
 ## References
 

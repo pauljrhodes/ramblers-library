@@ -249,39 +249,49 @@ sequenceDiagram
 
 ## Integration Points
 
-### PHP Integration
-- **RWalkseditorProgramme / RWalkseditorSubmitform**: Call `RWalkseditor::addScriptsandCss()` to enqueue `/media/walkseditor/js/*` plus shared `/media/js/ra.tabs.js` and `/media/vendors/cvList/cvList.js` through `RLoad::addScript()`. Email submission flows through `media/lib_ramblers/walkseditor/sendemail.php` using PHPMailer.
-- **JSON Handling**: Server receives/validates JSON walk data and injects configuration into the client bootstrap.
+### Used By
+- **RWalkseditorProgramme**, **RWalkseditorSubmitform**: Server-side entry points that render the editor, enqueue assets, and emit the client bootstrap → [walkseditor HLD](../../walkseditor/HLD.md#integration-points).
 
-### Core JavaScript Integration
-- **ra.tabs**: Shared tab UI used by the editor displays → [media/js HLD](../js/HLD.md)
-- **cvList**: Pagination for list views → [media/vendors HLD](../vendors/HLD.md)
-- **Leaflet Maps**: Location picker utilities consume `/media/leaflet` controls when map support is enabled → [media/leaflet HLD](../leaflet/HLD.md)
-- **AJAX Helpers**: Editor scripts post to `sendemail.php` for email delivery.
+### Uses
+- **RLoad**: Adds `/media/walkseditor/js/*`, `/media/js/ra.tabs.js`, and `/media/vendors/cvList/cvList.js` with cache-busting → [load HLD](../../load/HLD.md#integration-points).
+- **PHPMailer** (via bundled `PHPMailer.php`, `SMTP.php`, `Exception.php`): Email delivery for submissions → [walkseditor HLD](../../walkseditor/HLD.md#integration-points).
+- **Leaflet controls**: Optional map picker support via `/media/leaflet` assets → [media/leaflet HLD](../leaflet/HLD.md#integration-points).
 
-## Media Integration
+### Data Sources
+- **Form payload**: User-supplied walk JSON plus metadata (subject, origin site, coordinator list) → [walkseditor HLD](../../walkseditor/HLD.md#data-flow).
 
-### Server-to-Client Asset Relationship
+### Display Layer
+- **Client editor**: `ra.walkseditor.walkeditor` renders the tabbed editor UI and status messaging → [media/js HLD](../js/HLD.md#integration-points).
+
+### Joomla Integration
+- **Document pipeline**: `RLoad` injects scripts/styles into `JDocument`; `sendemail.php` relies on Joomla configuration for SMTP settings.
+
+### Vendor Library Integration
+- **cvList**: Pagination for walk/place lists in the editor UI.
+- **Leaflet**: Map picker and clustering when maplocation is enabled.
+
+### Media Asset Relationships (Server → Client)
 
 ```mermaid
 flowchart LR
-    PHP[RWalkseditorProgramme<br/>RWalkseditorSubmitform]
+    PHP[RWalkseditorProgramme / Submitform]
     Loader[RLoad::addScript]
-    BaseJS[/media/js/ra.tabs.js<br/>/media/vendors/cvList/cvList.js]
-    EditorJS[/media/walkseditor/js<br/>walkeditor.js, form/*.js]
-    Bootstrap[Client bootstrap + AJAX handlers]
+    BaseJS[/media/js<br/>ra.tabs.js]
+    Vendors[/media/vendors/cvList/cvList.js]
+    EditorJS[/media/walkseditor/js<br/>walkeditor.js, walk.js, form/*.js]
+    Bootstrap[Bootstrap script → ra.walkseditor.walkeditor]
 
     PHP --> Loader
     Loader --> BaseJS
+    Loader --> Vendors
     Loader --> EditorJS
     PHP --> Bootstrap
 ```
 
-`RWalkseditor::addScriptsandCss()` centralizes asset loading by pushing the `/media/walkseditor/js` bundle and shared tab/pagination libraries through `RLoad`. The rendered page then runs the editor bootstrap, which wires the AJAX submission pipeline to `sendemail.php`.
+The PHP helpers queue the shared tab library and cvList vendor script alongside the editor bundle; the emitted bootstrap initializes `ra.walkseditor.walkeditor`, which then binds AJAX submissions to `sendemail.php`.
 
 ### External Services
-- **SMTP Server**: Email delivery (via Joomla configuration)
-- **Email Recipients**: Programme coordinators (from form data)
+- **SMTP server** via Joomla config for email dispatch to coordinator recipients.
 
 ## Media Dependencies & Key Features
 
@@ -354,7 +364,7 @@ var editor = new ra.walkseditor.walkeditor();
 editor.load(editDiv, walkObject, false);
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Form Rendering
 - **Dynamic Form**: Form generated client-side (fast)
@@ -374,19 +384,19 @@ editor.load(editDiv, walkObject, false);
 ## Error Handling
 
 ### JavaScript Errors
-- **Validation Errors**: Shown inline on form fields
-- **Submission Errors**: Displayed via error modal
-- **AJAX Failures**: Network errors caught and displayed
+- **Validation Errors**: Highlight invalid fields inline and block submission.
+- **Submission Errors**: Error modal shown when AJAX returns failure.
+- **AJAX Failures**: Network issues handled with user-facing error messages.
 
 ### PHP Errors
-- **JSON Decode Errors**: Caught, error response returned
-- **Email Send Failures**: PHPMailer errors caught, error response returned
-- **Missing Configuration**: Uses defaults, logs errors
+- **JSON Decode Errors**: Guarded by `checkDecode()`; replies with error JSON.
+- **Email Send Failures**: PHPMailer errors are caught and surfaced in the JSON response.
+- **Missing Configuration**: Falls back to defaults and reports issues.
 
 ### User Feedback
-- **Success**: Shows success message
-- **Errors**: Shows error message with details
-- **Validation**: Highlights invalid fields
+- **Success**: Success banner/modal on send completion.
+- **Errors**: Detailed error messages pushed to the UI.
+- **Validation**: Inline prompts for required/invalid fields.
 
 ## References
 

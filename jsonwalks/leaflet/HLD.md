@@ -67,14 +67,59 @@ public function mapWidth($width)
 public function setLegend($position)
 ```
 
+## Data Flow
+
+```mermaid
+sequenceDiagram
+    participant Feed as RJsonwalksFeed
+    participant Mapmarker as RJsonwalksLeafletMapmarker
+    participant Map as RLeafletMap
+    participant Script as RLeafletScript
+    participant Load as RLoad
+    participant Browser as Browser
+    participant ClientJS as mapmarker.js
+
+    Feed->>Mapmarker: display(Mapmarker)
+    Mapmarker->>Map: setCommand("ra.display.walksMap") + map options
+    Mapmarker->>Map: setDataObject(walks as JSON)
+    Mapmarker->>Map: display()
+    Map->>Script: add(options)
+    Script->>Load: enqueue Leaflet + /media/js + mapmarker.js
+    Load->>Browser: inject scripts/styles with cache-busting
+    Browser->>ClientJS: ra.display.walksMap(data)
+    ClientJS-->>Browser: render markers + popups
+```
+
 ## Integration Points
 
-### Parent Classes
-- **RJsonwalksDisplaybase**: Abstract base → [jsonwalks HLD](../HLD.md)
+### Used By
+- **Standard tabbed display map tabs** inside `RJsonwalksStdDisplay` → [jsonwalks/std HLD](../std/HLD.md#integration-points).
+- **Standalone map presenters** embedded in Joomla articles/modules via `RJsonwalksFeed::display()` → [jsonwalks HLD](../HLD.md#integration-points).
 
-### Dependencies
-- **RLeafletMap**: Map rendering → [leaflet HLD](../../leaflet/HLD.md)
-- **RJsonwalksWalks**: Walk collection → [jsonwalks HLD](../HLD.md)
+### Uses
+- **Base presenter**: Inherits initialization and asset hooks from `RJsonwalksDisplaybase` → [jsonwalks HLD](../HLD.md#integration-points).
+- **Map infrastructure**: `RLeafletMap` and `RLeafletScript` for Leaflet options and asset injection → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **Walk collections**: Consumes `RJsonwalksWalks` objects from the feed → [jsonwalks/walk HLD](../walk/HLD.md#integration-points).
+- **Asset loader**: `RLoad` to enqueue `media/js` foundations prior to map scripts → [load HLD](../../load/HLD.md#integration-points).
+
+### Data Sources
+- **Walk data** supplied by `RJsonwalksFeed` (WM/editor sources) serialized to JSON payloads → [jsonwalks HLD](../HLD.md#data-sources).
+
+### External Services
+- **Leaflet CDN plugins** (core + clustering) pulled through `RLeafletScript` → [leaflet HLD](../../leaflet/HLD.md#vendor-library-integration).
+
+### Display Layer
+- **Server**: Emits `ra.display.walksMap` command with walk data and map options.
+- **Client**: `media/jsonwalks/leaflet/mapmarker.js` renders clustered markers and popups → [media/jsonwalks HLD](../../media/jsonwalks/HLD.md#display-layer).
+
+### Joomla Integration
+- **Document pipeline**: Uses `RLoad`/`RLeafletScript` to enqueue scripts/styles with Joomla cache-busting and to register walk data for ICS/calendar export when needed.
+
+### Vendor Library Integration
+- **Leaflet.markercluster** and **Leaflet.fullscreen** used for clustering/fullscreen support when options enable them → [leaflet HLD](../../leaflet/HLD.md#vendor-library-integration).
+
+### Media Asset Relationships
+- Server enqueues shared `/media/js` utilities (`ra.js`, `ra.walk.js`, `ra.leafletmap.js`) before `media/jsonwalks/leaflet/mapmarker.js`; Leaflet CSS/JS loads via CDN through `RLeafletScript`.
 
 ## Media Dependencies
 
@@ -97,6 +142,18 @@ $display->mapHeight('600px');
 $feed->display($display);
 ```
 
+## Performance Observations
+
+- **Payload size**: Sends full walk JSON to the browser; large collections (>500 walks) may slow marker clustering.
+- **Asset reuse**: Leaflet and shared `/media/js` libraries are cached across pages, reducing repeat cost.
+- **Clustering**: Enabled by default to keep DOM counts manageable for larger datasets.
+
+## Error Handling
+
+- **Missing data**: If no walks are provided, the client renders an empty map container.
+- **Asset failures**: Missing Leaflet or `mapmarker.js` scripts degrade maps; other displays still render.
+- **Invalid coordinates**: Walks without coordinates are ignored client-side.
+
 ## References
 
 ### Related HLD Documents
@@ -108,5 +165,4 @@ $feed->display($display);
 
 ### Related Media Files
 - `media/jsonwalks/leaflet/mapmarker.js` - Client-side marker rendering
-
 

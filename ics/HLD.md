@@ -142,12 +142,31 @@ sequenceDiagram
 ## Integration Points
 
 ### Used By
-- **REventFeed**: Generates ICS output → [event HLD](../event/HLD.md)
-- **REventGroup**: Calls `getIcalendarFile()` → [event HLD](../event/HLD.md)
-- **RJsonwalksWalk**: `Event_ics()` method generates walk ICS records → [jsonwalks/walk HLD](../jsonwalks/walk/HLD.md)
+- **REventFeed** for ICS output → [event HLD](../event/HLD.md#integration-points).
+- **REventGroup** when exporting aggregated events → [event HLD](../event/HLD.md#integration-points).
+- **RJsonwalksWalk::Event_ics()** to write per-walk fields → [jsonwalks/walk HLD](../jsonwalks/walk/HLD.md#integration-points).
 
-### Dependencies
-- **PHP mbstring**: Unicode string handling for `chunk_split_unicode()`
+### Uses
+- **PHP mbstring** for Unicode handling in `chunk_split_unicode()`.
+
+### Data Sources
+- **Walk/event data** supplied through `REventGroup` and `RJsonwalksWalk` objects.
+
+### External Services
+- None; pure server-side string generation.
+
+### Display Layer
+- **Server**: Emits ICS text/headers for download via `RIcsFile` or controller output.
+- **Client**: ICS files consumed by calendar apps; no browser assets.
+
+### Joomla Integration
+- ICS responses are delivered through Joomla controllers/views; headers set for downloads.
+
+### Vendor Library Integration
+- None.
+
+### Media Asset Relationships
+- None; no JS/CSS loaded for ICS generation.
 
 ## Media Dependencies
 
@@ -231,5 +250,4 @@ $escaped = RIcsOutput::escapeString($text);
 ### Standards
 - **RFC5545**: iCalendar specification
 - **RFC7986**: iCalendar extensions
-
 

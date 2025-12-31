@@ -82,15 +82,25 @@ sequenceDiagram
 
 ## Integration Points
 
-### PHP Integration
-- **exists.php endpoint**: Provides a lightweight file existence check used by GPX symbol renderers → [gpxsymbols HLD](../../gpxsymbols/HLD.md)
+### Used By
+- **GPX renderers and symbol widgets**: Client code that needs to confirm an icon exists before referencing it → [gpxsymbols HLD](../../gpxsymbols/HLD.md#integration-points).
 
-### Core JavaScript Integration
-- **Callers**: GPX map/marker widgets may call `exists.php` to test for symbol availability before rendering markers.
+### Uses
+- **PHP filesystem**: `file_exists()` for local symbol folders (no additional module dependency).
 
-## Media Integration
+### Data Sources
+- **Query string**: `file` parameter specifying the symbol path to validate (input from client widgets consuming GPX symbols) → [gpxsymbols HLD](../../gpxsymbols/HLD.md#integration-points).
 
-### Server-to-Client Asset Relationship
+### Display Layer
+- **Client callers**: JavaScript or PHP widgets consume the boolean response to decide whether to display a symbol.
+
+### Joomla Integration
+- **Direct endpoint**: Runs within Joomla’s PHP runtime without additional dependencies.
+
+### Vendor Library Integration
+- None.
+
+### Media Asset Relationships (Server → Client)
 
 ```mermaid
 flowchart LR
@@ -128,7 +138,7 @@ fetch('media/lib_ramblers/gpxsymbols/exists.php?file=media/lib_ramblers/gpxsymbo
     });
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### File System Checks
 - **Fast**: `file_exists()` is fast for local files

@@ -264,21 +264,32 @@ sequenceDiagram
 
 ## Integration Points
 
-### PHP Integration
-- **RJsonwalksStdDisplay**: Provides walk data/config and enqueues `/media/jsonwalks/std/display.js` plus `/media/js` foundations via `RLoad::addScript()` → [jsonwalks/std HLD](../../jsonwalks/std/HLD.md)
-- **RJsonwalksLeafletMapmarker**: Provides marker data and loads `/media/jsonwalks/leaflet/mapmarker.js` alongside Leaflet via `RLeafletScript::add()` → [jsonwalks/leaflet HLD](../../jsonwalks/leaflet/HLD.md)
-- **RLeafletScript**: Injects Leaflet core/plugins and the `ra.bootstrapper` declaration → [leaflet HLD](../../leaflet/HLD.md)
+### Used By
+- **RJsonwalksStdDisplay**: Provides walk data/config and enqueues `/media/jsonwalks/std/display.js` plus `/media/js` foundations via `RLoad::addScript()` → [jsonwalks/std HLD](../../jsonwalks/std/HLD.md#integration-points).
+- **RJsonwalksLeafletMapmarker**: Provides marker data and loads `/media/jsonwalks/leaflet/mapmarker.js` alongside Leaflet via `RLeafletScript::add()` → [jsonwalks/leaflet HLD](../../jsonwalks/leaflet/HLD.md#integration-points).
 
-### Core JavaScript Integration
-- **ra.js / ra.tabs / ra.paginatedDataList / ra.walk**: Shared foundations loaded before any `/media/jsonwalks/*` entry point → [media/js HLD](../js/HLD.md)
-- **ra.leafletmap + ra.map.cluster**: Map utilities consumed by `mapmarker.js` → [media/leaflet HLD](../leaflet/HLD.md)
+### Uses
+- **RLeafletScript**: Injects Leaflet core/plugins and the `ra.bootstrapper` declaration → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **RLoad**: Enqueues `/media/js` foundations (`ra.js`, `ra.tabs.js`, `ra.paginatedDataList.js`, `ra.walk.js`) before module scripts → [load HLD](../../load/HLD.md#integration-points).
+- **ra.leafletmap + ra.map.cluster**: Map utilities consumed by `mapmarker.js` → [media/leaflet HLD](../leaflet/HLD.md#integration-points).
+
+### Data Sources
+- **Walk JSON payloads** from PHP presenters, including tab/list configuration and legend options → [jsonwalks/std HLD](../../jsonwalks/std/HLD.md#data-flow).
+- **Map options** for clustering, bounds, and legend positioning provided by Leaflet presenters → [leaflet HLD](../../leaflet/HLD.md#data-flow).
+
+### Display Layer
+- **Client entry points**: `ra.display.walksTabs`, `ra.display.walksMap`, and mapmarker-specific displays → [media/js HLD](../js/HLD.md#public-interface).
+- **Shared primitives**: `ra.events` filtering, `ra.tabs` layout, `cvList` pagination → [media/js HLD](../js/HLD.md#integration-points), [media/vendors HLD](../vendors/HLD.md#integration-points).
+
+### Joomla Integration
+- **Document pipeline**: PHP presenters set command/data on `JDocument`; `ra.bootstrapper` instantiates display classes with the injected JSON.
 
 ### Vendor Library Integration
-- **FullCalendar**: Calendar view (`/media/vendors/fullcalendar-6.1.9/`)
-- **cvList**: Pagination library (`/media/vendors/cvList/`)
-- **Leaflet.js**: Map rendering (loaded by `RLeafletScript`)
+- **FullCalendar** (`/media/vendors/fullcalendar-6.1.9/`) for calendar view.
+- **cvList** (`/media/vendors/cvList/`) for pagination.
+- **Leaflet.js** via `RLeafletScript` for map rendering.
 
-## Media Integration
+### Media Asset Relationships (Server → Client)
 
 ### Server-to-Client Asset Relationship
 
@@ -378,7 +389,7 @@ var result = displayCustomValues("{xSymbol}", walk);
 // Returns: '<img src=".../Sandwich-icon.png" .../>' if picnic detected
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Client-Side Rendering
 - **Initial Load**: All walk data sent as JSON (can be large for 100+ walks)

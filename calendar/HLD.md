@@ -6,27 +6,30 @@ The `calendar` module renders month-by-month calendars and injects per-day walk/
 
 **Purpose**: Calendar display for walks and events.
 
-**Key File**: `calendar/calendar.php`
+**Key Features**:
+- Month navigation with optional multi-month rendering
+- Injected per-day walk/event lists
+- Simple adapter for JSON walks/event collections
 
-## Component Diagram
+## Component Architecture
 
+```mermaid
+flowchart TB
+    Adapter[REventCalendar<br/>calendar.php]
+    Calendar[RCalendar<br/>calendar.php]
+    Events[REventGroup<br/>event/group.php]
+    Feed[RJsonwalksFeed]
+    Toggle[ra.js toggleVisibilities<br/>(media/js/ra.js)]
+    Styles[calendar.css<br/>ramblerslibrary.css]
+
+    Adapter --> Calendar
+    Adapter --> Events
+    Events --> Calendar
+    Calendar --> Toggle
+    Adapter --> Styles
 ```
-                +-------------------+
-                | REventCalendar    | (event display adapter)
-                +-------------------+
-                          |
-                          v Display(...) passes events + display flags
-+-------------------+   show(display, events)   +-------------------+
-| RCalendar         |-------------------------->| REventGroup / feed |
-| (calendar layout) |<------ addEvent() --------+-------------------+
-|                   |      (per day content)
-+---------+---------+
-          |
-          v renders HTML
-   Front-end calendar widget (uses ra.js toggle)
-```
 
-## Key Classes / Functions
+## Public Interface
 
 ### `RCalendar`
 - **State**: sizing (`$size`), label formats, current month/year cursors, event provider reference, and whether to display all months.
@@ -43,41 +46,69 @@ The `calendar` module renders month-by-month calendars and injects per-day walk/
 ### `REventGroup::addEvent` (from `event/group.php`)
 - Supplies the `addEvent` interface expected by `RCalendar`, returning HTML for each day (lists, hover blocks, etc.).
 
-## Public Interfaces & Usage
+## Data Flow
 
-- `new RCalendar(int $size, bool $displayAll)`: set calendar size variant and whether to render all months at once.
-- `setMonthFormat(string $format)`: PHP date format used in month headers (default `Y M`).
-- `show($display, $events): void`: emit calendar HTML using the provided event provider.
+```mermaid
+sequenceDiagram
+    participant Adapter as REventCalendar
+    participant Calendar as RCalendar
+    participant Events as REventGroup
+    participant Feed as RJsonwalksFeed
+    participant Browser as Browser
 
-Typical usage flows through `REventCalendar`:
-```php
-$adapter = new REventCalendar(250);   // size: 0, 200, 250, or 400
-$adapter->displayAll();               // optional: render all months up to last event
-$adapter->setMonthFormat("F 'y");     // optional custom header format
-$adapter->Display($eventGroup);       // $eventGroup implements addEvent/getLastDate
+    Feed->>Events: addWalks()/addWalksArray()
+    Adapter->>Calendar: Display(events)
+    Calendar->>Events: addEvent(display, text, currentDate)
+    Events-->>Calendar: HTML per day
+    Calendar-->>Browser: Rendered calendar with navigation
 ```
-The `$eventGroup` is usually built from JSON walks or event feeds.
 
-## Data Flow & Integration Points
+## Integration Points
 
-- **Inputs**:
-  - Event data from `REventGroup` populated by feeds (`event/feed.php`, `event/group.php`) or JSON walks (`jsonwalks/std`).
-  - Display hints (`$display` string) passed through to `REventGroup::EventList`.
-- **Processing**:
-  - Determine calendar range from the current date to the last event date.
-  - For each day cell, call `$events->addEvent($display, $text, $currentDate)` to render walk/event details.
-  - Navigation links toggle month visibility via `ra.html.toggleVisibilities` in `media/lib_ramblers/js/ra.js`.
-- **Outputs**:
-  - HTML calendar blocks styled by `media/lib_ramblers/calendar/calendar.css` and `ramblerslibrary.css`.
-  - Event content wrapped in interactive toggles/hover blocks provided by the event module.
-- **Integration**:
-  - Calendar pages commonly ingest event feeds (see [`event/HLD.md`](../event/HLD.md)).
-  - JSON walks integrations (see [`jsonwalks/std/HLD.md`](../jsonwalks/std/HLD.md)) can supply the underlying event data structures.
-  - Calendar markup can be embedded in Joomla components/modules alongside leaflet map scripts that register the same walks.
+### Used By
+- **jsonwalks/std calendar tab** rendering → [jsonwalks/std HLD](../jsonwalks/std/HLD.md#integration-points).
+- **Event module download displays** that show month grids alongside ICS links → [event HLD](../event/HLD.md#integration-points).
+
+### Uses
+- **REventGroup** for per-day event HTML → [event HLD](../event/HLD.md#integration-points).
+- **RJsonwalksFeed** as a common source for events → [jsonwalks HLD](../jsonwalks/HLD.md#integration-points).
+- **Ramblers JS foundation** (`ra.js` toggleVisibilities) for month navigation → [media/js HLD](../media/js/HLD.md#integration-points).
+
+### Data Sources
+- **Walk/event data** supplied as `REventGroup` built from JSON walks feeds or event feeds → [event HLD](../event/HLD.md#data-sources).
+
+### External Services
+- None; all calendar rendering is server-side HTML with local JS helpers.
+
+### Display Layer
+- **Server**: `RCalendar` outputs HTML markup and navigation controls.
+- **Client**: `ra.js` toggles month visibility when users navigate; styles from `calendar.css`/`ramblerslibrary.css` → [media/jsonwalks HLD](../media/jsonwalks/HLD.md#display-layer) for calendar tab context.
+
+### Joomla Integration
+- Assets (`calendar.css`, `ramblerslibrary.css`, `ra.js`) are enqueued into the Joomla document by `REventCalendar`.
+- Calendar HTML is embedded in Joomla modules/pages that supply event data.
+
+### Vendor Library Integration
+- None beyond shared Ramblers JS/CSS assets.
+
+### Media Asset Relationships
+- Server enqueues `media/lib_ramblers/calendar/calendar.css`, `media/lib_ramblers/css/ramblerslibrary.css`, and `media/lib_ramblers/js/ra.js` before rendering calendar markup; no module-specific JS beyond the shared toggle helper.
+
+## Performance Observations
+
+- **Rendering cost**: Server-side loops over all days between today and the last event date; manageable for typical ranges.
+- **Client cost**: Minimal; toggle visibility via `ra.js` only.
+- **Asset footprint**: Lightweight CSS/JS; benefits from Joomla cache-busting.
+
+## Error Handling
+
+- **Empty event sets**: Calendar renders with empty days; navigation still works.
+- **Invalid dates**: `REventGroup::getLastDate()` should guard against null; adapter can default to current month if absent.
+- **Asset loading**: Missing `ra.js` disables toggle buttons but still shows the first month.
 
 ## References
 
-- See [event HLD](../event/HLD.md) for event aggregation
-- See [jsonwalks/std HLD](../jsonwalks/std/HLD.md) for calendar view in displays
+- [event HLD](../event/HLD.md) - Event aggregation and ICS
+- [jsonwalks/std HLD](../jsonwalks/std/HLD.md) - Calendar tab usage
+- [media/jsonwalks HLD](../media/jsonwalks/HLD.md) - Client calendar assets in displays
 - `calendar/calendar.php` - Calendar implementation
-
