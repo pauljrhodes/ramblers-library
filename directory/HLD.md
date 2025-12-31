@@ -8,47 +8,84 @@ The `directory` module renders simple directory listings, filtering by allowed e
 
 **Key File**: `directory/list.php`
 
-## Component Diagram
+## Component Architecture
 
+```mermaid
+flowchart TB
+    subgraph Directory["Directory Module"]
+        RDirectoryList[RDirectoryList<br/>Listing helper]
+    end
+
+    Filesystem[(Target folder)]
+    Joomla[Joomla APIs<br/>JFactory/JText/JURI]
+    Output[HTML UL links]
+
+    RDirectoryList --> Filesystem
+    RDirectoryList --> Joomla
+    RDirectoryList --> Output
 ```
-+----------------+    reads          +----------------------+
-| RDirectoryList |------------------>| Filesystem folder    |
-|                |    uses           +----------------------+
-|                |----> JFactory/JText (messages)
-|                |----> JURI::base() (link roots)
-+----------------+
+
+## Public Interface
+
+### RDirectoryList
+- **Constructor**: `__construct(array $fileTypes)` – configure allowed extensions.
+- **Methods**:
+  - `listItems(string $folder, int $sort = self::ASC): void` – validate folder, filter files, read sidecar descriptions (`.text`/`.txt`), and echo an HTML `<ul>` sorted ascending/descending.
+
+## Data Flow
+
+```mermaid
+sequenceDiagram
+    participant Caller
+    participant Dir as RDirectoryList
+    participant FS as Filesystem
+    participant Joomla
+    participant Browser
+
+    Caller->>Dir: listItems(folder, sort)
+    Dir->>FS: Validate folder exists
+    alt missing
+        Dir->>Joomla: enqueueMessage(error)
+        Dir-->>Caller: return
+    end
+    Dir->>FS: scan dir + descriptions
+    Dir->>Browser: echo <ul> with links
 ```
 
-## Key Classes / Functions
+## Integration Points
 
-### `RDirectoryList`
-- **State**: allowed file extensions (`$fileTypes`) and collected filenames.
-- **Responsibilities**: verify folder existence, enumerate files, filter by extension, load optional `.text`/`.txt` description files, and emit HTML `<ul>` listings.
-- **Helper**: `endsWith($haystack, $needle)` to match file extensions.
+### Used By
+- **Joomla components/modules** that need lightweight folder listings (downloads, documents).
 
-## Public Interfaces & Usage
+### Uses
+- **Joomla Application and helpers** (`JFactory`, `JText`, `JURI`) for messages, translations, and base URLs.
+- **Filesystem**: `scandir`, `file_exists`, `filemtime` to enumerate files and sidecar descriptions.
 
-- `__construct(array $fileTypes)`: set the extensions to include (e.g., `['.pdf', '.docx']`).
-- `listItems(string $folder, int $sort = self::ASC): void`: echo an HTML unordered list of links sorted ascending or descending. Errors are routed through Joomla messaging (`enqueueMessage`).
+### Data Sources
+- **Local folders** supplied by callers; optional `filename.text`/`filename.txt` description files.
 
-**Example**
-```php
-$listing = new RDirectoryList(['.pdf', '.docx']);
-$listing->listItems('media/downloads', RDirectoryList::DESC);
-```
-This produces a `<ul>` of download links rooted at `JURI::base() . 'media/downloads'`, with optional descriptions from `filename.text` or `filename.txt`.
+### Display Layer
+- **Server**: Outputs HTML directly into the page; styling handled by surrounding templates.
 
-## Data Flow & Integration Points
+### Joomla Integration
+- **Messages**: Validation failures surfaced via `enqueueMessage`.
+- **Link roots**: URLs built from `JURI::base()` to respect site base path.
 
-- **Input**: target folder path and sort order from calling code.
-- **Processing**:
-  - Validate folder existence; surface errors via `JFactory::getApplication()->enqueueMessage`.
-  - Enumerate directory contents (`opendir`/`readdir`), filter by `fileTypes`, and load matching description sidecar files.
-  - Generate link URLs using `JURI::base()` so links honor the site base path.
-- **Output**: HTML written directly (echo) for Joomla templates or module outputs.
-- **Integration**: typically embedded in Joomla components/modules; depends on Joomla globals (`JFactory`, `JText`, `JURI`) and the filesystem. Can be paired with media or document folders where sidecar description files are maintained.
+### Vendor Library Integration
+- None.
+
+### Media Asset Relationships
+- None; emits plain HTML without additional assets.
+
+## Performance Observations
+- **Lightweight scans**: Uses `scandir` and simple filters; cost scales with folder size.
+- **Sidecar reads**: Only attempts to open `.text`/`.txt` files matching listed items.
+
+## Error Handling
+- **Missing folder**: Warns via Joomla message and exits.
+- **Unreadable description files**: Skips and continues listing.
+- **Unsupported extensions**: Files filtered out silently.
 
 ## References
 
 - `directory/list.php` - Directory listing implementation
-

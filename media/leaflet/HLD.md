@@ -339,36 +339,33 @@ sequenceDiagram
 
 ## Integration Points
 
-### PHP Integration
-- **RLeafletMap**: Provides map options/data and emits the command/data JSON for client bootstrap → [leaflet HLD](../../leaflet/HLD.md)
-- **RLeafletScript**: Injects Leaflet core/plugins and routes asset enqueueing through `RLoad::addScript()` → [leaflet HLD](../../leaflet/HLD.md)
-- **RLeafletGpxMap**: Supplies GPX file paths for client rendering → [leaflet/gpx HLD](../../leaflet/gpx/HLD.md)
+### Used By
+- **RLeafletMap / RLeafletScript**: PHP bridge that sets map commands/data and enqueues `/media/leaflet` assets before emitting the bootstrapper → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **RLeafletGpxMap / RLeafletGpxMaplist**: Supply GPX payloads and options for `ra.display.gpxSingle` and related displays → [leaflet/gpx HLD](../../leaflet/gpx/HLD.md#integration-points).
+- **RLeafletMapdraw**: Publishes draw controls for `ra.display.plotRoute` → [leaflet HLD](../../leaflet/HLD.md#integration-points).
 
-### Core JavaScript Integration
-- **ra.js / ra.map.js / ra.tabs.js**: Shared foundations loaded before any `/media/leaflet` entry point → [media/js HLD](../js/HLD.md)
-- **ra.leafletmap.js**: Map wrapper used by all client displays.
-- **ra.map.cluster**: Optional clustering helper for map presenters.
-- **ra.paginatedDataList.js**: Used by table-driven map lists.
+### Uses
+- **RLoad**: Adds `/media/js` foundations plus `/media/leaflet` scripts/styles with cache-busting → [load HLD](../../load/HLD.md#integration-points).
+- **Leaflet core** and plugins (markercluster, GPX, elevation, draw, fullscreen) → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **MapLibre GL** and **Proj4js** for vector tiles and projection handling → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **places.walkinginfo.co.uk** API for place lookups when place controls are enabled → [leaflet HLD](../../leaflet/HLD.md#data-sources).
+
+### Data Sources
+- **GPX files**: Provided by PHP via data object for `ra.display.gpxSingle` and `gpx/maplist.js` → [leaflet/gpx HLD](../../leaflet/gpx/HLD.md#data-flow).
+- **Table/CSV/JSON lists**: Passed from PHP table/CSV/JSON helpers to `ra.display.tableList` → [leaflet HLD](../../leaflet/HLD.md#data-flow).
+- **Place feeds**: External place API responses consumed by `L.Control.Places` → [media/vendors HLD](../vendors/HLD.md#data-sources).
+
+### Display Layer
+- **Client map wrapper**: `ra.leafletmap` (and `ra._leafletmap`) renders the map, controls, and tabs → [media/js HLD](../js/HLD.md#integration-points).
+- **Display entry points**: `ra.display.gpxSingle`, `ra.display.tableList`, `ra.display.mapCompare`, `ra.display.plotRoute` → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+
+### Joomla Integration
+- **Document pipeline**: `RLeafletScript::add()` injects command/data payloads and calls `RLoad::addScript()`/`addStyleSheet()` to publish assets into `JDocument`.
 
 ### Vendor Library Integration
-- **Leaflet.js**: Core mapping library (CDN)
-- **Leaflet.markercluster**: Marker clustering
-- **Leaflet-gpx**: GPX file parsing
-- **Leaflet.Elevation**: Elevation profiles
-- **Leaflet.draw**: Drawing tools
-- **Leaflet.fullscreen**: Fullscreen control
-- **MapLibre GL**: Vector tiles
-- **Proj4js**: Coordinate projection
+- **Leaflet.js**, **Leaflet.markercluster**, **Leaflet-gpx**, **Leaflet.Elevation**, **Leaflet.draw**, **Leaflet.fullscreen**, **MapLibre GL**, **Proj4js** → [media/vendors HLD](../vendors/HLD.md#integration-points).
 
-### External Services
-- **places.walkinginfo.co.uk**: Place data API
-- **OpenStreetMap**: Geocoding, routing
-- **Ordnance Survey API**: OS maps and tiles
-- **ESRI**: Aerial imagery
-
-## Media Integration
-
-### Server-to-Client Asset Relationship
+### Media Asset Relationships (Server → Client)
 
 ```mermaid
 flowchart LR
@@ -432,7 +429,7 @@ ra.bootstrapper(
 );
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Map Rendering
 - **Tile Loading**: Lazy loading of map tiles (Leaflet handles)

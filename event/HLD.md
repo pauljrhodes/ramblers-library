@@ -216,17 +216,65 @@ sequenceDiagram
 
 ## Integration Points
 
-### Domain Layer
-- **RJsonwalksFeed**: Source of walk data → [jsonwalks HLD](../jsonwalks/HLD.md)
-- **RJsonwalksWalks**: Walk collection → [jsonwalks HLD](../jsonwalks/HLD.md)
-- **RJsonwalksWalk**: Individual walk objects with `Event_ics()` method → [jsonwalks/walk HLD](../jsonwalks/walk/HLD.md)
+### Used By
+- **jsonwalks/std calendar tab** through `REventGroup` data passed into displays → [jsonwalks/std HLD](../jsonwalks/std/HLD.md#integration-points).
+- **ICS download links** emitted by presenters that call `REventDownload` → [jsonwalks HLD](../jsonwalks/HLD.md#integration-points).
+- **Calendar module** adapters that render month grids → [calendar HLD](../calendar/HLD.md#integration-points).
 
-### Export Layer
-- **RIcsOutput**: RFC5545 format generator → [ics HLD](../ics/HLD.md)
-- **RIcsFile**: File output handler → [ics HLD](../ics/HLD.md)
+### Uses
+- **RJsonwalksFeed/Walks/Walk** as event data sources → [jsonwalks HLD](../jsonwalks/HLD.md#integration-points) and [jsonwalks/walk HLD](../jsonwalks/walk/HLD.md#integration-points).
+- **RIcsOutput / RIcsFile** for ICS generation → [ics HLD](../ics/HLD.md#integration-points).
+- **RLeafletScript::registerWalks** to expose walk data to client calendars/maps → [leaflet HLD](../leaflet/HLD.md#integration-points).
 
-### Client Integration
-- **RLeafletScript**: Registers walks for client-side calendar → [leaflet HLD](../leaflet/HLD.md)
+### Data Sources
+- **Walk collections** from `RJsonwalksFeed` or arrays of `RJsonwalksWalk` supplied directly.
+
+### External Services
+- None; ICS generation and event aggregation are server-side.
+
+### Display Layer
+- **Server**: Generates HTML download links, event lists, and ICS payloads.
+- **Client**: Calendar views rely on JSON emitted by `registerWalks()` and on FullCalendar loaded by display modules → [media/jsonwalks HLD](../media/jsonwalks/HLD.md#display-layer).
+
+### Joomla Integration
+- ICS files are delivered via Joomla controllers/views; messages and errors surfaced through Joomla messaging.
+
+### Vendor Library Integration
+- **FullCalendar** used by jsonwalks displays (loaded elsewhere) to visualize events.
+
+### Media Asset Relationships
+- No module-specific assets; relies on media loaded by upstream displays (e.g., `jsonwalks/std` tabs + FullCalendar) after `registerWalks()` exposes event data.
+
+## Performance Observations
+
+### Event Aggregation
+- **Memory**: All walks loaded into memory as event array
+- **Processing**: Linear iteration through walks (O(n))
+- **No Caching**: Events generated on-demand (consider caching for large collections)
+
+### ICS Generation
+- **Formatting**: RFC5545 formatting is lightweight
+- **Size**: ICS files typically small (<100KB for 1000 events)
+- **Streaming**: Could stream large ICS files for better memory usage
+
+### Optimization Opportunities
+1. **Lazy Event Loading**: Only load events for requested date range
+2. **ICS Caching**: Cache generated ICS files by feed parameters
+3. **Incremental Updates**: Support ICS incremental updates (RFC5545)
+
+## Error Handling
+
+### Event Collection Errors
+- **Empty Collections**: Returns empty array (graceful)
+- **Invalid Walks**: Invalid walk objects skipped (logged)
+
+### ICS Generation Errors
+- **Encoding Issues**: Handled by `RIcsOutput::escapeString()` → [ics HLD](../ics/HLD.md)
+- **Date Format Errors**: Walk date methods handle invalid dates gracefully
+
+### Download Errors
+- **File Generation**: Errors logged, user sees error message
+- **Missing Data**: Empty ICS file generated (valid but empty)
 
 ## Media Dependencies
 
@@ -330,5 +378,4 @@ echo "Last walk: " . $lastDate;
 - `event/calendar.php` - Calendar view helper
 - `ics/output.php` - RIcsOutput class
 - `ics/file.php` - RIcsFile class
-
 

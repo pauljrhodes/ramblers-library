@@ -196,8 +196,8 @@ public $licenseKeys; // stdClass with API keys
 
 #### RLeafletGpxMaplist (folder-driven GPX index)
 - **Purpose**: Enumerate a GPX folder, cache a JSON summary, and present the list/map with downloads, elevation, and pagination.
-- **Flow**: `display()` builds a stats object from the configured folder, sorts items (title or date), sets command `ra.display.gpxFolder`, and loads `maplist.js`, tabs, and cvList assets for the client grid + map combo.【F:leaflet/gpx/maplist.php†L24-L83】
-- **Caching**: `RGpxStatistics` regenerates `0000gpx_statistics_file.json` only when the most recently modified file is not that JSON (i.e., the folder contents changed), otherwise it reuses the cached JSON for quick responses.【F:gpx/statistics.php†L16-L55】 A rebuild scans `.gpx` files, extracts meta (optionally from GPX itself), and logs diagnostics until Joomla cache expiry.【F:gpx/statistics.php†L57-L130】
+- **Flow**: `RLeafletGpxMaplist::display()` builds a stats object from the configured folder, sorts items (title or date), sets command `ra.display.gpxFolder`, and loads `maplist.js`, tabs, and cvList assets for the client grid + map combo.
+- **Caching**: `RGpxStatistics` regenerates `0000gpx_statistics_file.json` only when the most recently modified file is not that JSON (i.e., the folder contents changed), otherwise it reuses the cached JSON for quick responses. A rebuild scans `.gpx` files, extracts meta (optionally from GPX itself), and logs diagnostics until Joomla cache expiry.
 
 #### RLeafletJsonList
 - **Purpose**: Display map markers from JSON data
@@ -269,17 +269,38 @@ sequenceDiagram
 
 ## Integration Points
 
-### Display Layer Integration
-- **jsonwalks displays**: Use `RLeafletMap` for walk map rendering → [jsonwalks HLD](../jsonwalks/HLD.md)
-- **jsonwalks/leaflet**: `RJsonwalksLeafletMapmarker` → [jsonwalks/leaflet HLD](../jsonwalks/leaflet/HLD.md)
-- **organisation**: Uses maps for area/group visualization → [organisation HLD](../organisation/HLD.md)
-- **accounts**: Uses maps for hosted site markers → [accounts HLD](../accounts/HLD.md)
+### Used By
+- **jsonwalks presenters** for walk maps and map tabs → [jsonwalks HLD](../jsonwalks/HLD.md#integration-points) and [jsonwalks/leaflet HLD](../jsonwalks/leaflet/HLD.md#integration-points).
+- **Organisation and accounts modules** for hosted site/area visualisations → [organisation HLD](../organisation/HLD.md#integration-points) and [accounts HLD](../accounts/HLD.md#integration-points).
+- **Leaflet data-source adapters** (CSV/GPX/JSON/SQL) that extend `RLeafletMap` → [leaflet/csv HLD](csv/HLD.md#integration-points), [leaflet/gpx HLD](gpx/HLD.md#integration-points), [leaflet/json HLD](json/HLD.md#integration-points), [leaflet/sql HLD](sql/HLD.md#integration-points).
 
-### Asset Loading
-- **RLoad**: Used for all script/stylesheet enqueuing → [load HLD](../load/HLD.md)
-- **Joomla Document**: Final script injection point
+### Uses
+- **Asset loader**: `RLoad` to enqueue `/media/js`, `/media/leaflet`, vendor plugins, and CDN assets → [load HLD](../load/HLD.md#integration-points).
+- **License provider**: `RLicense` for map provider keys → [license HLD](../license/HLD.md#integration-points).
+- **Joomla document** for script/style injection and script declarations.
+- **Data adapters** (CSV/GPX/JSON/SQL) for source-specific payloads.
 
-## Server-to-Client Asset Relationship
+### Data Sources
+- **CSV/JSON/SQL adapters** supply marker data via `RLeafletCsvList`, `RLeafletJsonList`, `RLeafletSqlList` → corresponding HLDs above.
+- **GPX routes/folders** via `RLeafletGpxMap` / `RLeafletGpxMaplist` → [leaflet/gpx HLD](gpx/HLD.md#data-sources).
+
+### External Services
+- **Leaflet core CDN**, **Proj4**, **MapLibre**, and optional provider APIs (ESRI, OS, MapBox, ThunderForest, W3W) referenced through `RLeafletScript::setLicenses()` → [license HLD](../license/HLD.md#public-interface).
+
+### Display Layer
+- **Server**: `RLeafletMap`/`RLeafletScript` set commands and data objects.
+- **Client**: `ra.bootstrapper` calls `ra.leafletmap.js` with options/data; data-source scripts (table/gpx) render their specific UI → [media/leaflet HLD](../media/leaflet/HLD.md#display-layer).
+
+### Joomla Integration
+- **Document pipeline**: Scripts/styles injected with Joomla cache-busting; messages surfaced via Joomla messaging when IO errors occur (e.g., CSV/SQL failures).
+- **Module/article embedding**: Map container divs output into Joomla content with IDs from `RLeafletMapoptions`.
+
+### Vendor Library Integration
+- **Leaflet plugins**: clustering, fullscreen, draw, elevation, smart routing.
+- **Pagination**: `cvList` for table/list pagination → [media/vendors HLD](../media/vendors/HLD.md#integration-points).
+- **FullCalendar** when calendar option enabled for walk displays (via jsonwalks presenters).
+
+### Media Asset Relationships
 
 ```mermaid
 flowchart LR
@@ -302,15 +323,6 @@ flowchart LR
 ```
 
 `RLeafletScript::add()` drives asset loading through `RLoad`, first enqueuing the shared `media/js` foundation (core RA utilities, tabs, pagination, map helpers) and then loading Leaflet core/CSS, plugin modules under `media/leaflet`, data helpers like `table/ramblerstable.js`, and vendor/CDN dependencies according to the map options.
-
-### License Management
-- **RLicense**: Provides API keys for map providers → [license HLD](../license/HLD.md)
-
-### Data Sources
-- **CSV**: File-based marker data → [leaflet/csv HLD](csv/HLD.md)
-- **GPX**: Route files with elevation → [leaflet/gpx HLD](gpx/HLD.md)
-- **JSON**: Structured marker data → [leaflet/json HLD](json/HLD.md)
-- **SQL**: Database query results → [leaflet/sql HLD](sql/HLD.md)
 
 ## Media Dependencies
 
@@ -337,8 +349,8 @@ flowchart LR
 - **Integration**: Loaded for routing features
 
 ##### Plot Route workflow (server ↔ client)
-- **Server**: `RLeafletMapdraw` sets the command `ra.display.plotRoute`, enables drawing-friendly options (fullscreen, fitbounds, elevation, right-click, print), and enqueues draw/upload/download/smart-route controls plus styles.【F:leaflet/mapdraw.php†L21-L54】
-- **Client**: `ra.display.plotRoute` bootstraps `ra.leafletmap`, wires Leaflet.draw with custom labels, and attaches GPX upload/download, reverse, simplify, and smart-route controls (optional ORS key). All drawn layers land in a FeatureGroup and trigger elevation refreshes and styling updates on edits.【F:media/leaflet/ra.display.plotRoute.js†L8-L188】
+- **Server**: `RLeafletMapdraw` sets the command `ra.display.plotRoute`, enables drawing-friendly options (fullscreen, fitbounds, elevation, right-click, print), and enqueues draw/upload/download/smart-route controls plus styles.
+- **Client**: `ra.display.plotRoute` bootstraps `ra.leafletmap`, wires Leaflet.draw with custom labels, and attaches GPX upload/download, reverse, simplify, and smart-route controls (optional ORS key). All drawn layers land in a FeatureGroup and trigger elevation refreshes and styling updates on edits.
 
 #### `media/leaflet/ra-display-places.js`
 - **Purpose**: Place management and display
@@ -507,7 +519,7 @@ $map->display();
 - **Data grid support**: `RLeafletCsvList::display()` adds `media/leaflet/table/ramblerstable.js`, `media/js/ra.tabs.js`, and `media/vendors/cvList/cvList.js` so map tabs and paginated tables render together.
 - **Route tools**: `RLeafletMapdraw` explicitly enqueues `media/leaflet/ra.display.plotRoute.js`, `media/leaflet/L.Control.GpxUpload.js`, `L.Control.GpxDownload.js`, and `L.Control.GpxSimplify.js` to extend the UI with drawing, import/export, and simplification controls.
 
-## Performance Notes
+## Performance Observations
 
 ### Asset Loading
 - **CDN Assets**: Leaflet core loaded from unpkg.com (fast, cached)

@@ -293,26 +293,37 @@ sequenceDiagram
 
 ## Integration Points
 
-### Data Sources
-- **Walk Manager**: `RJsonwalksSourcewalksmanager` → `RJsonwalksWmFeed` → [jsonwalks/wm HLD](wm/ARCHITECTURE.md)
-- **Area-based WM**: `RJsonwalksSourcewalksmanagerarea` → extends sourcewalksmanager
-- **Local Editor**: `RJsonwalksSourcewalkseditor` → local walk data
+### Used By
+- **jsonwalks/std presenters** consume `RJsonwalksFeed` and `RJsonwalksWalks` for tabbed/list/table displays → [jsonwalks/std HLD](std/HLD.md#integration-points).
+- **jsonwalks/leaflet map marker display** pulls walk collections to create map payloads → [jsonwalks/leaflet HLD](leaflet/HLD.md#integration-points).
+- **ICS/Event exports** in `REventGroup` rely on `RJsonwalksFeed::displayIcsDownload()` to populate events → [event HLD](../event/HLD.md#integration-points).
 
-### Display Layer
-- **Base Class**: `RJsonwalksDisplaybase` → abstract base for all presenters
-- **Standard Displays**: [jsonwalks/std HLD](std/HLD.md) for implementation details
-- **Map Integration**: `RJsonwalksLeafletMapmarker` → [jsonwalks/leaflet HLD](leaflet/HLD.md)
+### Uses
+- **Data source adapters**: `RJsonwalksSourcewalksmanager`, `RJsonwalksSourcewalksmanagerarea`, `RJsonwalksSourcewalkseditor` → [jsonwalks/wm HLD](wm/HLD.md#integration-points).
+- **Display base/presenters**: `RJsonwalksDisplaybase` and concrete presenters → [jsonwalks/std HLD](std/HLD.md#integration-points) and [jsonwalks/leaflet HLD](leaflet/HLD.md#integration-points).
+- **Shared services**: `RLoad` for asset injection → [load HLD](../load/HLD.md#integration-points); `RErrors` for surfacing issues → [errors HLD](../errors/HLD.md#integration-points); `RGeometryGreatcircle` for distance filtering → [geometry HLD](../geometry/HLD.md#integration-points); `RLeafletMap`/`RLeafletScript` for map assets → [leaflet HLD](../leaflet/HLD.md#integration-points).
+
+### Data Sources
+- **Walk Manager API** via `RJsonwalksSourcewalksmanager` → [jsonwalks/wm HLD](wm/HLD.md#data-sources).
+- **Area-based WM queries** via `RJsonwalksSourcewalksmanagerarea` (same feed/cache path as WM).
+- **Local editor data** via `RJsonwalksSourcewalkseditor` (site-local JSON).
 
 ### External Services
-- **Leaflet Maps**: `RLeafletMap`, `RLeafletScript` → [leaflet HLD](../leaflet/HLD.md)
-- **Asset Loading**: `RLoad` → [load HLD](../load/HLD.md)
-- **Error Handling**: `RErrors` → [errors HLD](../errors/HLD.md)
-- **Geometry**: `RGeometryGreatcircle` → used for distance filtering → [geometry HLD](../geometry/HLD.md)
+- **Walk Manager HTTPS endpoint** for walk/event data (API key managed in source adapters).
 
-### Domain Model
-- **Walk Components**: See [jsonwalks/walk HLD](walk/HLD.md) for detailed value object structure
+### Display Layer
+- **Server presenters**: `RJsonwalksStdDisplay`, `RJsonwalksStdSimplelist`, `RJsonwalksStdWalktable`, `RJsonwalksStdCancelledwalks`, and `RJsonwalksLeafletMapmarker` render `RJsonwalksWalks` → [jsonwalks/std HLD](std/HLD.md#data-flow) and [jsonwalks/leaflet HLD](leaflet/HLD.md#data-flow).
+- **Client bootstrap**: Uses commands such as `ra.display.walksTabs`/`walksMap` emitted by display classes to start browser-side rendering → [media/jsonwalks HLD](../media/jsonwalks/HLD.md#integration-points).
 
-## Server-to-Client Asset Relationship
+### Joomla Integration
+- **Module/page entry**: Feed instantiated by Joomla module params and page scripts.
+- **Document pipeline**: `RLoad` injects CSS/JS with cache-busting; `RLeafletScript` adds map bootstrap scripts; Joomla messaging surface used by `RErrors`.
+
+### Vendor Library Integration
+- **Leaflet stack** via `RLeafletScript` (CDN + `/media/leaflet` plugins) → [leaflet HLD](../leaflet/HLD.md#vendor-library-integration).
+- **cvList** pagination and FullCalendar for tabbed displays loaded from `/media/vendors` → [media/vendors HLD](../media/vendors/HLD.md#integration-points).
+
+### Media Asset Relationships
 
 ```mermaid
 flowchart LR
@@ -424,7 +435,7 @@ $feed->display($display);
 // RLeafletScript injects Leaflet plus media/jsonwalks/leaflet/mapmarker.js for the Map tab
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Caching Strategy
 - **Walk Manager Data**: Cached at WM feed level (10-minute freshness) → See [jsonwalks/wm HLD](wm/ARCHITECTURE.md)
@@ -479,4 +490,3 @@ $feed->display($display);
 - `jsonwalks/sourcewalksmanager.php` - Walk Manager source adapter
 - `jsonwalks/sourcewalksmanagerarea.php` - Area-based source adapter
 - `jsonwalks/sourcewalkseditor.php` - Local editor source adapter
-

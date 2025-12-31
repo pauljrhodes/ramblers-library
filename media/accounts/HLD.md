@@ -108,18 +108,27 @@ sequenceDiagram
 
 ## Integration Points
 
-### PHP Integration
-- **RAccounts**: Provides account data and calls `RLoad::addScript()` to enqueue `/media/accounts/accounts.js` and the shared `/media/js` stack before rendering the Leaflet map → [accounts HLD](../../accounts/HLD.md)
-- **RLeafletMap**: Hosts the map container and injects JSON data/command for `ra.display.accountsMap` → [leaflet HLD](../../leaflet/HLD.md)
+### Used By
+- **RAccounts::addMapMarkers()**: PHP helper that sets the map command/data and renders the hosted sites map → [accounts HLD](../../accounts/HLD.md#integration-points).
 
-### Core JavaScript Integration
-- **ra.js**: Bootstrapper and utilities → [media/js HLD](../js/HLD.md)
-- **ra.leafletmap.js**: Map wrapper → [media/leaflet HLD](../leaflet/HLD.md)
-- **ra.map.cluster**: Marker clustering → [media/leaflet HLD](../leaflet/HLD.md)
+### Uses
+- **RLoad**: Enqueues `/media/accounts/accounts.js` plus `/media/js` foundations → [load HLD](../../load/HLD.md#integration-points).
+- **RLeafletMap**: Provides map options, command, and JSON payload to the browser → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **ra.map.cluster**: Clustering helper for marker aggregation → [media/leaflet HLD](../leaflet/HLD.md#integration-points).
 
-## Media Integration
+### Data Sources
+- **Hosted site dataset**: Domain, code, status, group/area names, and coordinates supplied by `RAccounts` → [accounts HLD](../../accounts/HLD.md#data-flow).
 
-### Server-to-Client Asset Relationship
+### Display Layer
+- **Client renderer**: `ra.display.accountsMap` adds markers/popups on `ra.leafletmap` → [media/leaflet HLD](../leaflet/HLD.md#display-layer).
+
+### Joomla Integration
+- **Document pipeline**: Assets and bootstrapper injected into `JDocument` through `RLoad` and `RLeafletMap::display()`.
+
+### Vendor Library Integration
+- **Leaflet.js** and **Leaflet.markercluster** for mapping and clustering.
+
+### Media Asset Relationships (Server → Client)
 
 ```mermaid
 flowchart LR
@@ -165,6 +174,16 @@ ra.bootstrapper(
     '{"hostedsites":[...]}'
 );
 ```
+
+## Performance Observations
+- **Clustering** reduces DOM load for large hosted-site sets and keeps interaction responsive.
+- **Data volume** is typically small (one marker per site); performance impact is dominated by Leaflet tile loading.
+- **Asset reuse** leverages cached `/media/js` foundations, minimizing load time.
+
+## Error Handling
+- **Missing or invalid coordinates**: Entries without coordinates are skipped to avoid map errors.
+- **Empty datasets**: The map initializes and displays no markers without failing.
+- **Bootstrap issues**: `ra.display.accountsMap` validates required data and surfaces errors if the command or container is missing.
 
 ## References
 

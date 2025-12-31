@@ -148,14 +148,23 @@ sequenceDiagram
 
 ## Integration Points
 
+### Used By
+- **Joomla pages/modules** that list hosted sites or render the hosted sites map → [media/accounts HLD](../media/accounts/HLD.md#integration-points).
+
+### Uses
+- **ROrganisation** for enriching account rows with area/group metadata → [organisation HLD](../organisation/HLD.md#integration-points).
+- **RLeafletMap / RLeafletScript** for map rendering and JSON injection → [leaflet HLD](../leaflet/HLD.md#integration-points).
+- **RLoad** for enqueueing `/media/js` and `/media/accounts/accounts.js` → [media/js HLD](../media/js/HLD.md#integration-points).
+- **RSqlUtils** for existence checks on the accounts table → [sql HLD](../sql/HLD.md#integration-points).
+- **RHtml** for tabular rendering paths → [html HLD](../html/HLD.md#integration-points).
+
 ### Data Sources
-- **Joomla Database**: Account table (`#__ra_accounts_domains`)
-- **ROrganisation**: Organisation data for updates → [organisation HLD](../organisation/HLD.md)
+- **Joomla Database**: `#__ra_accounts_domains` table holding hosted site metadata.
+- **Organisation feed cache**: Group/area codes consumed through `ROrganisation`.
 
 ### Display Layer
-- **RLeafletMap**: Map rendering → [leaflet HLD](../leaflet/HLD.md)
-- **RHtml**: HTML table formatting → [html HLD](../html/HLD.md)
-- **RSqlUtils**: Table existence checks → [sql HLD](../sql/HLD.md)
+- **Server**: `RAccounts::listLogDetails()` (tables) and `RAccounts::addMapMarkers()` (map) prepare payloads.
+- **Client**: `ra.display.accountsMap` in `/media/accounts/accounts.js` renders markers/popups.
 
 ### Key Features (`RAccounts`)
 - Loads hosted site accounts, enriches them with organisation data, and exposes table/log displays.
@@ -163,8 +172,13 @@ sequenceDiagram
 - Supports multiple display formats and integrates log file analysis for each account.
 
 ## Media Integration
+### Joomla Integration
+- **Document pipeline**: `RLoad::addScript()` and `RLeafletMap::display()` publish cache-busted assets and the bootstrap JSON/command for the browser.
 
-### Server-to-Client Asset Relationship
+### Vendor Library Integration
+- **Leaflet.js + markercluster**: Loaded via `RLeafletScript` for map rendering.
+
+### Media Asset Relationships (Server → Client)
 
 ```mermaid
 flowchart LR
@@ -183,10 +197,6 @@ flowchart LR
 ```
 
 `RAccounts::addMapMarkers()` enqueues `/media/accounts/accounts.js` alongside the shared `/media/js` bootstrap by calling `RLoad::addScript()`; `RLeafletScript::add()` then injects Leaflet core and plugins so that `ra.display.accountsMap` can run in the browser.
-
-### Media Asset Loading
-- **JavaScript entry point**: `/media/accounts/accounts.js` (initialized via `ra.display.accountsMap`).
-- **Server-to-client flow**: `RAccounts::addMapMarkers()` sets the command/data on `RLeafletMap`, uses `RLoad` for the `/media` assets, and delegates to `RLeafletMap::display()` to emit the bootstrapper and data payload.
 
 ### Key Features (`accounts.js`)
 - Status-aware marker clustering and popups for hosted sites.
@@ -228,7 +238,7 @@ $accounts = new RAccounts();
 $accounts->updateAccounts();
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Database Operations
 - **Table Checks**: Uses `RSqlUtils::tableExists()` before operations
@@ -242,11 +252,11 @@ $accounts->updateAccounts();
 ## Error Handling
 
 ### Database Errors
-- **Missing Table**: Checked via `RSqlUtils::tableExists()`
-- **Query Failures**: Handled by Joomla database layer
+- **Missing Table**: Checked via `RSqlUtils::tableExists()` before writes.
+- **Query Failures**: Relies on Joomla database error propagation and messages.
 
 ### Organisation Errors
-- **Missing Data**: Shows error message, update skipped
+- **Missing Data**: Shows error message and skips updates rather than failing the batch.
 
 ## References
 

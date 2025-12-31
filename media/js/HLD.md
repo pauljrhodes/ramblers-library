@@ -58,14 +58,30 @@ flowchart TB
 
 ## Integration Points
 
-### PHP Integration
-- **RLoad**: Server-side modules call `RLoad::addScript()` to enqueue the `/media/js` foundation (`ra.js`, `ra.map.js`, `ra.feedhandler.js`, `ra.paginatedDataList.js`, `ra.tabs.js`, `ra.walk.js`) before emitting module-specific scripts → [load HLD](../../load/HLD.md).
-- **Module bootstraps**: Display classes (`RJsonwalksStdDisplay`, `RAccounts`, `ROrganisation`, etc.) set the JavaScript command and data on `RLeafletMap`/`JDocument`, triggering `ra.bootstrapper` in the browser.
+## Integration Points
 
-### Core JavaScript Integration
-- **Bootstrapper**: `ra.bootstrapper` is invoked from PHP-rendered script declarations to instantiate the requested display class (e.g., `ra.display.walksTabs`, `ra.display.accountsMap`).
-- **Map utilities**: `ra.leafletmap` is consumed by map displays in `/media/accounts`, `/media/organisation`, `/media/jsonwalks`, and `/media/leaflet` bundles.
-- **Pagination/Tabs**: `ra.paginatedDataList` and `ra.tabs` are reused by walk displays and the walkseditor.
+### Used By
+- **Display modules**: `RJsonwalksStdDisplay`, `RAccounts`, `ROrganisation`, `RWalkseditor`, Leaflet GPX/table/map presenters, and other PHP helpers enqueue `/media/js` as the shared base library → see module HLDs: [jsonwalks/std HLD](../../jsonwalks/std/HLD.md#integration-points), [accounts HLD](../../accounts/HLD.md#integration-points), [organisation HLD](../../organisation/HLD.md#integration-points), [leaflet HLD](../../leaflet/HLD.md#integration-points), [walkseditor HLD](../../walkseditor/HLD.md#integration-points).
+
+### Uses
+- **RLoad**: Publishes the `/media/js` stack (bootstrapper, map helpers, feed handler, pagination, tabs, walk utilities) into `JDocument` → [load HLD](../../load/HLD.md#integration-points).
+- **Bootstrapper**: `ra.bootstrapper` instantiates requested display classes (e.g., `ra.display.walksTabs`, `ra.display.accountsMap`) based on PHP-injected command/data.
+- **Map utilities**: `ra.leafletmap` and `ra.map.*` are consumed by map-enabled bundles across `/media/*` → [media/leaflet HLD](../leaflet/HLD.md#integration-points).
+- **Pagination/Tabs/Walk utilities**: `ra.paginatedDataList`, `ra.tabs`, `ra.walk`, and `ra.feedhandler` are reused by walk displays and the walkseditor → [media/jsonwalks HLD](../jsonwalks/HLD.md#integration-points), [media/walkseditor HLD](../walkseditor/HLD.md#integration-points).
+
+### Data Sources
+- **PHP data payloads**: Command/data objects injected by server-side display classes for walks, accounts, organisations, and GPX payloads → [jsonwalks HLD](../../jsonwalks/HLD.md#data-flow), [accounts HLD](../../accounts/HLD.md#data-flow), [organisation HLD](../../organisation/HLD.md#data-flow), [leaflet/gpx HLD](../../leaflet/gpx/HLD.md#data-flow).
+
+### Display Layer
+- **Client-side renderers**: All `/media/*` display entry points rely on `ra.*` utilities for bootstrapping, filtering, pagination, and map helpers → see specific module HLDs such as [media/jsonwalks HLD](../jsonwalks/HLD.md#display-layer), [media/accounts HLD](../accounts/HLD.md#display-layer), [media/leaflet HLD](../leaflet/HLD.md#display-layer), [media/walkseditor HLD](../walkseditor/HLD.md#display-layer).
+
+### Joomla Integration
+- **Document pipeline**: `RLoad::addScript()` injects cache-busted core scripts into `JDocument` before module-specific assets.
+
+### Vendor Library Integration
+- **cvList**: Pagination backbone for `ra.paginatedDataList` → [media/vendors HLD](../vendors/HLD.md#integration-points).
+- **FullCalendar**: Calendar view support (consumed by walk displays) → [media/vendors HLD](../vendors/HLD.md#integration-points).
+- **Leaflet.js**: Map foundation referenced by `ra.leafletmap` and map helpers → [media/leaflet HLD](../leaflet/HLD.md#integration-points).
 
 ## Data Flow
 
@@ -381,7 +397,7 @@ eventTag.addEventListener("locationfound", function(e) {
 });
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Initialization
 - **Bootstrapper**: Fast dynamic class instantiation

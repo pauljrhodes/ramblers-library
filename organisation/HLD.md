@@ -136,16 +136,25 @@ sequenceDiagram
 
 ## Integration Points
 
+### Used By
+- **ROrganisation::display()** for area/group mapping in Joomla pages/modules → [media/organisation HLD](../media/organisation/HLD.md#integration-points).
+- **RAccounts::updateAccounts()** to enrich hosted-site data with group/area codes → [accounts HLD](../accounts/HLD.md#integration-points).
+
+### Uses
+- **RFeedhelper** for cached HTTP retrieval of the organisation JSON → [feedhelper HLD](../feedhelper/HLD.md#integration-points).
+- **RLeafletMap / RLeafletScript** to set commands/data and enqueue Leaflet assets → [leaflet HLD](../leaflet/HLD.md#integration-points).
+- **RLoad** to add `/media/organisation/organisation.js` plus `/media/js` foundations → [load HLD](../load/HLD.md#integration-points).
+- **RHtml** for tabular display alternatives → [html HLD](../html/HLD.md#integration-points).
+
 ### Data Sources
-- **RFeedhelper**: HTTP feed retrieval → [feedhelper HLD](../feedhelper/HLD.md)
-- **Organisation Feed**: `https://groups.theramblers.org.uk/` JSON endpoint
+- **Organisation Feed**: `https://groups.theramblers.org.uk/` JSON endpoint with areas/groups.
 
 ### Display Layer
-- **RLeafletMap**: Map rendering → [leaflet HLD](../leaflet/HLD.md)
-- **RHtml**: HTML formatting → [html HLD](../html/HLD.md)
+- **Server**: `ROrganisation::display()` prepares map options and JSON payloads.
+- **Client**: `ra.display.organisationMap` renders clustered markers and popups.
 
-### Used By
-- **RAccounts**: Organisation data for account updates → [accounts HLD](../accounts/HLD.md)
+### Joomla Integration
+- **Document pipeline**: Assets and payloads injected via `RLoad` and `RLeafletMap::display()`, respecting Joomla base paths and cache-busting.
 
 ### Key Features (`ROrganisation`)
 - Fetches, caches, and converts the organisation feed into area/group domain objects.
@@ -155,6 +164,10 @@ sequenceDiagram
 ## Media Integration
 
 ### Server-to-Client Asset Relationship
+### Vendor Library Integration
+- **Leaflet.js + markercluster** loaded through `RLeafletScript`.
+
+### Media Asset Relationships (Server → Client)
 
 ```mermaid
 flowchart LR
@@ -223,16 +236,16 @@ $org->display($map);
 // RLeafletScript adds Leaflet + controls before ra.display.organisationMap runs
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Data Loading
-- **Caching**: 60-minute TTL via `RFeedhelper`
-- **JSON Parsing**: Fast for typical organisation size (<1000 groups)
-- **Memory**: All areas/groups loaded into memory
+- **Caching**: 60-minute TTL via `RFeedhelper`.
+- **JSON Parsing**: Fast for typical organisation size (<1000 groups).
+- **Memory**: Areas/groups held in memory to support repeated displays.
 
 ### Map Rendering
-- **Marker Clustering**: Used for large datasets
-- **Client-Side**: Map rendering handled by JavaScript
+- **Marker Clustering**: Keeps map interaction responsive for large group counts.
+- **Client-Side**: Rendering handled entirely in JavaScript once payload delivered.
 
 ## Error Handling
 

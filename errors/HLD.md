@@ -140,28 +140,30 @@ sequenceDiagram
 ## Integration Points
 
 ### Used By
-- **All modules**: Universal error reporting
-- **RJsonwalksWmFeed**: WM API errors → [jsonwalks/wm HLD](../jsonwalks/wm/HLD.md)
-- **RFeedhelper**: Feed fetch errors → [feedhelper HLD](../feedhelper/HLD.md)
-- **RJsonwalksWmFileio**: File I/O errors → [jsonwalks/wm HLD](../jsonwalks/wm/HLD.md)
-- **ROrganisation**: Organisation feed errors → [organisation HLD](../organisation/HLD.md)
+- **All modules**: Universal error reporting hook.
+- **RJsonwalksWmFeed / RJsonwalksWmFileio** for WM API and cache errors → [jsonwalks/wm HLD](../jsonwalks/wm/HLD.md#integration-points).
+- **RFeedhelper** for HTTP/caching issues → [feedhelper HLD](../feedhelper/HLD.md#integration-points).
+- **ROrganisation** for organisation feed failures → [organisation HLD](../organisation/HLD.md#integration-points).
 
-### External Services
-- **Remote Error Store**: `https://errors.theramblers.org.uk/store_errors.php`
-  - Receives error data via POST
-  - Stores errors for analysis
-  - Returns HTTP 200 on success
+### Uses
+- **cURL** for POSTing structured error payloads to the remote store.
+- **Joomla Application/URI** via `JFactory::getApplication()` and `Uri::getInstance()` for messaging and domain capture.
+- **Joomla Mailer** for optional email notifications.
+
+### Data Sources
+- **Error context** built from inputs (`$errorText`, `$action`, `$level`, `$returncode`), domain, and stack trace.
+
+### Display Layer
+- **Server-side messages**: `enqueueMessage()` renders feedback in Joomla pages; no client JS.
 
 ### Joomla Integration
-- **Joomla Application**: `JFactory::getApplication()`
-  - `enqueueMessage()` for user notifications
-- **Joomla URI**: `Uri::getInstance()` for domain capture
+- **Configuration**: Reads mail-from address from Joomla config; surfaces messages through the Joomla message queue.
 
-## Media Dependencies
+### Vendor Library Integration
+- None beyond PHP cURL and Joomla’s mailer.
 
-### No Media Files
-
-The errors module is server-side only with no JavaScript or CSS dependencies.
+### Media Asset Relationships
+- None; the module is server-side only.
 
 ## Examples
 
@@ -212,12 +214,12 @@ RErrors::notifyError(
 );
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Error Reporting Performance
-- **Remote Store**: cURL POST with 10s connect timeout, 20s total timeout
-- **Non-Blocking**: Errors don't block execution (async reporting)
-- **Stack Traces**: Limited to 5 levels for performance
+- **Remote Store**: cURL POST with 10s connect timeout, 20s total timeout.
+- **Non-Blocking**: Errors don't block execution (async-style reporting).
+- **Stack Traces**: Limited to 5 levels for performance.
 
 ### Optimization Opportunities
 1. **Async Reporting**: Queue errors for background processing
@@ -228,20 +230,20 @@ RErrors::notifyError(
 ## Error Handling
 
 ### Remote Store Failures
-- **cURL Errors**: Logged as Joomla warning message
-- **HTTP Errors**: Non-200 status codes logged
-- **Graceful Degradation**: User message still displayed even if remote store fails
+- **cURL Errors**: Logged as Joomla warning message.
+- **HTTP Errors**: Non-200 status codes logged.
+- **Graceful Degradation**: User message still displayed even if remote store fails.
 
 ### Error Levels
-- **message**: Informational
-- **notice**: Important information
-- **warning**: Potential issues
-- **error**: Critical errors
+- **message**: Informational.
+- **notice**: Important information.
+- **warning**: Potential issues.
+- **error**: Critical errors.
 
 ### Stack Trace Capture
-- **Depth**: 5 levels (configurable via `DEBUG_BACKTRACE_IGNORE_ARGS`)
-- **No Arguments**: Arguments excluded for privacy/performance
-- **JSON Encoded**: Stack trace sent as JSON string
+- **Depth**: 5 levels (configurable via `DEBUG_BACKTRACE_IGNORE_ARGS`).
+- **No Arguments**: Arguments excluded for privacy/performance.
+- **JSON Encoded**: Stack trace sent as JSON string.
 
 ## References
 
