@@ -82,29 +82,44 @@ sequenceDiagram
 
 ## Integration Points
 
-### JavaScript Integration
-- **GPX Display**: Used by GPX symbol display to check symbol availability
-- **Map Markers**: Used when displaying waypoint symbols
+### Used By
+- **GPX renderers and symbol widgets**: Client code that needs to confirm an icon exists before referencing it → [gpxsymbols HLD](../../gpxsymbols/HLD.md#integration-points).
 
-### File System
-- **Symbol Directories**: 
-  - `media/gpxsymbols/letter/` - Letter symbols (a-z)
-  - `media/gpxsymbols/number/` - Number symbols (0-100)
-  - `media/gpxsymbols/number_white/` - White number symbols
-  - `media/gpxsymbols/office/` - Office symbols
-  - `media/gpxsymbols/transport/` - Transport symbols
+### Uses
+- **PHP filesystem**: `file_exists()` for local symbol folders (no additional module dependency).
 
-## Media Dependencies
+### Data Sources
+- **Query string**: `file` parameter specifying the symbol path to validate (input from client widgets consuming GPX symbols) → [gpxsymbols HLD](../../gpxsymbols/HLD.md#integration-points).
 
-### Symbol Image Files
-- `media/gpxsymbols/letter/*.png` - 26 letter symbols
-- `media/gpxsymbols/number/*.png` - 101 number symbols
-- `media/gpxsymbols/number_white/*.png` - 101 white number symbols
-- `media/gpxsymbols/office/*.png` - 74 office symbols
-- `media/gpxsymbols/transport/*.png` - 101 transport symbols
+### Display Layer
+- **Client callers**: JavaScript or PHP widgets consume the boolean response to decide whether to display a symbol.
 
-### CSS Dependencies
-- `media/gpxsymbols/display.css` - Symbol display styles
+### Joomla Integration
+- **Direct endpoint**: Runs within Joomla’s PHP runtime without additional dependencies.
+
+### Vendor Library Integration
+- None.
+
+### Media Asset Relationships (Server → Client)
+
+```mermaid
+flowchart LR
+    Client[Client widget]
+    Exists[media/gpxsymbols/exists.php]
+    Files[/media/gpxsymbols<br/>symbol sprites]
+    Response["true" / "false"]
+
+    Client --> Exists
+    Exists --> Files
+    Exists --> Response
+```
+
+`exists.php` responds synchronously with a boolean string so client code can decide whether to reference a given symbol image under `/media/gpxsymbols/*`.
+
+### Key Features (`exists.php`)
+- Sanitizes incoming file paths before checking the filesystem.
+- Returns plain-text `"true"`/`"false"` for easy consumption by PHP or JavaScript.
+- Supports all symbol families under `/media/lib_ramblers/gpxsymbols/*` without code changes.
 
 ## Examples
 
@@ -123,7 +138,7 @@ fetch('media/lib_ramblers/gpxsymbols/exists.php?file=media/lib_ramblers/gpxsymbo
     });
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### File System Checks
 - **Fast**: `file_exists()` is fast for local files
@@ -153,13 +168,3 @@ fetch('media/lib_ramblers/gpxsymbols/exists.php?file=media/lib_ramblers/gpxsymbo
 
 ### Key Source Files
 - `media/gpxsymbols/exists.php` - Existence check endpoint (18 lines)
-
-### Related Media Files
-- `media/gpxsymbols/display.css` - Symbol stylesheet
-- `media/gpxsymbols/letter/*.png` - Letter symbols (26 files)
-- `media/gpxsymbols/number/*.png` - Number symbols (101 files)
-- `media/gpxsymbols/number_white/*.png` - White number symbols (101 files)
-- `media/gpxsymbols/office/*.png` - Office symbols (74 files)
-- `media/gpxsymbols/transport/*.png` - Transport symbols (101 files)
-
-

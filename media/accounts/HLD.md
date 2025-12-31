@@ -108,32 +108,58 @@ sequenceDiagram
 
 ## Integration Points
 
+### Used By
+- **RAccounts::addMapMarkers()**: PHP helper that sets the map command/data and renders the hosted sites map → [accounts HLD](../../accounts/HLD.md#integration-points).
+
+### Uses
+- **RLoad**: Enqueues `/media/accounts/accounts.js` plus `/media/js` foundations → [load HLD](../../load/HLD.md#integration-points).
+- **RLeafletMap**: Provides map options, command, and JSON payload to the browser → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **ra.map.cluster**: Clustering helper for marker aggregation → [media/leaflet HLD](../leaflet/HLD.md#integration-points).
+
+### Data Sources
+- **Hosted site dataset**: Domain, code, status, group/area names, and coordinates supplied by `RAccounts` → [accounts HLD](../../accounts/HLD.md#data-flow).
+
+### Display Layer
+- **Client renderer**: `ra.display.accountsMap` adds markers/popups on `ra.leafletmap` → [media/leaflet HLD](../leaflet/HLD.md#display-layer).
+
+### Joomla Integration
+- **Document pipeline**: Assets and bootstrapper injected into `JDocument` through `RLoad` and `RLeafletMap::display()`.
+
+### Vendor Library Integration
+- **Leaflet.js** and **Leaflet.markercluster** for mapping and clustering.
+
+### Media Asset Relationships (Server → Client)
+
+```mermaid
+flowchart LR
+    PHP[RAccounts::addMapMarkers]
+    Loader[RLoad::addScript]
+    Map[RLeafletMap::display]
+    BaseJS[/media/js<br/>ra.js, ra.leafletmap.js, ra.tabs.js]
+    AccountsJS[/media/accounts/accounts.js]
+    Bootstrap[ra.bootstrapper → ra.display.accountsMap]
+
+    PHP --> Loader
+    Loader --> BaseJS
+    Loader --> AccountsJS
+    PHP --> Map
+    Map --> Bootstrap
+```
+
+`RAccounts::addMapMarkers()` pushes the `/media/js` foundation and `/media/accounts/accounts.js` through `RLoad`. `RLeafletMap::display()` then emits the bootstrapper command so the browser instantiates `ra.display.accountsMap` with the injected JSON data.
+
 ### PHP Integration
-- **RAccounts**: Provides account data → [accounts HLD](../../accounts/HLD.md)
-- **RLeafletMap**: Provides map options → [leaflet HLD](../../leaflet/HLD.md)
+- **Asset enqueue**: `RAccounts::addMapMarkers()` calls `RLoad::addScript()` for `/media/js/ra.js`, `/media/js/ra.leafletmap.js`, `/media/js/ra.tabs.js`, and `/media/accounts/accounts.js` before delegating to `RLeafletMap::display()`.
 
 ### Core JavaScript Integration
-- **ra.js**: Core utilities → [media/js HLD](../js/HLD.md)
-- **ra.leafletmap.js**: Map wrapper → [media/leaflet HLD](../leaflet/HLD.md)
-- **ra.map.cluster**: Marker clustering → [media/leaflet HLD](../leaflet/HLD.md)
+- **Entry point**: `ra.display.accountsMap` consumes the JSON payload and map options provided by `RLeafletMap` and uses `ra.leafletmap` plus `ra.map.cluster` for rendering.
 
-## Media Dependencies
+### Key Features (`media/accounts/accounts.js`)
+- Marker clustering and status-aware styling for hosted sites.
+- Popups listing domain, code, area, group, and status from PHP-injected JSON.
+- Automatic zoom-to-bounds after rendering the marker set.
+- Uses `ra.leafletmap` and `ra.map.cluster` to keep display logic concise.
 
-### JavaScript File
-
-#### `media/accounts/accounts.js`
-- **Purpose**: Accounts map display
-- **Dependencies**: `ra.js`, `ra.leafletmap.js`, Leaflet.js
-- **Size**: 69+ lines
-- **Key Features**: 
-  - Account marker rendering
-  - Status-based filtering
-  - Marker clustering
-  - Popup content generation
-
-### CSS Dependencies
-- `media/css/ramblerslibrary.css` - Base styles
-- `media/leaflet/ramblersleaflet.css` - Leaflet styles
 
 ## Examples
 
@@ -149,6 +175,16 @@ ra.bootstrapper(
 );
 ```
 
+## Performance Observations
+- **Clustering** reduces DOM load for large hosted-site sets and keeps interaction responsive.
+- **Data volume** is typically small (one marker per site); performance impact is dominated by Leaflet tile loading.
+- **Asset reuse** leverages cached `/media/js` foundations, minimizing load time.
+
+## Error Handling
+- **Missing or invalid coordinates**: Entries without coordinates are skipped to avoid map errors.
+- **Empty datasets**: The map initializes and displays no markers without failing.
+- **Bootstrap issues**: `ra.display.accountsMap` validates required data and surfaces errors if the command or container is missing.
+
 ## References
 
 ### Related HLD Documents
@@ -158,5 +194,3 @@ ra.bootstrapper(
 
 ### Key Source Files
 - `media/accounts/accounts.js` - Accounts display (69+ lines)
-
-

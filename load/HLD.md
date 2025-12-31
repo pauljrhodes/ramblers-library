@@ -105,20 +105,29 @@ sequenceDiagram
 ## Integration Points
 
 ### Used By
-- **All display modules**: Load JavaScript and CSS assets
-- **RLeafletScript**: Loads Leaflet assets → [leaflet HLD](../leaflet/HLD.md)
-- **RJsonwalksStdDisplay**: Loads display scripts → [jsonwalks/std HLD](../jsonwalks/std/HLD.md)
-- **RJsonwalksDisplaybase**: Loads base assets → [jsonwalks HLD](../jsonwalks/HLD.md)
+- **All display modules** to enqueue scripts/styles with cache-busting.
+- **RLeafletScript** for Leaflet assets → [leaflet HLD](../leaflet/HLD.md#integration-points).
+- **RJsonwalksStdDisplay / RJsonwalksDisplaybase** for walk display assets → [jsonwalks/std HLD](../jsonwalks/std/HLD.md#integration-points), [jsonwalks HLD](../jsonwalks/HLD.md#integration-points).
+- **Media modules** (accounts, organisation, jsonwalks, leaflet) to load their entry-point JS → see corresponding `media/*/HLD.md` files.
 
-### Dependencies
-- **Joomla Document**: `JFactory::getDocument()` for asset injection
-- **PHP filemtime()**: File modification time retrieval
+### Uses
+- **Joomla Document** via `JFactory::getDocument()->addScript/addStyleSheet`.
+- **Filesystem**: `filemtime()` to derive `rev` query for local files.
 
-## Media Dependencies
+### Data Sources
+- **Asset paths** supplied by callers; may be local or remote URLs.
 
-### No Module-Specific Media Files
+### Display Layer
+- **Server-side** only; outputs `<script>`/`<link>` tags into the Joomla document.
 
-The load module itself has no media files. It loads media files from other modules.
+### Joomla Integration
+- **Document pipeline**: Inserts cache-busted URLs respecting Joomla base paths; remote URLs default to `rev=0`.
+
+### Vendor Library Integration
+- Indirect; loads vendor bundles referenced by callers (e.g., Leaflet, cvList) but does not own vendor logic.
+
+### Media Asset Relationships
+- **Server → Client**: Callers provide asset paths; `RLoad` appends `?rev=<mtime>` for local files before Joomla emits them to the browser.
 
 ## Examples
 
@@ -150,7 +159,7 @@ RLoad::addScript('media/custom/module.js', 'module');
 // Results in: <script type="module" src="...?rev=timestamp"></script>
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Cache-Busting Performance
 - **File System Calls**: `filemtime()` called for each local asset (fast)
@@ -180,5 +189,4 @@ RLoad::addScript('media/custom/module.js', 'module');
 
 ### Key Source Files
 - `load/load.php` - RLoad class
-
 

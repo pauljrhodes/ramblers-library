@@ -116,32 +116,50 @@ sequenceDiagram
 
 ## Integration Points
 
-### PHP Integration
-- **ROrganisation**: Provides organisation data → [organisation HLD](../../organisation/HLD.md)
-- **RLeafletMap**: Provides map options → [leaflet HLD](../../leaflet/HLD.md)
+### Used By
+- **ROrganisation::display()**: PHP entry point that sets the command/data on `RLeafletMap` and renders the organisation map → [organisation HLD](../../organisation/HLD.md#integration-points).
 
-### Core JavaScript Integration
-- **ra.js**: Core utilities → [media/js HLD](../js/HLD.md)
-- **ra.leafletmap.js**: Map wrapper → [media/leaflet HLD](../leaflet/HLD.md)
-- **ra.map.cluster**: Marker clustering → [media/leaflet HLD](../leaflet/HLD.md)
+### Uses
+- **RLoad**: Enqueues `/media/js` foundations and `/media/organisation/organisation.js` → [load HLD](../../load/HLD.md#integration-points).
+- **RLeafletMap**: Hosts the map container and passes map options and organisation data → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **ra.map.cluster**: Provides clustering helpers for markers → [media/leaflet HLD](../leaflet/HLD.md#integration-points).
 
-## Media Dependencies
+### Data Sources
+- **Organisation data**: Areas and groups JSON payload built by `ROrganisation` → [organisation HLD](../../organisation/HLD.md#data-flow).
 
-### JavaScript File
+### Display Layer
+- **Client renderer**: `ra.display.organisationMap` builds markers/popups on `ra.leafletmap` → [media/leaflet HLD](../leaflet/HLD.md#display-layer).
 
-#### `media/organisation/organisation.js`
-- **Purpose**: Organisation map display
-- **Dependencies**: `ra.js`, `ra.leafletmap.js`, Leaflet.js
-- **Size**: 297+ lines
-- **Key Features**: 
-  - Area/group marker rendering
-  - Marker clustering
-  - Popup content generation
-  - Custom styling based on scope
+### Joomla Integration
+- **Document pipeline**: Assets and bootstrapper are injected into `JDocument` via `RLoad` and `RLeafletMap::display()`.
 
-### CSS Dependencies
-- `media/css/ramblerslibrary.css` - Base styles
-- `media/leaflet/ramblersleaflet.css` - Leaflet styles
+### Vendor Library Integration
+- **Leaflet.js** and **Leaflet.markercluster** for map rendering and clustering.
+
+### Media Asset Relationships (Server → Client)
+
+```mermaid
+flowchart LR
+    PHP[ROrganisation::display]
+    Loader[RLoad::addScript]
+    Map[RLeafletMap::display]
+    BaseJS[/media/js<br/>ra.js, ra.leafletmap.js, ra.tabs.js]
+    OrgJS[/media/organisation/organisation.js]
+    Bootstrap[ra.bootstrapper → ra.display.organisationMap]
+
+    PHP --> Loader
+    Loader --> BaseJS
+    Loader --> OrgJS
+    PHP --> Map
+    Map --> Bootstrap
+```
+
+`ROrganisation::display()` queues the `/media/js` foundation and `/media/organisation/organisation.js` through `RLoad`. `RLeafletMap::display()` then emits the bootstrapper so the browser instantiates `ra.display.organisationMap` with the JSON data provided by PHP.
+
+### Key Features (`media/organisation/organisation.js`)
+- Renders clustered area and group markers with configurable colours.
+- Popups include codes, descriptions, and optional links from server data.
+- Supports centring on a preferred group and toggling code/link visibility.
 
 ## Examples
 
@@ -157,6 +175,16 @@ ra.bootstrapper(
 );
 ```
 
+## Performance Observations
+- **Marker clustering** keeps rendering performant for large area/group sets; zoom-to-bounds runs after marker creation.
+- **Asset loading** leverages cached `/media/js` foundations; the organisation bundle is small and loads quickly.
+- **Map initialization** cost scales primarily with marker count; filtering at the PHP level reduces client work.
+
+## Error Handling
+- **Missing containers/options**: `ra.display.organisationMap` validates inputs and shows an error when required data is absent.
+- **Empty datasets**: Renders an empty map gracefully without markers.
+- **Leaflet failures**: Relies on Leaflet to surface map errors; clustering guards against null coordinates when adding markers.
+
 ## References
 
 ### Related HLD Documents
@@ -166,5 +194,3 @@ ra.bootstrapper(
 
 ### Key Source Files
 - `media/organisation/organisation.js` - Organisation display (297+ lines)
-
-

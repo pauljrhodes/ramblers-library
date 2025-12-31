@@ -220,55 +220,53 @@ sequenceDiagram
 
 ## Integration Points
 
-### cvList Integration
-- **ra.paginatedTable**: Uses cvList for table pagination → [media/js HLD](../js/HLD.md)
-- **ra.paginatedList**: Uses cvList for list pagination → [media/js HLD](../js/HLD.md)
-- **ra.display.walksTabs**: Uses cvList for walk list pagination → [media/jsonwalks HLD](../jsonwalks/HLD.md)
+### Used By
+- **RJsonwalksStdDisplay / RWalkseditorProgramme**: PHP callers that enqueue pagination vendors → [jsonwalks/std HLD](../../jsonwalks/std/HLD.md#integration-points), [walkseditor HLD](../../walkseditor/HLD.md#integration-points).
+- **RLeafletGpxMap / RLeafletMapdraw**: PHP map helpers that pull in GPX/elevation/draw vendors → [leaflet/gpx HLD](../../leaflet/gpx/HLD.md#integration-points), [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **Leaflet controls**: Coordinate-aware controls importing `geodesy` helpers → [media/leaflet HLD](../leaflet/HLD.md#integration-points).
 
-### GPX Integration
-- **ra.display.gpxSingle**: Uses L.GPX and L.Control.Elevation → [media/leaflet HLD](../leaflet/HLD.md)
-- **RLeafletGpxMap**: Provides GPX file path → [leaflet/gpx HLD](../../leaflet/gpx/HLD.md)
+### Uses
+- **RLoad**: Adds vendor bundles from `/media/vendors/*` with cache-busting → [load HLD](../../load/HLD.md#integration-points).
+- **RLeafletScript**: Delegates loading of Leaflet-adjacent vendor scripts when map features require them → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **cvList**, **Leaflet.Elevation**, **leaflet-gpx**, **geodesy** libraries → [media/js HLD](../js/HLD.md#integration-points) for pagination usage, [media/leaflet HLD](../leaflet/HLD.md#integration-points) for mapping usage.
 
-### Geodesy Integration
-- **L.Control.Mouse**: Uses OsGridRef for coordinate display → [media/leaflet HLD](../leaflet/HLD.md)
-- **L.Control.Search**: Uses coordinate conversion for location search → [media/leaflet HLD](../leaflet/HLD.md]
-- **Map Controls**: Various controls use geodesy for coordinate conversion
+### Data Sources
+- **GPX files**: Consumed by `leaflet-gpx` and elevation controls → [leaflet/gpx HLD](../../leaflet/gpx/HLD.md#data-flow).
+- **List/table datasets**: Paged by `cvList` within display modules → [media/js HLD](../js/HLD.md#integration-points).
+- **Coordinate inputs**: Converted by `geodesy` helpers for map controls → [media/leaflet HLD](../leaflet/HLD.md#integration-points).
 
-## Media Dependencies
+### Display Layer
+- **Client widgets**: Pagination UIs, elevation charts, GPX overlays, and coordinate-aware map controls → [media/jsonwalks HLD](../jsonwalks/HLD.md#display-layer), [media/leaflet HLD](../leaflet/HLD.md#display-layer), [media/js HLD](../js/HLD.md#display-layer).
 
-### cvList Files
-- `cvList/cvList.js` - Main pagination library (954+ lines)
-- `cvList/cvList_ES6.js` - ES6 version
-- `cvList/cvList.css` - Pagination styles
-- `cvList/*.png` - Pagination icons (2 files)
+### Joomla Integration
+- **Document pipeline**: Vendor scripts/styles injected via `RLoad` inside PHP presenters before bootstrap scripts run.
 
-### Leaflet.Elevation Files
-- `Leaflet.Elevation-0.0.4-ra/leaflet.elevation-0.0.4.src.js` - Elevation control (695+ lines)
-- `Leaflet.Elevation-0.0.4-ra/elevation.css` - Elevation styles
-- `Leaflet.Elevation-0.0.4-ra/*.png` - Elevation icons (6 files)
+### Vendor Library Integration
+- This module is the vendor collection itself; other modules integrate with these libraries as dependencies (see [media/leaflet HLD](../leaflet/HLD.md#vendor-library-integration) and [media/js HLD](../js/HLD.md#vendor-library-integration)).
 
-**Customization**: 
-- Custom "steelblue-theme" CSS class
-- Ramblers-specific styling
+### Media Asset Relationships (Server → Client)
 
-### leaflet-gpx Files
-- `leaflet-gpx-1.3.1/gpx.js` - GPX parser (543+ lines)
-- `leaflet-gpx-1.3.1/*.png` - GPX icons (4 files)
+```mermaid
+flowchart LR
+    PHP[RJsonwalksStdDisplay<br/>RWalkseditorProgramme<br/>RLeafletScript]
+    Loader[RLoad::addScript]
+    Vendors[/media/vendors<br/>cvList, Leaflet.Elevation, leaflet-gpx, geodesy]
+    BaseJS[/media/js foundation]
+    Bootstrap[ra.bootstrapper + map bootstraps]
 
-**Integration**: 
-- Custom icon paths configured
-- Integrated with elevation control
-- Event system for data extraction
+    PHP --> Loader
+    Loader --> Vendors
+    Loader --> BaseJS
+    PHP --> Bootstrap
+```
 
-### geodesy Files
-- `geodesy/osgridref.js` - OS Grid Reference (331+ lines)
-- `geodesy/latlon-ellipsoidal.js` - Lat/Lon calculations
-- `geodesy/vector3d.js` - 3D vector math
+Server-side modules call `RLoad` to enqueue vendor bundles from `/media/vendors` alongside the shared `/media/js` foundation. The emitted bootstrap scripts (from `RJsonwalksStdDisplay`, `RWalkseditorProgramme`, or `RLeafletScript`) then initialize pagination widgets, elevation controls, or GPX parsers in the browser.
 
-**Integration**: 
-- Used throughout map controls
-- Coordinate display and conversion
-- Location search functionality
+### Key Features (Vendor Bundles)
+- **cvList**: Pagination and sorting utilities wrapped by `ra.paginatedTable`/`ra.paginatedList`.
+- **Leaflet.Elevation**: Charting support for GPX elevation with Ramblers-specific styling hooks.
+- **leaflet-gpx**: GPX parsing with event hooks used by elevation and map displays.
+- **geodesy**: OS grid conversions consumed by Leaflet controls (search, mouse position).
 
 ## Examples
 
@@ -312,7 +310,7 @@ var grid = OsGridRef.latLonToOsGrid(point);
 console.log(grid.toString()); // "TQ 315804 180324"
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### cvList Performance
 - **Client-Side**: All pagination done in browser (fast)
@@ -363,5 +361,3 @@ console.log(grid.toString()); // "TQ 315804 180324"
 - **Leaflet.Elevation**: Customized version 0.0.4 with Ramblers theme
 - **leaflet-gpx**: Version 1.3.1, integrated with elevation
 - **geodesy**: Coordinate conversion library by Chris Veness
-
-

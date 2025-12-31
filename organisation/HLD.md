@@ -136,59 +136,48 @@ sequenceDiagram
 
 ## Integration Points
 
+### Used By
+- **ROrganisation::display()** for area/group mapping in Joomla pages/modules → [media/organisation HLD](../media/organisation/HLD.md#integration-points).
+- **RAccounts::updateAccounts()** to enrich hosted-site data with group/area codes → [accounts HLD](../accounts/HLD.md#integration-points).
+
+### Uses
+- **RFeedhelper** for cached HTTP retrieval of the organisation JSON → [feedhelper HLD](../feedhelper/HLD.md#integration-points).
+- **RLeafletMap / RLeafletScript** to set commands/data and enqueue Leaflet assets → [leaflet HLD](../leaflet/HLD.md#integration-points).
+- **RLoad** to add `/media/organisation/organisation.js` plus `/media/js` foundations → [load HLD](../load/HLD.md#integration-points).
+- **RHtml** for tabular display alternatives → [html HLD](../html/HLD.md#integration-points).
+
 ### Data Sources
-- **RFeedhelper**: HTTP feed retrieval → [feedhelper HLD](../feedhelper/HLD.md)
-- **Organisation Feed**: `https://groups.theramblers.org.uk/` JSON endpoint
+- **Organisation Feed**: `https://groups.theramblers.org.uk/` JSON endpoint with areas/groups.
 
 ### Display Layer
-- **RLeafletMap**: Map rendering → [leaflet HLD](../leaflet/HLD.md)
-- **RHtml**: HTML formatting → [html HLD](../html/HLD.md)
+- **Server**: `ROrganisation::display()` prepares map options and JSON payloads.
+- **Client**: `ra.display.organisationMap` renders clustered markers and popups.
 
-### Used By
-- **RAccounts**: Organisation data for account updates → [accounts HLD](../accounts/HLD.md)
+### Joomla Integration
+- **Document pipeline**: Assets and payloads injected via `RLoad` and `RLeafletMap::display()`, respecting Joomla base paths and cache-busting.
 
-## Server-to-Client Asset Relationship
+### Vendor Library Integration
+- **Leaflet.js + markercluster** loaded through `RLeafletScript`.
+
+### Media Asset Relationships (Server → Client)
 
 ```mermaid
 flowchart LR
-    Org[ROrganisation]
-    Map[RLeafletMap]
-    Loader[RLoad]
-    BaseJS[media/js<br/>ra.js<br/>ra.map.js<br/>ra.tabs.js]
-    OrgJS[media/organisation/organisation.js]
-    Leaflet[Leaflet core + plugins]
+    Org[ROrganisation::display]
+    Loader[RLoad::addScript]
+    Map[RLeafletMap::display]
+    BaseJS[/media/js<br/>ra.js, ra.map.js, ra.tabs.js]
+    OrgJS[/media/organisation/organisation.js]
+    Bootstrap[ra.bootstrapper → ra.display.organisationMap]
 
-    Org --> Map
-    Map --> Loader
+    Org --> Loader
     Loader --> BaseJS
-    Loader --> Leaflet
     Loader --> OrgJS
+    Org --> Map
+    Map --> Bootstrap
 ```
 
-`ROrganisation::display()` uses `RLoad` to enqueue the shared `media/js` foundation (core utilities, map helpers, tabs) and Leaflet dependencies before adding `media/organisation/organisation.js`, ensuring the organisation map display has access to the Ramblers UI primitives and mapping stack.
-
-## Media Dependencies
-
-### JavaScript File
-
-#### `media/organisation/organisation.js`
-- **Purpose**: Client-side organisation map display
-- **Dependencies**: `ra.js`, `ra.leafletmap.js`, Leaflet.js
-- **Integration**: Loaded via `RLoad::addScript()` in `display()`
-- **Key Functions**:
-  - `ra.display.organisationMap(options, data)` - Main initialization
-  - `this.addMarkers(areas)` - Add area/group markers
-  - `this.addMarker(item, area)` - Add individual marker
-  - Marker styling based on scope (Area vs Group)
-  - Popup content generation
-- **API**:
-  - `this.lmap` - Leaflet map instance
-  - `this.cluster` - Marker clustering
-  - `this.data` - Organisation data (areas, groups)
-  - `this.load()` - Initialize map and markers
-- **Usage**: Automatically initialized when `RLeafletMap` sets command to `"ra.display.organisationMap"`
-
-**Loading**: `ROrganisation::display()` calls `RLoad::addScript()` for `media/js/ra.js`, `media/js/ra.map.js`, `media/js/ra.tabs.js`, and `media/organisation/organisation.js`, then defers Leaflet bootstrap to `RLeafletMap::display()`.
+`ROrganisation::display()` enqueues `/media/organisation/organisation.js` plus the shared `/media/js` stack through `RLoad`; `RLeafletMap::display()` then injects the bootstrapper, so the browser spins up `ra.display.organisationMap` with the JSON data from PHP.
 
 ## Examples
 
@@ -230,16 +219,16 @@ $org->display($map);
 // RLeafletScript adds Leaflet + controls before ra.display.organisationMap runs
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Data Loading
-- **Caching**: 60-minute TTL via `RFeedhelper`
-- **JSON Parsing**: Fast for typical organisation size (<1000 groups)
-- **Memory**: All areas/groups loaded into memory
+- **Caching**: 60-minute TTL via `RFeedhelper`.
+- **JSON Parsing**: Fast for typical organisation size (<1000 groups).
+- **Memory**: Areas/groups held in memory to support repeated displays.
 
 ### Map Rendering
-- **Marker Clustering**: Used for large datasets
-- **Client-Side**: Map rendering handled by JavaScript
+- **Marker Clustering**: Keeps map interaction responsive for large group counts.
+- **Client-Side**: Rendering handled entirely in JavaScript once payload delivered.
 
 ## Error Handling
 
@@ -267,4 +256,3 @@ $org->display($map);
 
 ### Related Media Files
 - `media/organisation/organisation.js` - Client-side map display
-

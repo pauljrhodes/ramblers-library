@@ -264,57 +264,64 @@ sequenceDiagram
 
 ## Integration Points
 
-### PHP Integration
-- **RJsonwalksStdDisplay**: Provides walk data and configuration → [jsonwalks/std HLD](../../jsonwalks/std/HLD.md)
-- **RJsonwalksLeafletMapmarker**: Provides map marker data → [jsonwalks/leaflet HLD](../../jsonwalks/leaflet/HLD.md)
-- **RLeafletScript**: Injects bootstrap code → [leaflet HLD](../../leaflet/HLD.md)
+### Used By
+- **RJsonwalksStdDisplay**: Provides walk data/config and enqueues `/media/jsonwalks/std/display.js` plus `/media/js` foundations via `RLoad::addScript()` → [jsonwalks/std HLD](../../jsonwalks/std/HLD.md#integration-points).
+- **RJsonwalksLeafletMapmarker**: Provides marker data and loads `/media/jsonwalks/leaflet/mapmarker.js` alongside Leaflet via `RLeafletScript::add()` → [jsonwalks/leaflet HLD](../../jsonwalks/leaflet/HLD.md#integration-points).
 
-### Core JavaScript Integration
-- **ra.js**: Core utilities, bootstrapper, events → [media/js HLD](../js/HLD.md)
-- **ra.tabs.js**: Tab system → [media/js HLD](../js/HLD.md)
-- **ra.paginatedDataList.js**: Pagination → [media/js HLD](../js/HLD.md)
-- **ra.walk.js**: Walk utilities → [media/js HLD](../js/HLD.md)
+### Uses
+- **RLeafletScript**: Injects Leaflet core/plugins and the `ra.bootstrapper` declaration → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **RLoad**: Enqueues `/media/js` foundations (`ra.js`, `ra.tabs.js`, `ra.paginatedDataList.js`, `ra.walk.js`) before module scripts → [load HLD](../../load/HLD.md#integration-points).
+- **ra.leafletmap + ra.map.cluster**: Map utilities consumed by `mapmarker.js` → [media/leaflet HLD](../leaflet/HLD.md#integration-points).
+
+### Data Sources
+- **Walk JSON payloads** from PHP presenters, including tab/list configuration and legend options → [jsonwalks/std HLD](../../jsonwalks/std/HLD.md#data-flow).
+- **Map options** for clustering, bounds, and legend positioning provided by Leaflet presenters → [leaflet HLD](../../leaflet/HLD.md#data-flow).
+
+### Display Layer
+- **Client entry points**: `ra.display.walksTabs`, `ra.display.walksMap`, and mapmarker-specific displays → [media/js HLD](../js/HLD.md#public-interface).
+- **Shared primitives**: `ra.events` filtering, `ra.tabs` layout, `cvList` pagination → [media/js HLD](../js/HLD.md#integration-points), [media/vendors HLD](../vendors/HLD.md#integration-points).
+
+### Joomla Integration
+- **Document pipeline**: PHP presenters set command/data on `JDocument`; `ra.bootstrapper` instantiates display classes with the injected JSON.
 
 ### Vendor Library Integration
-- **FullCalendar**: Calendar view (`media/vendors/fullcalendar-6.1.9/`)
-- **cvList**: Pagination library (`media/vendors/cvList/`)
-- **Leaflet.js**: Map rendering (loaded separately)
+- **FullCalendar** (`/media/vendors/fullcalendar-6.1.9/`) for calendar view.
+- **cvList** (`/media/vendors/cvList/`) for pagination.
+- **Leaflet.js** via `RLeafletScript` for map rendering.
 
-### Leaflet Integration
-- **ra.leafletmap.js**: Map wrapper → [media/leaflet HLD](../leaflet/HLD.md)
-- **ra.map.cluster**: Marker clustering → [media/leaflet HLD](../leaflet/HLD.md)
+### Media Asset Relationships (Server → Client)
 
-## Media Dependencies
+### Server-to-Client Asset Relationship
 
-### JavaScript Files
+```mermaid
+flowchart LR
+    PHP[RJsonwalksStdDisplay<br/>RJsonwalksLeafletMapmarker]
+    Loader[RLoad::addScript]
+    Leaflet[RLeafletScript::add]
+    BaseJS[/media/js<br/>ra.js, ra.tabs.js, ra.paginatedDataList.js, ra.walk.js]
+    StdJS[/media/jsonwalks/std/display.js]
+    MapJS[/media/jsonwalks/leaflet/mapmarker.js]
+    Bootstrap[ra.bootstrapper → ra.display.walksTabs / ra.display.walksMap]
 
-#### `media/jsonwalks/std/display.js`
-- **Purpose**: Standard tabbed walk display
-- **Dependencies**: `ra.js`, `ra.tabs.js`, `ra.walk.js`, `ra.paginatedDataList.js`, FullCalendar, cvList
-- **Size**: 493 lines
-- **Key Features**: 
-  - Tabbed interface (Grades, Table, List, Calendar, Map)
-  - Client-side filtering
-  - Pagination
-  - Print functionality
-  - Calendar integration
+    PHP --> Loader
+    Loader --> BaseJS
+    Loader --> StdJS
+    PHP --> Leaflet
+    Leaflet --> MapJS
+    PHP --> Bootstrap
+```
 
-#### `media/jsonwalks/leaflet/mapmarker.js`
-- **Purpose**: Map marker display
-- **Dependencies**: `ra.js`, `ra.leafletmap.js`, Leaflet.js
-- **Size**: 75 lines
-- **Key Features**: 
-  - Marker clustering
-  - Walk marker rendering
-  - Map zoom to bounds
+`RJsonwalksStdDisplay` adds the shared `/media/js` stack and `/media/jsonwalks/std/display.js` through `RLoad`, while map presenters call `RLeafletScript::add()` to load Leaflet and `/media/jsonwalks/leaflet/mapmarker.js`. The emitted bootstrapper instantiates `ra.display.walksTabs` or `ra.display.walksMap` with the walk data payload.
 
-#### `media/jsonwalks/ml/script.js`
-- **Purpose**: Monthly listing with print
-- **Dependencies**: `ra.js`, `ra.html`
-- **Size**: 69 lines
-- **Key Features**: 
-  - Print functionality
-  - View toggle (All walks / 5 weeks)
+### JavaScript Entry Points
+- **Standard display**: `/media/jsonwalks/std/display.js` (`ra.display.walksTabs`)
+- **Map display**: `/media/jsonwalks/leaflet/mapmarker.js` (`ra.display.walksMap`)
+- **Monthly listing**: `/media/jsonwalks/ml/script.js`
+- **SR02 display**: `/media/jsonwalks/sr02/display.js`
+- **Key Features (shared)**: 
+  - Print functionality and tabbed view toggling (All walks / 5 weeks)
+  - Reuses `ra.events` for filtering and booking awareness
+  - Consumes Leaflet and FullCalendar when those views are enabled
 
 #### `media/jsonwalks/sr02/display.js`
 - **Purpose**: SR02 custom display format
@@ -325,21 +332,28 @@ sequenceDiagram
   - Grade-based styling
   - Picnic/Pub icon detection
 
-### CSS Dependencies
-- `media/css/ra.tabs.css` - Tab styling
-- `media/css/ra.paginatedDataList.css` - Pagination styling
-- `media/css/ramblerslibrary.css` - Base styles
-- `media/jsonwalks/bu51/bu51style.css` - BU51 styles (if used)
-- `media/jsonwalks/sr02/style.css` - SR02 styles
-- `media/jsonwalks/ml/style.css` - Monthly listing styles
+#### `media/jsonwalks/std/display.js`
+- **Purpose**: Standard tabbed walk display
+- **Dependencies**: `ra.js`, `ra.tabs.js`, `ra.paginatedDataList.js`, `ra.walk.js`, FullCalendar, cvList
+- **Key Features**:
+  - Tabbed Grades/Table/List/Calendar/Map views
+  - Client-side filtering with `ra.events`
+  - Pagination via cvList and optional bookings table rendering
 
-### Image Dependencies
-- `media/images/marker-start.png` - Start marker
-- `media/images/marker-cancelled.png` - Cancelled marker
-- `media/images/marker-area.png` - Area marker
-- `media/jsonwalks/sr02/images/grades/*.jpg` - Grade images
-- `media/jsonwalks/sr02/Sandwich-icon.png` - Picnic icon
-- `media/jsonwalks/sr02/beer.png` - Pub icon
+#### `media/jsonwalks/leaflet/mapmarker.js`
+- **Purpose**: Map marker display for walks
+- **Dependencies**: `ra.js`, `ra.leafletmap.js`, Leaflet.js
+- **Key Features**:
+  - Clustered marker rendering with legend support
+  - Zoom-to-bounds across all walk markers
+  - Integrates with `ra.events` to keep filters in sync
+
+#### `media/jsonwalks/ml/script.js`
+- **Purpose**: Monthly listing with print controls
+- **Dependencies**: `ra.js`, `ra.html`
+- **Key Features**:
+  - Adds print button/behavior for monthly views
+  - Simple toggle between condensed and expanded layouts
 
 ## Examples
 
@@ -375,7 +389,7 @@ var result = displayCustomValues("{xSymbol}", walk);
 // Returns: '<img src=".../Sandwich-icon.png" .../>' if picnic detected
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Client-Side Rendering
 - **Initial Load**: All walk data sent as JSON (can be large for 100+ walks)
@@ -433,5 +447,3 @@ var result = displayCustomValues("{xSymbol}", walk);
 - `media/jsonwalks/sr02/style.css` - SR02 stylesheet
 - `media/jsonwalks/ml/style.css` - Monthly listing stylesheet
 - `media/jsonwalks/sr02/images/` - SR02 images
-
-

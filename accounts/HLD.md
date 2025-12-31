@@ -148,26 +148,39 @@ sequenceDiagram
 
 ## Integration Points
 
+### Used By
+- **Joomla pages/modules** that list hosted sites or render the hosted sites map → [media/accounts HLD](../media/accounts/HLD.md#integration-points).
+
+### Uses
+- **ROrganisation** for enriching account rows with area/group metadata → [organisation HLD](../organisation/HLD.md#integration-points).
+- **RLeafletMap / RLeafletScript** for map rendering and JSON injection → [leaflet HLD](../leaflet/HLD.md#integration-points).
+- **RLoad** for enqueueing `/media/js` and `/media/accounts/accounts.js` → [media/js HLD](../media/js/HLD.md#integration-points).
+- **RSqlUtils** for existence checks on the accounts table → [sql HLD](../sql/HLD.md#integration-points).
+- **RHtml** for tabular rendering paths → [html HLD](../html/HLD.md#integration-points).
+
 ### Data Sources
-- **Joomla Database**: Account table (`#__ra_accounts_domains`)
-- **ROrganisation**: Organisation data for updates → [organisation HLD](../organisation/HLD.md)
+- **Joomla Database**: `#__ra_accounts_domains` table holding hosted site metadata.
+- **Organisation feed cache**: Group/area codes consumed through `ROrganisation`.
 
 ### Display Layer
-- **RLeafletMap**: Map rendering → [leaflet HLD](../leaflet/HLD.md)
-- **RHtml**: HTML table formatting → [html HLD](../html/HLD.md)
-- **RSqlUtils**: Table existence checks → [sql HLD](../sql/HLD.md)
+- **Server**: `RAccounts::listLogDetails()` (tables) and `RAccounts::addMapMarkers()` (map) prepare payloads.
+- **Client**: `ra.display.accountsMap` in `/media/accounts/accounts.js` renders markers/popups.
 
-## Media Dependencies
+### Joomla Integration
+- **Document pipeline**: `RLoad::addScript()` and `RLeafletMap::display()` publish cache-busted assets and the bootstrap JSON/command for the browser.
 
-### Server-to-Client Asset Relationship
+### Vendor Library Integration
+- **Leaflet.js + markercluster**: Loaded via `RLeafletScript` for map rendering.
+
+### Media Asset Relationships (Server → Client)
 
 ```mermaid
 flowchart LR
     Accounts[RAccounts::addMapMarkers]
     Map[RLeafletMap]
     Loader[RLoad]
-    BaseJS[media/js<br/>ra.js<br/>ra.map.js<br/>ra.tabs.js]
-    AccountsJS[media/accounts/accounts.js]
+    BaseJS[/media/js<br/>ra.js, ra.map.js, ra.tabs.js]
+    AccountsJS[/media/accounts/accounts.js]
     Leaflet[Leaflet core + plugins]
 
     Accounts --> Map
@@ -177,28 +190,13 @@ flowchart LR
     Loader --> AccountsJS
 ```
 
-`RAccounts::addMapMarkers()` invokes `RLoad` to enqueue the shared `media/js` foundation plus `media/accounts/accounts.js`, then defers to `RLeafletMap::display()`/`RLeafletScript::add()` for Leaflet setup before running the `ra.display.accountsMap` client initializer.
+`RAccounts::addMapMarkers()` enqueues `/media/accounts/accounts.js` alongside the shared `/media/js` bootstrap by calling `RLoad::addScript()`; `RLeafletScript::add()` then injects Leaflet core and plugins so that `ra.display.accountsMap` can run in the browser.
 
-### JavaScript File
-
-#### `media/accounts/accounts.js`
-- **Purpose**: Client-side accounts map display
-- **Dependencies**: `ra.js`, `ra.leafletmap.js`, Leaflet.js
-- **Integration**: Loaded via `RLoad::addScript()` in `addMapMarkers()`
-- **Key Functions**:
-  - `ra.display.accountsMap(options, data)` - Main initialization
-  - `this.addMarkers(websites)` - Add hosted site markers
-  - `this.addMarker(item)` - Add individual marker
-  - Marker styling based on account status
-  - Popup content with account details
-- **API**:
-  - `this.lmap` - Leaflet map instance
-  - `this.cluster` - Marker clustering
-  - `this.data` - Hosted site data
-  - `this.load()` - Initialize map and markers
-- **Usage**: Automatically initialized when `RLeafletMap` sets command to `"ra.display.accountsMap"`
-
-**Loading**: `addMapMarkers()` calls `RLoad::addScript()` for `media/js/ra.js`, `media/js/ra.map.js`, `media/js/ra.tabs.js`, and `media/accounts/accounts.js` before invoking `RLeafletMap::display()`.
+### Key Features (`accounts.js`)
+- Status-aware marker clustering and popups for hosted sites.
+- Area vs group iconography based on account code length.
+- Automatic fit-to-bounds after marker creation.
+- Consumes JSON injected by `RAccounts::addMapMarkers()` without extra configuration.
 
 ## Examples
 
@@ -234,7 +232,7 @@ $accounts = new RAccounts();
 $accounts->updateAccounts();
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Database Operations
 - **Table Checks**: Uses `RSqlUtils::tableExists()` before operations
@@ -248,11 +246,11 @@ $accounts->updateAccounts();
 ## Error Handling
 
 ### Database Errors
-- **Missing Table**: Checked via `RSqlUtils::tableExists()`
-- **Query Failures**: Handled by Joomla database layer
+- **Missing Table**: Checked via `RSqlUtils::tableExists()` before writes.
+- **Query Failures**: Relies on Joomla database error propagation and messages.
 
 ### Organisation Errors
-- **Missing Data**: Shows error message, update skipped
+- **Missing Data**: Shows error message and skips updates rather than failing the batch.
 
 ## References
 

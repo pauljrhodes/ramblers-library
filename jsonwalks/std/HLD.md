@@ -236,25 +236,37 @@ sequenceDiagram
 
 ## Integration Points
 
-### Parent Classes
-- **RJsonwalksDisplaybase**: Abstract base class → [jsonwalks HLD](../HLD.md)
-  - Provides Leaflet script/options initialization
-  - Defines `DisplayWalks()` contract
+### Used By
+- **jsonwalks/feed orchestration** via `RJsonwalksFeed::display()` to render walk collections → [jsonwalks HLD](../HLD.md#integration-points).
+- **Media/jsonwalks assets** consumed by Joomla modules/pages that embed standard displays → [media/jsonwalks HLD](../../media/jsonwalks/HLD.md#integration-points).
 
-### Leaflet Integration
-- **RLeafletMap**: Map container and data injection → [leaflet HLD](../../leaflet/HLD.md)
-- **RLeafletScript**: Script and asset loading → [leaflet HLD](../../leaflet/HLD.md)
-- **RLoad**: Asset enqueuing → [load HLD](../../load/HLD.md)
+### Uses
+- **Base presenter**: `RJsonwalksDisplaybase` for shared initialization → [jsonwalks HLD](../HLD.md#integration-points).
+- **Map/rendering services**: `RLeafletMap`, `RLeafletScript`, and `RLoad` for asset injection → [leaflet HLD](../../leaflet/HLD.md#integration-points) and [load HLD](../../load/HLD.md#integration-points).
+- **Domain data**: `RJsonwalksWalks` / `RJsonwalksWalk` collections → [jsonwalks/walk HLD](../walk/HLD.md#integration-points).
+- **Structured data**: `RJsonwalksAddschema` for schema.org injection.
+- **Optional bookings**: `Ra_eventbookingHelper` when event booking component is available → [event HLD](../../event/HLD.md#integration-points).
 
 ### Data Sources
-- **RJsonwalksWalks**: Walk collection → [jsonwalks HLD](../HLD.md)
-- **RJsonwalksWalk**: Individual walk objects → [jsonwalks/walk HLD](../walk/HLD.md)
+- **Walk collections** supplied by `RJsonwalksFeed` (from WM/editor sources) → [jsonwalks HLD](../HLD.md#data-sources).
 
-### Schema & Metadata
-- **RJsonwalksAddschema**: Schema.org structured data injection
+### External Services
+- **Leaflet CDN plugins** pulled by `RLeafletScript` for map rendering → [leaflet HLD](../../leaflet/HLD.md#vendor-library-integration).
 
-### Event Booking Integration
-- **Ra_eventbookingHelper**: Optional bookings table display (if component enabled)
+### Display Layer
+- **Server**: Standard presenters emit commands `ra.display.walksTabs`/`walksList`/`tableList`.
+- **Client**: `media/jsonwalks/std/display.js` orchestrates tabs, pagination, calendar, and map rendering using Leaflet → [media/jsonwalks HLD](../../media/jsonwalks/HLD.md#display-layer).
+
+### Joomla Integration
+- **Module/page rendering**: Presenters write HTML into Joomla document and enqueue assets through `RLoad`.
+- **Error surface**: Falls back to Joomla messages when inputs are invalid (e.g., missing walks).
+
+### Vendor Library Integration
+- **cvList** pagination and **FullCalendar** loaded via `display.js` for table and calendar tabs → [media/vendors HLD](../../media/vendors/HLD.md#integration-points).
+- **Leaflet plugins** (clustering, tabs) loaded via `RLeafletScript` to support map tab → [leaflet HLD](../../leaflet/HLD.md#vendor-library-integration).
+
+### Media Asset Relationships
+- Server emits shared `/media/js` utilities (ra.js, ra.tabs.js, ra.walk.js, cvList) before module-specific `/media/jsonwalks/std/display.js`, ensuring tab/pagination scripts are available before the bootstrapper runs.
 
 ## Media Dependencies
 
@@ -360,7 +372,7 @@ class RJsonwalksBU51Tabs extends RJsonwalksStdDisplay {
 }
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Client-Side Rendering
 - **Initial Load**: All walk data sent as JSON payload (can be large for 100+ walks)
@@ -416,5 +428,4 @@ class RJsonwalksBU51Tabs extends RJsonwalksStdDisplay {
 - `media/vendors/fullcalendar-6.1.9/index.global.js` - Calendar view
 - `media/css/ra.tabs.css` - Tab styles
 - `media/vendors/cvList/cvList.css` - Pagination styles
-
 

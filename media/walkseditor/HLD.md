@@ -249,61 +249,84 @@ sequenceDiagram
 
 ## Integration Points
 
-### PHP Integration
-- **Joomla Configuration**: Reads email settings from `configuration.php`
-- **PHPMailer Library**: Uses PHPMailer for email sending
-- **JSON Processing**: Receives and validates JSON walk data
+### Used By
+- **RWalkseditorProgramme**, **RWalkseditorSubmitform**: Server-side entry points that render the editor, enqueue assets, and emit the client bootstrap → [walkseditor HLD](../../walkseditor/HLD.md#integration-points).
 
-### JavaScript Integration
-- **ra.js**: Core utilities → [media/js HLD](../js/HLD.md)
-- **Leaflet Maps**: Location selection → [media/leaflet HLD](../leaflet/HLD.md)
-- **AJAX**: Form submission to PHP endpoint
+### Uses
+- **RLoad**: Adds `/media/walkseditor/js/*`, `/media/js/ra.tabs.js`, and `/media/vendors/cvList/cvList.js` with cache-busting → [load HLD](../../load/HLD.md#integration-points).
+- **PHPMailer** (via bundled `PHPMailer.php`, `SMTP.php`, `Exception.php`): Email delivery for submissions → [walkseditor HLD](../../walkseditor/HLD.md#integration-points).
+- **Leaflet controls**: Optional map picker support via `/media/leaflet` assets → [media/leaflet HLD](../leaflet/HLD.md#integration-points).
+
+### Data Sources
+- **Form payload**: User-supplied walk JSON plus metadata (subject, origin site, coordinator list) → [walkseditor HLD](../../walkseditor/HLD.md#data-flow).
+
+### Display Layer
+- **Client editor**: `ra.walkseditor.walkeditor` renders the tabbed editor UI and status messaging → [media/js HLD](../js/HLD.md#integration-points).
+
+### Joomla Integration
+- **Document pipeline**: `RLoad` injects scripts/styles into `JDocument`; `sendemail.php` relies on Joomla configuration for SMTP settings.
+
+### Vendor Library Integration
+- **cvList**: Pagination for walk/place lists in the editor UI.
+- **Leaflet**: Map picker and clustering when maplocation is enabled.
+
+### Media Asset Relationships (Server → Client)
+
+```mermaid
+flowchart LR
+    PHP[RWalkseditorProgramme / Submitform]
+    Loader[RLoad::addScript]
+    BaseJS[/media/js<br/>ra.tabs.js]
+    Vendors[/media/vendors/cvList/cvList.js]
+    EditorJS[/media/walkseditor/js<br/>walkeditor.js, walk.js, form/*.js]
+    Bootstrap[Bootstrap script → ra.walkseditor.walkeditor]
+
+    PHP --> Loader
+    Loader --> BaseJS
+    Loader --> Vendors
+    Loader --> EditorJS
+    PHP --> Bootstrap
+```
+
+The PHP helpers queue the shared tab library and cvList vendor script alongside the editor bundle; the emitted bootstrap initializes `ra.walkseditor.walkeditor`, which then binds AJAX submissions to `sendemail.php`.
 
 ### External Services
-- **SMTP Server**: Email delivery (via Joomla configuration)
-- **Email Recipients**: Programme coordinators (from form data)
+- **SMTP server** via Joomla config for email dispatch to coordinator recipients.
 
-## Media Dependencies
+## Media Dependencies & Key Features
 
 ### JavaScript Files (13 files in `js/` subfolder)
 
 #### Core Editor Files
-- `walkeditor.js` - Main editor (779+ lines)
-- `walk.js` - Walk object handling
-- `viewWalks.js` - Walk viewing interface
-- `inputfields.js` - Form field utilities
-- `loader.js` - Asset loading
+- `walkeditor.js` - Main editor (779+ lines); **Key features**: bootstraps the UI, wires events, orchestrates AJAX.
+- `walk.js` - Walk object handling; **Key features**: domain model, validation helpers.
+- `viewWalks.js` - Walk viewing interface; **Key features**: renders tabbed lists and details.
+- `inputfields.js` - Form field utilities; **Key features**: validation and standardised inputs.
+- `loader.js` - Asset loading; **Key features**: loading overlays and progress feedback.
 
 #### Place Management
-- `placeEditor.js` - Place editing
-- `maplocation.js` - Map location selection
-- `comp/places.js` - Places component
-- `comp/viewAllPlaces.js` - Places list view
+- `placeEditor.js` - Place editing; **Key features**: CRUD helpers and map sync.
+- `maplocation.js` - Map location selection; **Key features**: Leaflet-based picker and coordinate handling.
+- `comp/places.js` - Places component; **Key features**: list rendering and pagination hooks.
+- `comp/viewAllPlaces.js` - Places list view; **Key features**: table rendering and filters.
 
 #### Form Handling
-- `form/submitwalk.js` - Walk submission
-- `form/programme.js` - Programme management
+- `form/submitwalk.js` - Walk submission; **Key features**: validation, payload assembly, and postback.
+- `form/programme.js` - Programme management; **Key features**: programme tab wiring and list refresh.
 
 #### Component Views
-- `comp/viewAllWalks.js` - Walks list view
+- `comp/viewAllWalks.js` - Walks list view; **Key features**: list rendering and pagination with cvList.
 
 #### Utilities
-- `walksEditorHelps.js` - Help system
+- `walksEditorHelps.js` - Help system; **Key features**: contextual tips and modal guidance.
 
 ### PHP Files
 
 #### Email Handling
-- `sendemail.php` - Email submission handler (105 lines)
+- `sendemail.php` - Email submission handler (105 lines); **Key features**: PHPMailer orchestration and JSON response shaping.
 - `PHPMailer.php` - PHPMailer library (5253+ lines)
 - `SMTP.php` - SMTP transport
 - `Exception.php` - Exception classes
-
-### CSS Dependencies
-- `media/walkseditor/css/*.css` - Editor stylesheets (5 files)
-- `media/walkseditor/css/styleemail.css` - Email template styles
-
-### Image Dependencies
-- `media/walkseditor/css/*.png` - Editor icons (6 files)
 
 ## Examples
 
@@ -341,7 +364,7 @@ var editor = new ra.walkseditor.walkeditor();
 editor.load(editDiv, walkObject, false);
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Form Rendering
 - **Dynamic Form**: Form generated client-side (fast)
@@ -361,19 +384,19 @@ editor.load(editDiv, walkObject, false);
 ## Error Handling
 
 ### JavaScript Errors
-- **Validation Errors**: Shown inline on form fields
-- **Submission Errors**: Displayed via error modal
-- **AJAX Failures**: Network errors caught and displayed
+- **Validation Errors**: Highlight invalid fields inline and block submission.
+- **Submission Errors**: Error modal shown when AJAX returns failure.
+- **AJAX Failures**: Network issues handled with user-facing error messages.
 
 ### PHP Errors
-- **JSON Decode Errors**: Caught, error response returned
-- **Email Send Failures**: PHPMailer errors caught, error response returned
-- **Missing Configuration**: Uses defaults, logs errors
+- **JSON Decode Errors**: Guarded by `checkDecode()`; replies with error JSON.
+- **Email Send Failures**: PHPMailer errors are caught and surfaced in the JSON response.
+- **Missing Configuration**: Falls back to defaults and reports issues.
 
 ### User Feedback
-- **Success**: Shows success message
-- **Errors**: Shows error message with details
-- **Validation**: Highlights invalid fields
+- **Success**: Success banner/modal on send completion.
+- **Errors**: Detailed error messages pushed to the UI.
+- **Validation**: Inline prompts for required/invalid fields.
 
 ## References
 
@@ -393,5 +416,3 @@ editor.load(editDiv, walkObject, false);
 ### Related Media Files
 - `media/walkseditor/css/` - Editor stylesheets (5 CSS files)
 - `media/walkseditor/css/*.png` - Editor icons (6 PNG files)
-
-

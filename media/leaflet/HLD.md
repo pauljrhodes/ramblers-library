@@ -339,73 +339,57 @@ sequenceDiagram
 
 ## Integration Points
 
-### PHP Integration
-- **RLeafletMap**: Provides map options and data → [leaflet HLD](../../leaflet/HLD.md)
-- **RLeafletScript**: Injects bootstrap code → [leaflet HLD](../../leaflet/HLD.md)
-- **RLeafletGpxMap**: Provides GPX file path → [leaflet/gpx HLD](../../leaflet/gpx/HLD.md)
+### Used By
+- **RLeafletMap / RLeafletScript**: PHP bridge that sets map commands/data and enqueues `/media/leaflet` assets before emitting the bootstrapper → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **RLeafletGpxMap / RLeafletGpxMaplist**: Supply GPX payloads and options for `ra.display.gpxSingle` and related displays → [leaflet/gpx HLD](../../leaflet/gpx/HLD.md#integration-points).
+- **RLeafletMapdraw**: Publishes draw controls for `ra.display.plotRoute` → [leaflet HLD](../../leaflet/HLD.md#integration-points).
 
-### Core JavaScript Integration
-- **ra.js**: Core utilities, bootstrapper → [media/js HLD](../js/HLD.md)
-- **ra.map.js**: Map utilities, icons → [media/js HLD](../js/HLD.md)
-- **ra.tabs.js**: Tab system → [media/js HLD](../js/HLD.md)
+### Uses
+- **RLoad**: Adds `/media/js` foundations plus `/media/leaflet` scripts/styles with cache-busting → [load HLD](../../load/HLD.md#integration-points).
+- **Leaflet core** and plugins (markercluster, GPX, elevation, draw, fullscreen) → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **MapLibre GL** and **Proj4js** for vector tiles and projection handling → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+- **places.walkinginfo.co.uk** API for place lookups when place controls are enabled → [leaflet HLD](../../leaflet/HLD.md#data-sources).
+
+### Data Sources
+- **GPX files**: Provided by PHP via data object for `ra.display.gpxSingle` and `gpx/maplist.js` → [leaflet/gpx HLD](../../leaflet/gpx/HLD.md#data-flow).
+- **Table/CSV/JSON lists**: Passed from PHP table/CSV/JSON helpers to `ra.display.tableList` → [leaflet HLD](../../leaflet/HLD.md#data-flow).
+- **Place feeds**: External place API responses consumed by `L.Control.Places` → [media/vendors HLD](../vendors/HLD.md#data-sources).
+
+### Display Layer
+- **Client map wrapper**: `ra.leafletmap` (and `ra._leafletmap`) renders the map, controls, and tabs → [media/js HLD](../js/HLD.md#integration-points).
+- **Display entry points**: `ra.display.gpxSingle`, `ra.display.tableList`, `ra.display.mapCompare`, `ra.display.plotRoute` → [leaflet HLD](../../leaflet/HLD.md#integration-points).
+
+### Joomla Integration
+- **Document pipeline**: `RLeafletScript::add()` injects command/data payloads and calls `RLoad::addScript()`/`addStyleSheet()` to publish assets into `JDocument`.
 
 ### Vendor Library Integration
-- **Leaflet.js**: Core mapping library (CDN)
-- **Leaflet.markercluster**: Marker clustering
-- **Leaflet-gpx**: GPX file parsing
-- **Leaflet.Elevation**: Elevation profiles
-- **Leaflet.draw**: Drawing tools
-- **Leaflet.fullscreen**: Fullscreen control
-- **MapLibre GL**: Vector tiles
-- **Proj4js**: Coordinate projection
+- **Leaflet.js**, **Leaflet.markercluster**, **Leaflet-gpx**, **Leaflet.Elevation**, **Leaflet.draw**, **Leaflet.fullscreen**, **MapLibre GL**, **Proj4js** → [media/vendors HLD](../vendors/HLD.md#integration-points).
 
-### External Services
-- **places.walkinginfo.co.uk**: Place data API
-- **OpenStreetMap**: Geocoding, routing
-- **Ordnance Survey API**: OS maps and tiles
-- **ESRI**: Aerial imagery
+### Media Asset Relationships (Server → Client)
 
-## Media Dependencies
+```mermaid
+flowchart LR
+    PHP[RLeafletScript::add]
+    Loader[RLoad::addScript]
+    BaseJS[/media/js<br/>ra.js, ra.map.js, ra.tabs.js]
+    LeafletJS[Leaflet core + CSS]
+    ModuleJS[/media/leaflet<br/>ra.leafletmap.js, ra.map.settings.js, L.Control.*]
+    Bootstrap[ra.bootstrapper → ra.display.*]
 
-### JavaScript Files
+    PHP --> Loader
+    Loader --> BaseJS
+    Loader --> LeafletJS
+    Loader --> ModuleJS
+    PHP --> Bootstrap
+```
 
-#### Core Map Files
-- `ra.leafletmap.js` - Map wrapper (395+ lines)
-- `ra.map.settings.js` - Settings panel (114+ lines)
-- `ra.display.plotRoute.js` - Route plotting
-- `ra-display-places.js` - Place display
-- `ra.display.mapCompare.js` - Map comparison
+`RLeafletScript::add()` orchestrates asset loading through `RLoad`, enqueueing the `/media/js` foundation, Leaflet core/CSS, and `/media/leaflet` entry points before outputting the bootstrapper that starts the requested `ra.display.*` class.
 
-#### Control Files (10+ files)
-- `L.Control.Places.js` - Place management (510+ lines)
-- `L.Control.Search.js` - Location search
-- `L.Control.Tools.js` - Map tools
-- `L.Control.SmartRoute.js` - Smart routing
-- `L.Control.ReverseRoute.js` - Reverse routing
-- `L.Control.GpxUpload.js` - GPX upload
-- `L.Control.GpxDownload.js` - GPX download
-- `L.Control.GpxSimplify.js` - GPX simplification
-- `L.Control.Mouse.js` - Mouse position
-- `L.Control.MyLocation.js` - User location
-- `L.Control.RAContainer.js` - Container control
-
-#### Display Files
-- `gpx/maplist.js` - GPX list display (495+ lines)
-- `table/ramblerstable.js` - Table rendering (358+ lines)
-
-### CSS Dependencies
-- `media/leaflet/ramblersleaflet.css` - Base Leaflet styles
-- `media/leaflet/L.Control.Mouse.css` - Mouse control styles
-- `media/leaflet/ra-gpx-tools.css` - GPX tool styles
-
-### Image Dependencies
-- `media/leaflet/images/` - Map icons and markers (58 files)
-  - `postcode-icon.png`, `redmarker.png`, `route-start.png`, etc.
-
-### Map Style Files
-- `media/leaflet/mapStyles/osRamblersStyle.json` - OS Ramblers style
-- `media/leaflet/mapStyles/osTestStyle.json` - OS test style
-- `media/leaflet/mapStyles/osmliberty.json` - OSM Liberty style
+## Key Features (Leaflet Media Stack)
+- `ra.leafletmap.js`: Central map wrapper handling initialization, controls, and data overlays.
+- Control bundle (`L.Control.*`): Search, tools, smart routing, reverse routes, GPX upload/download, mouse position, and more.
+- GPX utilities: `gpx/maplist.js` and elevation integration for displaying and analysing routes.
+- Optional settings panel and comparison displays driven by map options from PHP.
 
 ## Examples
 
@@ -445,7 +429,7 @@ ra.bootstrapper(
 );
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Map Rendering
 - **Tile Loading**: Lazy loading of map tiles (Leaflet handles)
@@ -504,5 +488,3 @@ ra.bootstrapper(
 - `media/leaflet/ramblersleaflet.css` - Stylesheet
 - `media/leaflet/images/` - Map icons (58 files)
 - `media/leaflet/mapStyles/` - Map style JSON files
-
-

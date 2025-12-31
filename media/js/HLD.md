@@ -56,6 +56,60 @@ flowchart TB
     Display --> Walk
 ```
 
+## Integration Points
+
+## Integration Points
+
+### Used By
+- **Display modules**: `RJsonwalksStdDisplay`, `RAccounts`, `ROrganisation`, `RWalkseditor`, Leaflet GPX/table/map presenters, and other PHP helpers enqueue `/media/js` as the shared base library → see module HLDs: [jsonwalks/std HLD](../../jsonwalks/std/HLD.md#integration-points), [accounts HLD](../../accounts/HLD.md#integration-points), [organisation HLD](../../organisation/HLD.md#integration-points), [leaflet HLD](../../leaflet/HLD.md#integration-points), [walkseditor HLD](../../walkseditor/HLD.md#integration-points).
+
+### Uses
+- **RLoad**: Publishes the `/media/js` stack (bootstrapper, map helpers, feed handler, pagination, tabs, walk utilities) into `JDocument` → [load HLD](../../load/HLD.md#integration-points).
+- **Bootstrapper**: `ra.bootstrapper` instantiates requested display classes (e.g., `ra.display.walksTabs`, `ra.display.accountsMap`) based on PHP-injected command/data.
+- **Map utilities**: `ra.leafletmap` and `ra.map.*` are consumed by map-enabled bundles across `/media/*` → [media/leaflet HLD](../leaflet/HLD.md#integration-points).
+- **Pagination/Tabs/Walk utilities**: `ra.paginatedDataList`, `ra.tabs`, `ra.walk`, and `ra.feedhandler` are reused by walk displays and the walkseditor → [media/jsonwalks HLD](../jsonwalks/HLD.md#integration-points), [media/walkseditor HLD](../walkseditor/HLD.md#integration-points).
+
+### Data Sources
+- **PHP data payloads**: Command/data objects injected by server-side display classes for walks, accounts, organisations, and GPX payloads → [jsonwalks HLD](../../jsonwalks/HLD.md#data-flow), [accounts HLD](../../accounts/HLD.md#data-flow), [organisation HLD](../../organisation/HLD.md#data-flow), [leaflet/gpx HLD](../../leaflet/gpx/HLD.md#data-flow).
+
+### Display Layer
+- **Client-side renderers**: All `/media/*` display entry points rely on `ra.*` utilities for bootstrapping, filtering, pagination, and map helpers → see specific module HLDs such as [media/jsonwalks HLD](../jsonwalks/HLD.md#display-layer), [media/accounts HLD](../accounts/HLD.md#display-layer), [media/leaflet HLD](../leaflet/HLD.md#display-layer), [media/walkseditor HLD](../walkseditor/HLD.md#display-layer).
+
+### Joomla Integration
+- **Document pipeline**: `RLoad::addScript()` injects cache-busted core scripts into `JDocument` before module-specific assets.
+
+### Vendor Library Integration
+- **cvList**: Pagination backbone for `ra.paginatedDataList` → [media/vendors HLD](../vendors/HLD.md#integration-points).
+- **FullCalendar**: Calendar view support (consumed by walk displays) → [media/vendors HLD](../vendors/HLD.md#integration-points).
+- **Leaflet.js**: Map foundation referenced by `ra.leafletmap` and map helpers → [media/leaflet HLD](../leaflet/HLD.md#integration-points).
+
+## Data Flow
+
+### Server-to-Client Asset Relationship
+
+```mermaid
+flowchart LR
+    PHP[RLoad::addScript]
+    Loader[/media/js<br/>ra.js, ra.map.js, ra.feedhandler.js, ra.paginatedDataList.js, ra.tabs.js, ra.walk.js]
+    Module[Module-specific assets]
+    Document[Joomla Document]
+    Browser[ra.bootstrapper]
+
+    PHP --> Loader
+    PHP --> Module
+    PHP --> Document
+    Document --> Browser
+    Browser --> Loader
+```
+
+Server-side modules enqueue the shared `/media/js` stack via `RLoad` alongside their own assets (e.g., `/media/accounts/accounts.js`). `JDocument` emits the bootstrap script that calls `ra.bootstrapper`, which then instantiates the requested display class and consumes the previously enqueued `/media/js` bundles.
+
+## Key Features
+- Unified bootstrapper (`ra.bootstrapper`) for all Ramblers client displays.
+- Shared utilities for events, loading indicators, modals, filtering, and DOM helpers.
+- Map helpers (`ra.map.*`, `ra.leafletmap`) and icon factories consumed across map-enabled modules.
+- Pagination and tab primitives reused by walk displays and the walkseditor.
+
 ## Public Interface
 
 ### ra.js - Core Library
@@ -295,11 +349,6 @@ The core library is self-contained but integrates with:
 - **Leaflet.js**: Map functionality (loaded separately)
 - **Joomla jQuery**: May be used by some components
 
-### CSS Dependencies
-- `media/css/ra.tabs.css` - Tab styling
-- `media/css/ra.paginatedDataList.css` - Pagination styling
-- `media/css/ramblerslibrary.css` - Base library styles
-
 ## Examples
 
 ### Example 1: Basic Bootstrap
@@ -348,7 +397,7 @@ eventTag.addEventListener("locationfound", function(e) {
 });
 ```
 
-## Performance Notes
+## Performance Observations
 
 ### Initialization
 - **Bootstrapper**: Fast dynamic class instantiation
@@ -397,5 +446,3 @@ eventTag.addEventListener("locationfound", function(e) {
 - `media/js/ra.walk.js` - Walk utilities (2286+ lines)
 - `media/js/ra.tabs.js` - Tab system (140+ lines)
 - `media/js/ra.paginatedDataList.js` - Pagination (336+ lines)
-
-
