@@ -50,6 +50,7 @@ class RLeafletJsonList extends RLeafletMap {
             $column->columnName = $option["column"];
             $this->fields[] = $option["column"];
         }
+        $this->list->validateColumnLinks();
         $this->validOptions = true;
     }
 

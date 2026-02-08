@@ -92,6 +92,7 @@ class RLeafletCsvList extends RLeafletMap {
             }
             fclose($handle);
             $this->list->removeIgnoredColumns();
+            $this->list->validateColumnLinks();
         } else {
             return false;
         }

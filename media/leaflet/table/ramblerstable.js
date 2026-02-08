@@ -107,7 +107,8 @@ ra.display.tableList = (function () {
                 for (index = 0; index < items.length; ++index) {
                     item = items[index];
                     if (item.table) {
-                        var value = this.displayItem(null, item.type, item.values[no]);
+                        var linkText = this._getColumnLinkText(items, item, no);
+                        var value = this.displayItem(null, item.type, item.values[no], linkText, item.sameTab);
                         var td = table.tableRowItem(value, item.format);
                         if (item.linkmarker) {
                             var self = this;
@@ -205,6 +206,7 @@ ra.display.tableList = (function () {
             newitem.easting = false;
             newitem.northing = false;
             newitem.linkmarker = false;
+            newitem.sameTab = false;
             newitem.type = "text";
             this.data.list.items.push(newitem);
 
@@ -224,9 +226,8 @@ ra.display.tableList = (function () {
             for (var index = 0; index < items.length; ++index) {
                 if (items[index].popup) {
                     if (items[index].values[no] !== "") {
-                        if (items[index].values[no] !== "") {
-                            $popup += this.displayItem(items[index].name, items[index].type, items[index].values[no]);
-                        }
+                        var linkText = this._getColumnLinkText(items, items[index], no);
+                        $popup += this.displayItem(items[index].name, items[index].type, items[index].values[no], linkText, items[index].sameTab);
                     }
                 } else {
                     $all = false;
@@ -311,7 +312,8 @@ ra.display.tableList = (function () {
             var items = this.data.list.items;
             for (var index = 0; index < items.length; ++index) {
                 if (items[index].values[no] !== "") {
-                    $details += this.displayItem(items[index].name, items[index].type, items[index].values[no]);
+                    var linkText = this._getColumnLinkText(items, items[index], no);
+                    $details += this.displayItem(items[index].name, items[index].type, items[index].values[no], linkText, items[index].sameTab);
                 }
             }
             $details += "</div>";
@@ -334,20 +336,41 @@ ra.display.tableList = (function () {
                 marker.openPopup();
             }, 500);
         };
-        this.displayItem = function (name, type, value) {
+        this._getColumnLinkText = function (items, item, rowIndex) {
+            if (!item.columnLinkTo) {
+                return null;
+            }
+            var targetColumn = items.find(function (column) {
+                return column.name === item.columnLinkTo;
+            });
+            if (!targetColumn || !targetColumn.values || targetColumn.values.length <= rowIndex) {
+                return null;
+            }
+            var linkText = targetColumn.values[rowIndex];
+            if (linkText === null || linkText === undefined || linkText === "") {
+                return null;
+            }
+            return linkText;
+        };
+        this.displayItem = function (name, type, value, linkText, sameTab) {
             var out = "";
             if (name !== null)
                 out = "<b>" + name + ": </b>";
+            var targetAttr = (sameTab !== null && sameTab !== undefined && sameTab) ? "" : ' target="_blank"';
             switch (type) {
                 case 'link':
-                    return out + '<a href="' + value + '" target="_blank">Link</a><br/>';
+                    var linkLabel = (linkText !== null && linkText !== undefined) ? linkText : 'Link';
+                    return out + '<a href="' + value + '"' + targetAttr + '>' + linkLabel + '</a><br/>';
                 case 'textlink':
-                    return  out + '<a href="' + value + '" target="_blank">' + value + '</a><br/>';
+                    var textLinkLabel = (linkText !== null && linkText !== undefined) ? linkText : value;
+                    return  out + '<a href="' + value + '"' + targetAttr + '>' + textLinkLabel + '</a><br/>';
                 case 'exturl':
+                    var href = value;
                     if (!value.includes("://")) {
-                        return  out + '<a href="https://' + value + '" target="_blank">' + value + '</a><br/>';
+                        href = "https://" + value;
                     }
-                    return  out + '<a href="' + value + '" target="_blank">' + value + '</a><br/>';
+                    var extUrlLabel = (linkText !== null && linkText !== undefined) ? linkText : value;
+                    return  out + '<a href="' + href + '"' + targetAttr + '>' + extUrlLabel + '</a><br/>';
                 default:
                     return out + value + '<br/>';
             }
