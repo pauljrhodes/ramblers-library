@@ -14,7 +14,7 @@ class RJsonwalksWalk implements JsonSerializable {
     private $finish = null;
     private $contacts = null;
     private $flags = null;                  // flags to describe walk 
-    private $media = [];                  // array of image infomation
+    private $media = [];                  // array of image information
     private $icsDayEvents = false;
     private static $withMonth = ["{dowShortddmm}", "{dowddmm}", "{dowddmmyyyy}"];
     private static $customValuesClass = null;
@@ -142,7 +142,7 @@ class RJsonwalksWalk implements JsonSerializable {
     }
 
     public function setBookings($ids) {
-        $enabled = $this->admin->hasBooking($ids);
+        $enabled = $this->admin->isInArray($ids);
         $this->addBookings(new RJsonwalksWalkBookings($enabled));
     }
 

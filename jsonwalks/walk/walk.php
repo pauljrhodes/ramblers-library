@@ -268,6 +268,7 @@ class RJsonwalksWalkWalk implements JsonSerializable {
         }
     }
 
+    #[\Override]
     public function jsonSerialize(): mixed {
         return [
             'shape' => $this->shape,

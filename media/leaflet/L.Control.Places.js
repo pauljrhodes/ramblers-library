@@ -11,21 +11,21 @@ L.Control.Places = L.Control.extend({
     _diagnosticslayer: null,
     _masterlayer: null,
     _placeslayer: null,
-    _popupinfo: true,
+    // _popupinfo: true,
     _numberOfMarkers: [],
     onAdd: function (map) {
         if (this._test) {
             this._urlbase = 'http://localhost/mapplacesv4/';
         }
         this._map = map;
-        this._notice = "This feature is likely to be withdrawn once the new Ramblers system for led walks is implemented, May 2023. " +
-                "The reason for this is that the new Ramblers system requires Starting places for walks. " +
-                "This means that groups who do not wish to publish, for whatever reason, the true starting place of a walk" +
-                " will have to say in the text for the walk that the walker should " +
-                "not go to the start and that the start is not valid. This is in place of just showing the General Area for a walk. " +
-                "This software cannot distinguish if the start is valid or not. " +
-                "Hence it will end up displaying both valid and invalid starting places. " +
-                "If you are unhappy with this then please contact Ramblers via the ramblers.org.uk web site.";
+//        this._notice = "This feature is likely to be withdrawn once the new Ramblers system for led walks is implemented, May 2023. " +
+//                "The reason for this is that the new Ramblers system requires Starting places for walks. " +
+//                "This means that groups who do not wish to publish, for whatever reason, the true starting place of a walk" +
+//                " will have to say in the text for the walk that the walker should " +
+//                "not go to the start and that the start is not valid. This is in place of just showing the General Area for a walk. " +
+//                "This software cannot distinguish if the start is valid or not. " +
+//                "Hence it will end up displaying both valid and invalid starting places. " +
+//                "If you are unhappy with this then please contact Ramblers via the ramblers.org.uk web site.";
 
         this._container = L.DomUtil.create('div', 'leaflet-control-places');
         this._container.style.display = 'none';
@@ -194,10 +194,10 @@ L.Control.Places = L.Control.extend({
             limit: 100,
             mouseOptions: null
         };
-        if (this._popupinfo) {
-            this._popupinfo = false;
-            ra.showMsg(this._notice);
-        }
+//        if (this._popupinfo) {
+//            this._popupinfo = false;
+//            ra.showMsg(this._notice);
+//        }
         _locationOptions = L.setOptions(_locationOptions, locationOptions);
         this._clearPlacesLayers();
         this._container.style.display = 'inherit';
@@ -258,9 +258,9 @@ L.Control.Places = L.Control.extend({
                 self._processItems(items, 2000);
             }
         });
-        this._container.addEventListener("display-item-complete", function (e) {
-            ra.showMsg(self._notice);
-        });
+//        this._container.addEventListener("display-item-complete", function (e) {
+//            ra.showMsg(self._notice);
+//        });
     },
     _processItems: function (items, chunk) {
         var i = 0;
@@ -276,8 +276,8 @@ L.Control.Places = L.Control.extend({
             if (i * chunk < items.length) { // If there are more items, schedule another
                 setTimeout(processChunk, 5);
             } else {
-                let event = new Event("display-item-complete", {bubbles: true}); // 
-                self._container.dispatchEvent(event);
+//                let event = new Event("display-item-complete", {bubbles: true}); // 
+//                self._container.dispatchEvent(event);
             }
         }
         processChunk();
@@ -376,7 +376,7 @@ L.Control.Places = L.Control.extend({
         div.appendChild(self._getResultDiv(gr));
         div.appendChild(self._getGRDiv(gr8));
         div.appendChild(self._getDetails(json.records));
-        div.appendChild(self._getStreetMapLink(latlng));
+      //  div.appendChild(self._getStreetMapLink(latlng));
         div.appendChild(self._getGoogleMapLink(latlng));
         div.appendChild(self._displayAgreement());
 
@@ -433,7 +433,7 @@ L.Control.Places = L.Control.extend({
         element.setAttribute('title', 'VOTE: This location is INCORRECT');
         element.innerHTML = ' ' + String.fromCharCode(9746) + no;
         element.addEventListener("click", function (e) {
-            var $url = self._urlbase + "report.php?gr=" + gr + "&type=dislikes";
+            var $url = self._urlbase + "report.php?gr=" + gr + "&type=dislike";
             ra.ajax.getUrl($url, "", gr, function (gr, result) {
                 if (result) {
                     document.getElementById(gr).innerHTML = "Incorrect vote recorded";
@@ -444,17 +444,17 @@ L.Control.Places = L.Control.extend({
         });
         return element;
     },
-    _getStreetMapLink: function (latlng) {
-        var element = document.createElement('span');
-        element.setAttribute('class', 'placebutton-green hasTip');
-        element.setAttribute('title', 'View location in streetmap.co.uk');
-        var a = document.createElement('a');
-        a.setAttribute('href', "javascript:ra.link.streetmap(" + latlng.lat + "," + latlng.lng + ")");
-        a.textContent = 'Streemap';
-        a.style.fontSize = '12px';
-        element.appendChild(a);
-        return element;
-    },
+//    _getStreetMapLink: function (latlng) {
+//        var element = document.createElement('span');
+//        element.setAttribute('class', 'placebutton-green hasTip');
+//        element.setAttribute('title', 'View location in streetmap.co.uk');
+//        var a = document.createElement('a');
+//        a.setAttribute('href', "javascript:ra.link.streetmap(" + latlng.lat + "," + latlng.lng + ")");
+//        a.textContent = 'Streemap';
+//        a.style.fontSize = '12px';
+//        element.appendChild(a);
+//        return element;
+//    },
     _getGoogleMapLink: function (latlng) {
         var element = document.createElement('span');
         element.setAttribute('class', 'placebutton-green hasTip');

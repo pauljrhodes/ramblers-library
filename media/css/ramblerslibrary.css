@@ -400,8 +400,8 @@ div.js-modal.ramblers {
     width: 100%; /* Full width */
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
-    background-color: #111111; /* Fallback color */
-    background-color: linear-gradient(to bottom, rgba(64, 65, 65, 0.2), rgba(64, 65, 65, 0.6));
+    background-color: #333; 
+   
 }
 div.clear,
 div.ra-clear{

@@ -75,7 +75,7 @@ class RLeafletJsonList extends RLeafletMap {
             }
         }
 
-        $this->help_page = "listofitemsm.html";
+        $this->help_page = "listofitems.html";
         $this->options->cluster = true;
         $this->options->fullscreen = true;
         $this->options->filter = true;

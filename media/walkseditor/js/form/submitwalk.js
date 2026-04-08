@@ -16,7 +16,7 @@ if (typeof (ra.walkseditor.form) === "undefined") {
 }
 
 ra.walkseditor.form.submitwalk = function (options, data) {
-    this.emailURL = ra.baseDirectory() + "media/lib_ramblers/walkseditor/sendemail.php";
+    //  this.emailURL = ra.baseDirectory() + "media/lib_ramblers/walkseditor/sendemail.php";
     this.data = data;
     this.groups = this.data.groups;
     this.localGrades = this.data.localGrades;
@@ -148,51 +148,38 @@ ra.walkseditor.form.submitwalk = function (options, data) {
             } else {
                 messageDiv.innerHTML = "";
                 _this.modal.setContent("Sending email ...", false, false);
-                _this._emailWalk();
+                _this._emailWalk(_this.modal);
             }
 
         });
         form.appendChild(emailButton);
         this.modal = ra.modals.createModal(form, false);
     };
-    this._emailWalk = function () {
-        var $url = this.emailURL;
-        var self = this;
-        var fromSite = window.location.href;
+    this._emailWalk = function (modal) {
+        //var $url = this.emailURL;
+        //var self = this;
+        //var fromSite = window.location.href;
         var data = {
-            fromSite: fromSite,
-            walk: [this.walk.data],
-            walkbody: this.walk.walkDetails(),
-            coords: this.data.coords,
-            email: this.email,
-            subject: '[Submit walk] from - ' + this.email.name
-        };
+            toid: this.data.coords,
+            replyTo: {'name': this.email.name,
+                'email': this.email.email},
+            copy: {'name': this.email.name,
+                'email': this.email.email},
+            title: 'Submit walk to the walks co-ordinator',
+            content: '<p>To Walks coordinators, copy: ' + this.email.name + '</p>' + this.email.message,
+            attach: {
+                data: JSON.stringify(this.walk.data, null, "    "),
+                type: 'string',
+                encoding: 'base64',
+                filename: 'walk.json',
+                mimeType: 'application/json'
+            }
 
-        var formData = new FormData();
-        const blob = new Blob([JSON.stringify(data, null, 2)], {
-            type: "application/json"
+        };
+        this.serverAction(this, '', data, (self, results) => {
+            modal.close();
         });
-        formData.append('walk', blob);
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', $url, true);
-        xhr.onload = function () {
-            var response = JSON.parse(this.responseText);
-            if (response === null) {
-                self.modal.setContent('Unknown error', false);
-            }
-            var msg = "";
-            if (response.error) {
-                msg += "<p style='color:red;font-weight: bold'>ERROR OCCURRED<br/>";
-                msg += response.message + "</p>";
-            } else {
-                msg += "<p style='color:green;font-weight: bold'>EMAIL has been sent<br/><br/>";
-                msg += response.message + "</p>";
-            }
-            self.modal.setContent(msg, false);
-        };
-        xhr.send(formData);
     };
-
 
     this._saveWalk = function () {
         var walks = [];
@@ -206,5 +193,60 @@ ra.walkseditor.form.submitwalk = function (options, data) {
         } catch (e) {
             ra.showError('Your web browser does not support his option!');
         }
+    };
+    this.serverAction = function (self, action, dataObj, fcn) {
+        var url;
+        if (dataObj === null) {
+            dataObj = {noInput: true};
+        }
+        url = "index.php?option=com_ra_library&view=sendemail&format=json";
+
+        url = ra.baseDirectory() + url;
+        var formData = new FormData();
+        $data = JSON.stringify(dataObj);
+        formData.append("data", $data);
+        //  formData.append("data", md5($data));
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onload = function () {
+            if (xmlhttp.readyState === 4) {
+                const response = JSON.parse(xmlhttp.responseText);
+                response.status = xmlhttp.status;
+                if (response.status === 200) {
+                    self.displayFeedback(response.data.feedback);
+                    fcn(self, response);
+                } else {
+                    ra.showMsg('Whoops - something went wrong [' + action + ']: ' + response.message);
+                }
+            }
+        };
+        xmlhttp.open("POST", url, true);
+        xmlhttp.send(formData);
+    };
+    this.displayFeedback = function (feedback) {
+        if (feedback === null) {
+            ra.showMsg('Invalid response from server, feedback is null');
+            return;
+        }
+        if (feedback.length < 1) {
+            return;
+        }
+        var div = document.createElement("div");
+        div.classList.add('ra');
+        div.classList.add('booking');
+        div.classList.add('feedback');
+        div.style.display = "inline-block";
+        ra.modals.createModal(div, false);
+        if (typeof feedback === 'string') {
+            var div1 = document.createElement("div");
+            div1.innerHTML = feedback;
+            div.appendChild(div1);
+            return;
+        }
+        // array
+        feedback.forEach(item => {
+            var div1 = document.createElement("div");
+            div1.innerHTML = item;
+            div.appendChild(div1);
+        });
     };
 };

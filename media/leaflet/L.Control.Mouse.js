@@ -56,9 +56,11 @@ L.Control.Mouse = L.Control.extend({
     onAdd: function (map) {
         var self = this;
         this._map = map;
+        this.search = null;
         this._controls = {};
         this._container = L.DomUtil.create('div', 'leaflet-control-mouseposition');
         this._containerCont = L.DomUtil.create('div', 'racontainer', this._container);
+        this._containerSearch = L.DomUtil.create('div', 'icon search', this._containerCont);
         this._containerIcon = L.DomUtil.create('div', 'icon grid mouse', this._containerCont);
         this._containerGR = L.DomUtil.create('div', 'gr', this._containerCont);
         this._containerCont = L.DomUtil.create('div', 'clear', this._container);
@@ -66,6 +68,8 @@ L.Control.Mouse = L.Control.extend({
         L.DomEvent.disableClickPropagation(this._container);
         this._container.style.display = 'none';
         this._containerIcon.title = 'Change display of UK OS grid';
+        this._containerSearch.title = 'Search for a specific loacation';
+        this._containerSearch.style.display = 'none';
         map.on('mousemove', this._updateMouseMove, this);
         map.on('zoomend', this._updateZoom, this);
         map.on('moveend', this._moveEnd, this);
@@ -104,7 +108,16 @@ L.Control.Mouse = L.Control.extend({
             self._setFormAttributes();
             self._updateZoom();
         });
+        this._containerSearch.addEventListener('click', (e) => {
+            if (this.search !== null) {
+                this.search.click();
+            }
+        });
         return this._container;
+    },
+    addSearch: function (search) {
+        this.search = search;
+        this._containerSearch.style.display = 'inherit';
     },
     changeDisplay: function (display) {
         if (!L.Browser.mobile) {
@@ -254,8 +267,13 @@ L.Control.Mouse = L.Control.extend({
                     gr = '';
                     size = '';
             }
-            out = 'Size ' + size + '<br/><span class="osgridref">' + gr + "</span>";
+            if (this._userOptions.OSgridOption === 'none') {
+                out = '<span class="osgridref">' + this._mapState.gridRef6 + "</span>";
+            } else {
+                out = 'Size ' + size + '<br/><span class="osgridref">' + gr + "</span>";
+            }
         }
+
         if (this._userOptions.displayZoom) {
             out += "   Zoom[" + this._mapState.zoom.toFixed(2) + "]";
         }
@@ -863,7 +881,7 @@ L.Control.Rightclick = L.Control.extend({
             desc += "<br/><b>Grid Reference: </b>" + gr +
                     "<br/><b>Grid Reference: </b>" + gr10 + " (8 Figure)";
             links += '<a href="javascript:ra.link.photos(\'' + gr10 + '\')">[Photos]</a>';
-            links += '<a href="javascript:ra.link.streetmap(' + e.latlng.lat.toFixed(7) + ',' + e.latlng.lng.toFixed(7) + ')">[OS Map]</a>';
+           // links += '<a href="javascript:ra.link.streetmap(' + e.latlng.lat.toFixed(7) + ',' + e.latlng.lng.toFixed(7) + ')">[OS Map]</a>';
         } else {
             desc += "<br/>Outside UK OS Grid";
         }
@@ -1288,9 +1306,11 @@ L.Control.Rightclick = L.Control.extend({
         var title3 = document.createElement('h2');
         title3.textContent = 'Select which information should be displayed';
         tag.appendChild(title3);
+        var div = document.createElement('div');
+         div.setAttribute('class', 'ra-mouse-options');
+        tag.appendChild(div);
         var so = document.createElement('select');
-        so.setAttribute('class', 'ra-mouse-options');
-        // so.setAttribute('size', '13');
+       // so.setAttribute('class', 'ra-mouse-options');
         so.title = "Select which information is displayed";
         this.rightClickOptions.forEach((group) => {
             var gr = document.createElement("optgroup");
@@ -1304,7 +1324,7 @@ L.Control.Rightclick = L.Control.extend({
             so.appendChild(gr);
         });
         so.value = this.rightClickOption;
-        tag.appendChild(so);
+        div.appendChild(so);
         var _this = this;
         so.addEventListener("change", function (e) {
             _this.rightClickOption = so.value;

@@ -15,6 +15,7 @@ class RJsonwalksWalks {
 
     public function addWalk($walk) {
         foreach ($this->arrayofwalks as $item) {
+            // check if walk already in list
             if ($item->isWalk($walk)) {
                 return;
             }
@@ -206,17 +207,18 @@ class RJsonwalksWalks {
         }
     }
 
-    public function walksInFuture($period) {
-        $today = new DateTime();
-        $interval = new DateInterval($period);
-        $today->add($interval);
-        foreach ($this->arrayofwalks as $key => $value) {
-            $date = $value->walkDate;
-            if ($date > $today) {
-                unset($this->arrayofwalks[$key]);
-            }
-        }
-    }
+//  not used
+//     public function walksInFuture($period) {
+//        $today = new DateTime();
+//        $interval = new DateInterval($period);
+//        $today->add($interval);
+//        foreach ($this->arrayofwalks as $key => $value) {
+//            $date = $value->walkDate;
+//            if ($date > $today) {
+//                unset($this->arrayofwalks[$key]);
+//            }
+//        }
+//    }
 
     public function sort($sortorder1, $sortorder2, $sortorder3) {
         $this->sortorder1 = $sortorder1;

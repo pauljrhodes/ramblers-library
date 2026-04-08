@@ -10,7 +10,9 @@ ra.events = function () {
     this.events = [];
     this.filter = null;
     this.registerEvent = function (event) {
-        this.events.push(event);
+        if (event.getIntValue('basics', 'future')) {
+            this.events.push(event);
+        }
     };
     this.getEvent = function (id) {
         var item = this.events.find(o => o.admin.id === id);
@@ -627,6 +629,30 @@ ra.event = function () {
         }
         return $lasttime;
     };
+    this.getEventDatetime = function () {
+        var earliest = this.basics.getIntValue('bookingdate');
+        this.meeting.forEach(item => {
+            var time = item.getIntValue('bookingtime');
+            if (earliest === null) {
+                earliest = time;
+            } else {
+                if (time < earliest) {
+                    earliest = time;
+                }
+            }
+        });
+        this.start.forEach(item => {
+            var time = item.getIntValue('bookingtime');
+            if (earliest === null) {
+                earliest = time;
+            } else {
+                if (time < earliest) {
+                    earliest = time;
+                }
+            }
+        });
+        return  earliest;
+    };
     this.addTitleSection = function (tag) {
         var nationalGradeCSS = this.getIntValue("walks", "_nationalGradeCSS");
         var content = document.createElement('div');
@@ -1030,6 +1056,14 @@ ra.event.basics = function () {
                     } while (ra.date.YYYYMMDD(this.finishDate) > ra.date.YYYYMMDD(endDate));
                 }
                 return dsow;
+            case "future":
+                const today = new Date();
+                const yesterday = new Date(today);
+                yesterday.setDate(today.getDate() - 1);
+                return this.walkDate > yesterday;
+            case "bookingdate":
+                return this.walkDate;
+
         }
         console.log("Invalid internal request: " + $option);
         return "";
@@ -1309,9 +1343,9 @@ ra.event.timelocation = function () {
                 out = this.w3w;
                 break;
             case "{OSMap}":
-                var $lat = this.latitude;
-                var $long = this.longitude;
-                out = ra.link.getOSMap($lat, $long, "OS Map");
+                //    var $lat = this.latitude;
+                //   var $long = this.longitude;
+                //   out = ra.link.getOSMap($lat, $long, "OS Map");
                 break;
             case "{Directions}":
                 var $lat = this.latitude;
@@ -1335,6 +1369,8 @@ ra.event.timelocation = function () {
                 return this.time;
             case "_type":
                 return this.type;
+            case "bookingtime":
+                return this.time;
         }
         console.log("Invalid internal request: " + $option);
         return "";
@@ -1426,10 +1462,10 @@ ra.event.timelocation = function () {
             var w3w = document.createElement('div');
             tag.appendChild(w3w);
             w3w.innerHTML = ra.w3w.toText(this.w3w, "");
-            var span1 = document.createElement('span');
-            span1.title = "Click to see new window showing location using Streetmap.co.uk";
-            tag.appendChild(span1);
-            span1.innerHTML = ra.link.getOSMap(this.latitude, this.longitude, "Streetmap/OS Map");
+//            var span1 = document.createElement('span');
+//            span1.title = "Click to see new window showing location using Streetmap.co.uk";
+//            tag.appendChild(span1);
+//            span1.innerHTML = ra.link.getOSMap(this.latitude, this.longitude, "Streetmap/OS Map");
             var a = document.createElement('a');
             tag.appendChild(a);
             a.classList.add("mappopup");
@@ -2197,7 +2233,6 @@ ra.walk = (function () {
     // accessed by HTML links to display walk
     my.displayWalkID = function (event, id) {
         var walk = my.walks.getEvent(id);
-        var evs = my.walks.filteredEvents();
         if (walk !== null) {
             walk.displayInModal(event);
         } else {

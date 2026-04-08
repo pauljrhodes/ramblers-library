@@ -16,26 +16,20 @@ defined('_JEXEC') or die('Restricted access');
 class RJsonwalksWmFeed {
 
     private $cacheFolder = null;
-    private $organisation = null;
-    private $method = "time";
 
     public function __construct() {
         $this->cacheFolder = new RJsonwalksWmCachefolder('ra_wm_feed');
-        $this->organisation = new RJsonwalksWmOrganisation($this->cacheFolder, APIKEY);
         RJsonwalksWmFileio::setSecretStrings([APIKEY]);
     }
 
-    public function getGroupFutureItems($groups, $readwalks, $readevents, $readwellbeingwalks) {
+    public function getGroupEventItems($groups, $readwalks, $readevents, $readwellbeingwalks, $period) {
         $feedOpts = new RJsonwalksWmFeedoptions();
         $feedOpts->groupCode = $groups;
         $feedOpts->include_walks = $readevents;
         $feedOpts->include_events = $readwalks;
         $feedOpts->include_wellbeing_walks = $readwellbeingwalks;
-        $today = date("Y-m-d");
-        $feedOpts->date_start = $today;
-        $date = date_create($feedOpts->date_start);
-        date_add($date, date_interval_create_from_date_string("12 months"));
-        $feedOpts->date_end = date_format($date, "Y-m-d");
+        $feedOpts->date_start = $period->getStartDateString();
+        $feedOpts->date_end = $period->getEndDateString();
         $items = $this->getFeed($feedOpts);
         return $items;
     }
@@ -58,11 +52,7 @@ class RJsonwalksWmFeed {
         $debug = false;
         $feedurl = $feedOpts->getFeedURL();
         $cachedWalksFileName = $feedOpts->getCacheFileName("walks.json");
-        if ($this->method === "time") {
-            $source = $this->whichSource($cachedWalksFileName);
-        } else {
-            $source = $this->organisation->whereToGetWalksFrom($feedOpts);
-        }
+        $source = $this->whichSource($cachedWalksFileName);
 
         if ($debug) {
             $this->debugMsg($feedurl, "Reading data from " . $source);

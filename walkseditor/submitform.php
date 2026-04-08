@@ -1,14 +1,35 @@
 <?php
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\User\UserFactoryInterface;
+
 class RWalkseditorSubmitform extends RLeafletMap {
 
     private $groups = null;
     private $coords = null;
     private $localGrades = null;
-  
+    private $error = false;
+
     public function setWalksCoordinators($values) {
+        if ($values == null) {
+            $text = "No walks coordinators defined";
+            $app = JFactory::getApplication();
+            $app->enqueueMessage($text, 'error');
+            return;
+        }
         if (is_array($values)) {
             $this->coords = $values;
+            foreach ($this->coords as $value) {
+                $userFactory = Factory::getContainer()->get(UserFactoryInterface::class);
+                $user = $userFactory->loadUserById($value);
+                if ($user->id == 0) {
+                    $text = "Walk coordinator not found, id=" . $value;
+                    $app = JFactory::getApplication();
+                    $app->enqueueMessage($text, 'error');
+                    $this->error = true;
+                }
+                $user = null;
+            }
         } else {
             $text = "Walk coordinators not defined as an array";
             $app = JFactory::getApplication();
@@ -25,7 +46,8 @@ class RWalkseditorSubmitform extends RLeafletMap {
             $app->enqueueMessage($text, 'error');
         }
     }
-   public function setLocalGrades($values) {
+
+    public function setLocalGrades($values) {
         if (is_array($values)) {
             $this->localGrades = $values;
         } else {
@@ -42,10 +64,7 @@ class RWalkseditorSubmitform extends RLeafletMap {
             $app->enqueueMessage($text, 'error');
             return;
         }
-        if ($this->coords == null) {
-            $text = "No walks coordinators defined";
-            $app = JFactory::getApplication();
-            $app->enqueueMessage($text, 'error');
+        if ($this->error) {
             return;
         }
 
@@ -71,14 +90,6 @@ class RWalkseditorSubmitform extends RLeafletMap {
         $this->data->coords = $this->coords;
         $this->data->groups = $this->groups;
         $this->data->localGrades = $this->localGrades;
-        $this->data->user = new class {
-            
-        };
-        $user = JFactory::getUser();
-        $userinfo = JFactory::getUser($user->id);
-        $this->data->user->loggedin = $user->id > 0;
-        $this->data->user->name = $userinfo->name;
-        $this->data->user->email = $userinfo->email;
 
         $path = "media/lib_ramblers/walkseditor/";
         RLoad::addScript($path . "js/form/submitwalk.js", "text/javascript");
@@ -87,5 +98,4 @@ class RWalkseditorSubmitform extends RLeafletMap {
         parent::display();
         RWalkseditor::addScriptsandCss();
     }
-
 }

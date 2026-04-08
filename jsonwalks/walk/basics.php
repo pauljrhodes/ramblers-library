@@ -18,7 +18,7 @@ class RJsonwalksWalkBasics implements JsonSerializable {
     private $descriptionHtml = "";   // description of walk with html tags
     private $additionalNotes = "";   // the additional notes field as text
     private $title = "";             // Title of the walk
-    private $external_url;           // external url for ???
+    private $external_url;           // external url for link to popup of walk on group web site
 
     public function __construct($admin, DateTime $walkDate, ?DateTime $finishDate, string $title, string $descriptionHtml,
             string $additionalNotes, ?string $external_url) {
@@ -63,27 +63,21 @@ class RJsonwalksWalkBasics implements JsonSerializable {
                 }
                 break;
             case "{dowShortdd}":
-                //  $out = "<b>" . $this->walkDate->format('D, jS ') . "</b>";
                 $out = $this->dateRange('D, jS ');
                 break;
             case "{dowShortddmm}":
-                //  $out = "<b>" . $this->walkDate->format('D, jS F') . $this->addYear() . "</b>";
                 $out = $this->dateRange('D, jS F', true);
                 break;
             case "{dowShortddmmyyyy}":
-                //  $out = "<b>" . $this->walkDate->format('D, jS F Y') . "</b>";
                 $out = $this->dateRange('D, jS F Y');
                 break;
             case "{dowdd}":
-                //  $out = "<b>" . $this->walkDate->format('l, jS') . "</b>";
                 $out = $this->dateRange('l, jS');
                 break;
             case "{dowddmm}":
-                // $out = "<b>" . $this->walkDate->format('l, jS F') . $this->addYear() . "</b>";
                 $out = $this->dateRange('l, jS F', true);
                 break;
             case "{dowddmmyyyy}":
-                // $out = "<b>" . $this->walkDate->format('l, jS F Y') . "</b>";
                 $out = $this->dateRange('l, jS F Y');
                 break;
         }
@@ -115,6 +109,8 @@ class RJsonwalksWalkBasics implements JsonSerializable {
                 return $this->title;
             case "additionalNotes":
                 return $this->additionalNotes;
+            case "finishDate":
+                return $this->finishDate;
         }
         $app = JFactory::getApplication();
         $app->enqueueMessage("Internal error, invalid Basics value: " . $option);

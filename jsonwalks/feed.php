@@ -170,9 +170,10 @@ class RJsonwalksFeed {
         return count($this->walks->allWalks());
     }
 
-    public function walksInFuture($period) {
-        $this->walks->walksInFuture($period);
-    }
+//  Not used
+//    public function walksInFuture($period) {
+//        $this->walks->walksInFuture($period);
+//    }
 
     public function noCancelledWalks() {
         $number = 0;

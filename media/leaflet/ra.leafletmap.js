@@ -35,7 +35,7 @@ ra.leafletmap = function (tag, options) {
         };
         var _this = this;
 
-       this.tag.addEventListener("displayTabContents", function (e) {
+        this.tag.addEventListener("displayTabContents", function (e) {
             if (e.tabDisplay.tab === 'map') {
                 _this.lmap.map.invalidateSize();
             }
@@ -141,6 +141,7 @@ ra._leafletmap = function (tag, copyrightTag, options) {
     var mapOptions = {
         center: new L.LatLng(54.221592, -3.355007),
         zoom: 5,
+        maxzoom: 18,
         zoomSnap: 0.1,
         zoomControl: false
     };
@@ -193,7 +194,7 @@ ra._leafletmap = function (tag, copyrightTag, options) {
             attribution: 'Map &copy; Ordnance Survey',
             maxZoom: 18,
             ukBounds: ukBounds,
-            //  bounds: ukBounds, // cause code to fail!
+            //  bounds: ukBounds, // causes code to fail!
             transformRequest: (url, resourceType) => {
                 if (resourceType !== 'Style' && url.startsWith('https://api.os.uk')) {
                     url = new URL(url);
@@ -338,6 +339,7 @@ ra._leafletmap = function (tag, copyrightTag, options) {
 // bottom left controls 
     if (options.mouseposition !== null && ra.hasMouse()) {
         this.controls.mouse = L.control.mouse().addTo(this.map);
+        this.controls.mouse.addSearch(this.controls.search);
     }
 
     this.controls.scale = L.control.scale().addTo(this.map);

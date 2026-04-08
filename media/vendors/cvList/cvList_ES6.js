@@ -1,3 +1,5 @@
+// this is out of date, non ES6 version is used
+// as this version seemed to give the web optimisation by Cloud Next issues
 class cvList {
     constructor(displayTag) {
         this._displayTag = displayTag;

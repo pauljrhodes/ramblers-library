@@ -13,10 +13,7 @@ class RLeafletMapoptions {
     public $base = "";
     public $mapHeight = "500px";
     public $mapWidth = "100%";
-    // public $bing = false;
     public $licenseKeys;
-    //  public $bingkey = null;
-    //  public $ORSkey = null;
     public $helpPage = "";
     // the following can be true of false
     public $cluster = false;
@@ -46,7 +43,6 @@ class RLeafletMapoptions {
         $this->divId = uniqid(rand());
         $this->base = JURI::base();
         $this->licenseKeys = new stdClass();
-     //   $this->licenseKeys->bingkey = null;
         $this->licenseKeys->ORSkey = null;
         $this->licenseKeys->ESRIkey = null;
         $this->licenseKeys->OSTestStyle = null;
@@ -65,7 +61,6 @@ class RLeafletMapoptions {
 
     public function setLicenses() {
 
-    //    $this->licenseKeys->bingkey = RLicense::getBingMapKey();
         $this->licenseKeys->ESRIkey = RLicense::getESRILicenseKey();
 
         if (RLicense::isOpenRoutingServiceKeySet()) {
@@ -73,9 +68,9 @@ class RLeafletMapoptions {
         }
 
         $this->licenseKeys->OSkey = RLicense::getOrdnanceSurveyLicenseKey();
-         $this->licenseKeys->OSTestkey = RLicense::getOrdnanceSurveyLicenseTestKey();
-        $this->licenseKeys->OSTestStyle=RLicense::getOrdnanceSurveyLicenseKeyTestStyle();
-        $this->licenseKeys->OSMVectorStyle=RLicense::getOSMVectoricenseKey();
+        $this->licenseKeys->OSTestkey = RLicense::getOrdnanceSurveyLicenseTestKey();
+        $this->licenseKeys->OSTestStyle = RLicense::getOrdnanceSurveyLicenseKeyTestStyle();
+        $this->licenseKeys->OSMVectorStyle = RLicense::getOSMVectoricenseKey();
         $this->licenseKeys->mapBoxkey = RLicense::getMapBoxLicenseKey();
         $this->licenseKeys->thunderForestkey = RLicense::getThunderForestLicenseKey();
         $this->licenseKeys->W3Wkey = RLicense::getW3WLicenseKey();

@@ -48,7 +48,7 @@ cvList = function (displayTag) {
         var self = this;
         this._fields._display();
         this._calcKeys();
-        this._display(this);
+        this._display();
         const idleTime = 300; // milliseconds     
         //  let mouseStopTimer;
         this._displayTag.addEventListener("cvList-redisplay", function (e) {
@@ -57,7 +57,7 @@ cvList = function (displayTag) {
         this._displayTag.addEventListener("cvList-reCalcKeys", function (e) {
             self._calcKeys();
             //  console.log('Done');
-            self._display(self);
+            self._display();
         });
     };
     this.createField = function (title, type) {
@@ -262,12 +262,40 @@ cvListField = function (displayTag, title, no) {
     this.getType = function () {
         return this.type;
     };
+    this.setSortValue = function (tag, value) {
+        // value is either a string, number or data
+        if (value !== null) {
+            var type = typeof value;
+            if (value instanceof Date) {
+                type = 'date';
+            }
+            var sorttxt = '';
+            switch (type.toLowerCase()) {
+                case "string":
+                    sorttxt = value;
+                    break;
+                case "date":
+                    sorttxt = value.getFullYear() + "-" + (value.getMonth() + 1) + "-" + value.getDate();
+                    break;
+                case "number":
+                    sorttxt = value;
+                    break;
+            }
+            tag.setAttribute('data-cvListSortValue', sorttxt);
+        }
+    };
+
 
     this._getItemValue = function (attrib, item) {
         var search = '[' + attrib + '="' + this.no + '"]';
         const matches = item.element.querySelectorAll(search);
         if (matches.length > 0) {
-            return matches[0].innerText;
+            var match = matches[0];
+            var sortValue = match.getAttribute('data-cvListSortValue');
+            if (sortValue !== null) {
+                return sortValue;
+            }
+            return match.innerText;
         }
         return null;
     };
@@ -288,7 +316,7 @@ cvListFieldText = function (displayTag, title, no) {
     this.type = 'text';
 
     this.setValue = function (tag, value) {
-        tag.setAttribute('data-cvListTextField', this.no);
+        tag.setAttribute('data-cvListFieldNo', this.no);
         tag.innerHTML = value;
     };
     this.setFilter = function (tag) {
@@ -335,7 +363,7 @@ cvListFieldText = function (displayTag, title, no) {
         var result;
         var value = 0;
         //parent
-        value = this._getItemValue('data-cvListTextField', item);
+        value = this._getItemValue('data-cvListFieldNo', item);
         if (value === null) {
             return false;
         }
@@ -354,7 +382,7 @@ cvListFieldText = function (displayTag, title, no) {
         for (var key of keys) {
             var item = items[key];
             // parent
-            var text = this._getItemValue('data-cvListTextField', item);
+            var text = this._getItemValue('data-cvListFieldNo', item);
             if (text === null) {
                 values.push({key: key, value: text});
             } else {
@@ -394,7 +422,7 @@ cvListFieldNumber = function (displayTag, title, no) {
 
     this.setValue = function (tag, value) {
         var no;
-        tag.setAttribute('data-cvListNumberField', this.no);
+        tag.setAttribute('data-cvListFieldNo', this.no);
         tag.innerHTML = value;
         if (typeof value === 'string' || value instanceof String) {
             no = parseFloat(value.replaceAll(",", ""));
@@ -488,7 +516,7 @@ cvListFieldNumber = function (displayTag, title, no) {
     this._shouldDisplayItem = function (item) {
         var value = 0;
         // parent
-       value =  this._getItemValue('data-cvListNumberField', item);
+        value = this._getItemValue('data-cvListFieldNo', item);
         if (value === null) {
             return false;
         }
@@ -509,7 +537,7 @@ cvListFieldNumber = function (displayTag, title, no) {
         for (var key of keys) {
             var item = items[key];
             // parent
-            var no = this._getItemValue('data-cvListNumberField', item);
+            var no = this._getItemValue('data-cvListFieldNo', item);
             no = parseFloat(no.replaceAll(",", ""));
             if (no === null) {
                 values.push({key: key, value: no});
@@ -547,7 +575,7 @@ cvListFieldDate = function (displayTag, title, no) {
     this.filterTag = null;
 
     this.setValue = function (tag) {
-        tag.setAttribute('data-cvListDateField', this.no);
+        tag.setAttribute('data-cvListFieldNo', this.no);
     };
     this.setFilter = function (tag) {
         this.filterTag = tag;
@@ -576,7 +604,7 @@ cvListFieldDate = function (displayTag, title, no) {
     this._shouldDisplayItem = function (item) {
         var value = 0;
         // parent
-       value =  this._getItemValue('data-cvListDateField', item);
+        value = this._getItemValue('data-cvListFieldNo', item);
         if (value === null) {
             return false;
         }
@@ -589,22 +617,19 @@ cvListFieldDate = function (displayTag, title, no) {
             var item = items[key];
             var d;
             // parent
-            var txt = this._getItemValue('data-cvListDateField', item);
-            txt = txt.replace("st", "");
-            txt = txt.replace("rd", "");
-            txt = txt.replace("nd", "");
-            txt = txt.replace("th", "");
-            txt = txt.replace("\n", "");
-            d = this.parseDateFromFormat(txt, "DD-MM-YYYY");
+            var txt = this._getItemValue('data-cvListFieldNo', item);
+            d = this.parseDateFromFormat(txt, "YYYY-MM-DD");
             if (!this.isValidDate(d)) {
                 d = new Date(txt);
             }
             if (!this.isValidDate(d)) {
-                d = new Date('01-01-1970');
+                if (order === 1) {
+                    d = new Date('01-01-1970');
+                } else {
+                    d = new Date('01-01-2999');
+                }
             }
             values.push({key: key, value: d});
-
-
         }
         // sort values
         function compare(a, b) {

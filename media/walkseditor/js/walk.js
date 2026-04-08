@@ -162,8 +162,11 @@ ra.walkseditor.walks = function () {
             walk.initialiseFilter(filter);
         });
         filter.display(tag);
-        filter.activateFilterItem("idWhen", "Future");
-        filter.activateFilterItem("idWhen", "Not defined");
+
+    };
+    this.setFilterDefaults = function () {
+        this.filter.activateFilterItem("idWhen", "Future");
+        this.filter.activateFilterItem("idWhen", "Not defined");
     };
 };
 ra.walkseditor.walk = function () {
@@ -307,6 +310,9 @@ ra.walkseditor.walk = function () {
         }
     };
     this.createFromObject = function (data) {
+        if (typeof data.admin !== 'undefined') {
+            this.data.admin = data.admin;
+        }
         if (typeof data.basics !== 'undefined') {
             this.data.basics = data.basics;
         }
@@ -349,7 +355,7 @@ ra.walkseditor.walk = function () {
         classes.forEach(c => {
             out.push(c);
         });
-       
+
         return out;
     };
     this.dateSet = function () {
@@ -870,7 +876,7 @@ ra.walkseditor.walk = function () {
     this.getWalkDate = function (view) {
         var d = ra.getObjProperty(this.data, 'basics.date');
         var past = '';
-        if (d !== null) {
+        if (d !== null && d !== '') {
             if (ra.date.isValidString(d)) {
                 var status = this.dateStatus();
                 if (status === ra.walkseditor.DATETYPE.Past) {
@@ -878,7 +884,7 @@ ra.walkseditor.walk = function () {
                 }
                 switch (view) {
                     case 'table':
-                        return  "<b>" + ra.date.dowdd(d) + "</b><br/>" + " " + ra.date.month(d) + " " + ra.date.YY(d) + past;
+                        return  "<b>" + ra.date.dowdd(d) + "</b><br/>" + " " + ra.date.month(d) + " " + ra.date.YY(d);
                     case 'list':
                     case 'details':
                         return  "<b>" + ra.date.dowdd(d) + "</b>" + " " + ra.date.month(d) + " " + ra.date.YY(d) + past;
@@ -888,6 +894,15 @@ ra.walkseditor.walk = function () {
             }
         }
         return 'Date not defined';
+    };
+    this.getWalkSortDate = function () {
+        var d = ra.getObjProperty(this.data, 'basics.date');
+        if (d !== null && d !== '') {
+            if (ra.date.isValidString(d)) {
+                return ra.date.getDateTime(d);
+            }
+        }
+        return null;
     };
     this.getWalkBasics = function (view) {
         switch (view) {

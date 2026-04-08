@@ -3,12 +3,12 @@
     <name>RamblersLibrary</name> 
     <libraryname>ramblers</libraryname>
     <author>Chris Vaughan, Ramblers Webs</author>
-    <creationDate>11 August 2025</creationDate>
-    <copyright>Copyright (C) 2016/2025</copyright>
+    <creationDate>14 March 2026</creationDate>
+    <copyright>Copyright (C) 2016/2026</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
     <authorEmail>webmaster@ramblers-webs.org.uk</authorEmail>
     <authorUrl>https://github.com/ramblerswebs/ramblers-library/</authorUrl>
-    <version>4.6.24</version>
+    <version>4.6.27</version>
     <description>Ramblers Library to provide diplay walks, GPX routes etc</description>
     
     <files>

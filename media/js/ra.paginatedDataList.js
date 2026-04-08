@@ -38,6 +38,7 @@ ra.paginatedTable = function (tag, userOptions = null) {
     this.cvListOptions = {...this.defaultOptions, ...userOptions};
     this.fields = [];
     this.format = null;
+    this.defaultSort = [];
     this.noColumns = 1;
     var tags = [
         {name: 'home', parent: 'root', tag: 'div', attrs: {class: this.options.className}},
@@ -99,12 +100,15 @@ ra.paginatedTable = function (tag, userOptions = null) {
 //        "options": {
 //            "align": "right"
 //            "view": "notTablet" or "notMobile"
+//            "style": {"min-width":"60px",...}
 //        },
 //        "field": {
-//            "type": "number",
+//            "type": "number","text","date"
 //            "filter": false,
-//            "sort": true
+//            "sort": true,
+//            "defaultSort": 'Asc' or 'Desc' 
 //        },
+//        "ignore": true If set then that column is not displayed
 //        view: 'notTablet' or 'notMobile'
 //    }, {...}
 //    ];
@@ -115,6 +119,11 @@ ra.paginatedTable = function (tag, userOptions = null) {
         var row = document.createElement("tr");
         this.noColumns = 0;
         format.forEach(item => {
+            if ('ignore' in item) {
+                if (item.ignore) {
+                    return;
+                }
+            }
             this.noColumns += 1;
             var th = document.createElement("th");
             th.innerText = item.title;
@@ -126,28 +135,49 @@ ra.paginatedTable = function (tag, userOptions = null) {
                 if ('view' in item.options) {
                     th.classList.add(item.options.view);
                 }
+                if ('style' in item.options) {
+                    var items = item.options.style;
+                    for (let item in items) {
+                        th.style.setProperty(item, items[item]);
+                    }
+                }
             }
             if ('field' in item) {
                 if (item.field.sort) {
                     var field = this.fields[item.title];
                     field.addSortArrows(th);
+                    if (item.field.defaultSort) {
+                        var item = {field: field, direction: item.field.defaultSort};
+                        this.defaultSort.push(item);
+                    }
                 }
             }
-        });
+        }
+        );
         this.elements.thead.appendChild(row);
     };
     this.tableRowStart = function () {
         this.row = document.createElement("tr");
         return this.row;
     };
-    this.tableRowItem = function (value, item = null) {
+    this.tableRowItem = function (value, item = null, sortValue = null) {
+        if (item !== null) {
+            if ('ignore' in item) {
+                if (item.ignore) {
+                    return null;
+                }
+            }
+        }
         var td = document.createElement("td");
-        td.innerHTML = value;
+        ra.html.setTag(td, value);
         this.row.appendChild(td);
         if (item !== null) {
             if ('field' in item) {
                 var field = this.fields[item.title];
                 field.setValue(td, value);
+                if (sortValue !== null) {
+                    field.setSortValue(td, sortValue);
+                }
             }
             if ('options' in item) {
                 var options = item.options;
@@ -183,6 +213,18 @@ ra.paginatedTable = function (tag, userOptions = null) {
             this.elements.rapagination1.style.display = 'none';
             this.elements.rapagination2.style.display = 'none';
         }
+        this.defaultSort.forEach(item => {
+            switch (item.direction) {
+                case 'Asc':
+                    item.field.sort(1);
+                    break;
+                case 'Desc':
+                    item.field.sort(-1);
+                    break;
+                default:
+                    alert('order error');
+            }
+        });
     };
     this.sort = function (param, order) {
         var field = this.fields[param];

@@ -34,14 +34,6 @@ abstract class RJsonwalksDisplaybase {
     abstract protected function DisplayWalks($walks);
 
     public function __construct() {
-//        $version = new JVersion();
-        // Joomla4 Update to use correct call.
-//        if (version_compare($version->getShortVersion(), '4.0', '<')) {
-//            $this->printOn = JRequest::getVar('print') == 1;
-//        } else {
-//            $jinput = JFactory::getApplication()->getInput();
-//            $this->printOn = $jinput->getVar('print') == 1;
-//        }
         $this->script = new RLeafletScript();
         $this->options = new RLeafletMapoptions();
         // default map options for display of walk

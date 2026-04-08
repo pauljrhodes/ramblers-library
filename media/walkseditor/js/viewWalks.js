@@ -18,7 +18,7 @@ ra.walkseditor.viewWalks = function (tag, mapOptions, programme, loggedOn = fals
     };
     this.tableColumns = [
         {title: 'Status'},
-        {title: 'Date', field: {type: 'text', sort: true, filter: false}},
+        {title: 'Date', field: {type: 'date', sort: true, filter: false, defaultSort: 'Desc'}},
         {title: 'Meeting', field: {type: 'text', sort: false, filter: false}},
         {title: 'Start', field: {type: 'text', sort: false, filter: false}},
         {title: 'Title', field: {type: 'text', sort: false, filter: true}},
@@ -30,7 +30,7 @@ ra.walkseditor.viewWalks = function (tag, mapOptions, programme, loggedOn = fals
         var self = this;
         var head = document.createElement('h3');
         head.innerHTML = 'Walks editor: ' + status;
-        this.programme.setFilters(tag);
+
         tag.appendChild(head);
         var options = {
             tabClass: 'walksView',
@@ -38,6 +38,7 @@ ra.walkseditor.viewWalks = function (tag, mapOptions, programme, loggedOn = fals
                 list: {title: 'List'},
                 map: {title: 'Map'},
                 calendar: {title: 'Calendar'}}};
+        this.programme.setFilters(tag);
         this.tabs = new ra.tabs(tag, options);
         document.addEventListener("reDisplayWalks", function () {
             self.programme.setWalkDisplay();
@@ -51,7 +52,9 @@ ra.walkseditor.viewWalks = function (tag, mapOptions, programme, loggedOn = fals
             console.log('Walks level ' + self.option);
             self.displayWalks(self.displayTag, self.option);
         });
+
         this.tabs.display();
+        this.programme.setFilterDefaults();
     };
 
     this.displayWalks = function (tag, option) {
@@ -264,7 +267,8 @@ ra.walkseditor.viewWalks = function (tag, mapOptions, programme, loggedOn = fals
         table.tableRowStart();
         for (var col of this.tableColumns) {
             var value = this.tableValue(walk, col.title);
-            var td = table.tableRowItem(value, col);
+            var sortValue = this.tableSortValue(walk, col.title);
+            var td = table.tableRowItem(value, col, sortValue);
             if (col.title === "Status") {
                 walk.addDisplayClasses(td.classList);
             }
@@ -280,45 +284,41 @@ ra.walkseditor.viewWalks = function (tag, mapOptions, programme, loggedOn = fals
         switch (name) {
             case "Options":
                 return this.getOptions(walk);
-                break;
             case "State":
                 return walk.getStatus();
-                break;
             case "Category":
                 return walk.getCategory();
-                break;
             case "Date":
                 return walk.getWalkDate('table');
-                break;
             case "Meeting":
                 return walk.getWalkMeeting('table');
-                break;
             case "Start":
                 return walk.getWalkStart('table');
-                break;
             case "Title":
                 return walk.getWalkTitle();
-                break;
             case "Difficulty":
                 return walk.getWalkDifficulty('table');
-                break;
             case "Issues":
                 return walk.getNoWalkIssues();
-                break;
             case "Messages":
                 return walk.getWalkMessages('summary');
-                break;
             case "Contact":
                 return  walk.getWalkContact('table');
-                break;
             case "Notes":
                 return  walk.getWalkNotes('table');
-                break;
             case "Status":
                 return  walk.getStatusCategory('<br/>', this.settings.singleCategory);
-                break;
         }
         return 'unknown';
+    };
+    this.tableSortValue = function (walk, name) {
+        switch (name) {
+            case "Date":
+                return walk.getWalkSortDate();
+            default:
+                return null;
+        }
+        return null;
     };
     this.getOptions = function (walk) {
         return this.getOptionEdit(walk) + this.getOptionDelete(walk);

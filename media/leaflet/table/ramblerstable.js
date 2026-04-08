@@ -24,7 +24,7 @@ ra.display.tableList = (function () {
         });
 
         this.load = function ( ) {
-            var _this=this;
+            var _this = this;
             var mapping = this.canDisplayMap();
             var options = {tabClass: 'tableDisplay',
                 tabs: {map: {title: 'Map', enabled: mapping, staticContainer: true},
@@ -336,6 +336,9 @@ ra.display.tableList = (function () {
         };
         this.displayItem = function (name, type, value) {
             var out = "";
+            if (value === "") {
+                return out;
+            }
             if (name !== null)
                 out = "<b>" + name + ": </b>";
             switch (type) {

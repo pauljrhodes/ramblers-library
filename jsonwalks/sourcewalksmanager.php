@@ -17,6 +17,7 @@ class RJsonwalksSourcewalksmanager extends RJsonwalksSourcebase {
     private $readwalks = false;
     private $readevents = false;
     private $wellbeingWalks = false;
+    private $period = null;
 
     const TIMEFORMAT = "Y-m-d\TH:i:s";
 
@@ -24,16 +25,21 @@ class RJsonwalksSourcewalksmanager extends RJsonwalksSourcebase {
         parent::__construct(SourceOfWalk::WManager);
     }
 
-    public function _initialise($groups, $readwalks, $readevents, $wellbeingWalks) {
+    public function _initialise($groups, $readwalks, $readevents, $wellbeingWalks, $period = null) {
         $this->groups = $groups;
         $this->readwalks = $readwalks;
         $this->readevents = $readevents;
         $this->wellbeingWalks = $wellbeingWalks;
+        if ($period === null) {
+             $this->period =new RJsonwalksWalksdaterange();
+        } else {
+            $this->period = $period;
+        }
     }
 
     public function getWalks($walks) {
         $feed = new RJsonwalksWmFeed();
-        $items = $feed->getGroupFutureItems($this->groups, $this->readwalks, $this->readevents, $this->wellbeingWalks);
+        $items = $feed->getGroupEventItems($this->groups, $this->readwalks, $this->readevents, $this->wellbeingWalks, $this->period);
         foreach ($items as $item) {
             $walk = new RJsonwalksWalk();
 

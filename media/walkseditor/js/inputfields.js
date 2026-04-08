@@ -71,14 +71,7 @@ ra.walkseditor.inputFields = function () {
         inputTag.setAttribute('step', '.01');
         return inputTag;
     };
-//    this.addPostcodeDEL = function (tag, divClass, label, raobject, property, helpFunction = null) {
-//        var inputTag = this.addText(tag, divClass, label, raobject, property, '', helpFunction);
-//
-//        inputTag.addEventListener("input", function (e) {
-//            e.target.value = e.target.value.toUpperCase();
-//        });
-//        return inputTag;
-//    };
+
     this.addEmail = function (tag, divClass, label, raobject, property, placeholder = '', helpFunction = null) {
         var inputTag = this.addText(tag, divClass, label, raobject, property, placeholder, helpFunction);
         inputTag.addEventListener("input", function (e) {

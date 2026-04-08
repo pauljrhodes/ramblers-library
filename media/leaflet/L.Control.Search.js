@@ -26,6 +26,9 @@ L.Control.Search = L.Control.extend({
         });
         return this.container;
     },
+    click:function(){
+        this.container.click();
+    },
 
     userOptions: function (value) {
         this._userOptions = value;

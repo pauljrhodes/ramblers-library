@@ -18,7 +18,7 @@ class RJsonwalksWalkAdmin implements JsonSerializable {
     private $status = "";                 // whether the walk is published, cancelled etc
     private $cancellationReason = "";     // text reason walk cancelled
     private $nationalUrl = "";    // url to access the ramblers.org.uk page for this walk
-    private $type = TypeOfWalk::Unknown; // type of ite: walk, event or well being walk
+    private $type = TypeOfWalk::Unknown; // type of item: walk, event or well being walk
 
     public function __construct(string $source, string $type, string $id, string $groupCode, string $groupName,
             string $status, string $cancellationReason, string $nationalUrl, DateTime $dateUpdated, DateTime $dateCreated) {
@@ -61,6 +61,8 @@ class RJsonwalksWalkAdmin implements JsonSerializable {
                 return $this->groupName;
             case "id":
                 return $this->id;
+            case "type":
+                return $this->type;
             case "dateCreated":
                 return $this->dateCreated;
             case "dateUpdated":
@@ -113,7 +115,7 @@ class RJsonwalksWalkAdmin implements JsonSerializable {
         return $walkadmin->id === $this->id;
     }
 
-    public function hasBooking($ids) {
+    public function isInArray($ids) {
         return in_array($this->id, $ids);
     }
 

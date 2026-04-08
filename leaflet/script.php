@@ -128,6 +128,8 @@ class RLeafletScript {
         RLoad::addScript("media/lib_ramblers/js/ra.tabs.js");
         RLoad::addScript("media/lib_ramblers/js/ra.paginatedDataList.js");
         RLoad::addStyleSheet("media/lib_ramblers/css/ra.paginatedDataList.css");
+        RLoad::addScript("media/lib_ramblers/vendors/cvList/cvList.js");
+        RLoad::addStyleSheet("media/lib_ramblers/vendors/cvList/cvList.css");
         RLoad::addStyleSheet("media/lib_ramblers/css/ra.tabs.css");
 
         if (ComponentHelper::isEnabled('com_ra_eventbooking')) {
