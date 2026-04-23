@@ -183,7 +183,7 @@ ra.event = function () {
         });
         // contact
         phpwalk.contact.forEach(item => {
-            var contact = new ra.event.contact(this.admin.id);
+            var contact = new ra.event.contact(this.admin.id, this.admin.groupName);
             this.contacts.addItem(contact.convertPHPContact(item));
         });
         // media
@@ -459,16 +459,37 @@ ra.event = function () {
             this.walkDetailsDisplay(div);
             var tag = modal.headerDiv();
             if (tag !== null) {
+                var modalContent = tag.closest(".ra-modal-content");
+                if (modalContent !== null) {
+                    modalContent.classList.add("walk-modal-content");
+                }
+                tag.classList.add("walk-modal-header");
                 this._addDiaryButton(tag);
             }
         }
     };
     this._addDiaryButton = function (tag) {
         var diary = document.createElement('button');
-        diary.setAttribute('class', 'link-button tiny cloudy');
+        diary.setAttribute('class', 'link-button tiny cloudy modal-calendar walk-modal-action-left');
         diary.title = 'Download an .ICS file, import to Diary';
-        diary.textContent = 'Add to Calendar';
-        tag.parentNode.insertBefore(diary, tag);
+        diary.innerHTML = '<span class="far fa-calendar-plus fa-lg"></span> Add to Calendar';
+        var print = tag.querySelector(".modal-print");
+        var close = tag.querySelector(".modal-close");
+        if (print !== null) {
+            print.classList.add("walk-modal-action-center");
+            print.innerHTML = '<span class="fas fa-print fa-lg"></span> Print';
+        }
+        if (close !== null) {
+            close.classList.add("walk-modal-action-right");
+            close.innerHTML = '<span class="fas fa-window-close fa-lg"></span> Close';
+        }
+        tag.appendChild(diary);
+        if (print !== null) {
+            tag.appendChild(print);
+        }
+        if (close !== null) {
+            tag.appendChild(close);
+        }
         var _this = this;
         diary.addEventListener('click', function () {
             var file = new ra.ics.file();
@@ -654,9 +675,8 @@ ra.event = function () {
         return  earliest;
     };
     this.addTitleSection = function (tag) {
-        var nationalGradeCSS = this.getIntValue("walks", "_nationalGradeCSS");
         var content = document.createElement('div');
-        content.setAttribute('class', 'walkitem group ' + nationalGradeCSS);
+        content.setAttribute('class', 'walkitem group');
         var $html = "<b>Group</b>: " + this.admin.groupName;
         if (this.isCancelled()) {
             $html += "<div class='walkitem reason'>" + this.admin.eventType + " CANCELLED: " + this.admin.cancellationReason + "</div>";
@@ -669,32 +689,85 @@ ra.event = function () {
         var content = document.createElement('div');
         content.setAttribute('class', 'walkitem basics');
         var $html = "";
-        $html += "<div class='description'><b><span class='walktitle'>" + this.basics.title + "</span><br/>" + this.getEventValue('{dowddmm}');
+        $html += "<div class='description'><b><h2><span class='walktitle'>" + this.basics.title + "</span></h2>" + this.getEventValue('{dowddmm}');
+        var time = this.meeting.getValue("{Time}");
+        if (time !== "") {
+            $html += " Meeting time " + time;
+        }
+        time = this.start.getValue("{Time}");
+        if (time !== "") {
+            $html += ", Start time " + time;
+        }
+        time = this.basics.getValue("{finishTime}");
+        if (time !== "") {
+            $html += "<br/>Estimated finish time " + time;
+        }
+        
         $html += "</b></div>";
         if (this.basics.description !== "") {
             $html += "<div class='description'> " + this.basics.descriptionHtml + "</div>";
         }
         if (this.basics.additionalNotes !== "") {
-            $html += "<div class='additionalnotes'><b>Additional Notes</b>: " + this.basics.additionalNotes + "</div>";
+            $html += "<div class='additionalnotes'> " + this.basics.additionalNotes + "</div>";
         }
         var shape = this.walks.getValue("{shape}");
         if (shape !== "") {
             $html += "<b>" + shape + " Walk</b>";
         }
-
+        content.innerHTML = $html;
+        tag.appendChild(content);
+    };
+    this.addTitleBlock = function (tag) {
+        var content = document.createElement('div');
+        content.setAttribute('class', 'walkitem basics');
+        var $html = "<div class='description'><h2><span class='walktitle'>" + this.basics.title + "</span></h2></div>";
+        content.innerHTML = $html;
+        tag.appendChild(content);
+    };
+    this.addTimesBlock = function (tag) {
+        var content = document.createElement('div');
+        content.setAttribute('class', 'walkitem basics');
+        var $html = "";
+        $html += "<div><b>" + this.getEventValue('{dowddmm}') + "</b></div>";
         var time = this.meeting.getValue("{Time}");
         if (time !== "") {
-            $html += "<div><b>Meeting time " + time + "</b></div>";
+            $html += "<div><b>Meeting time</b>: " + time + "</div>";
         }
         time = this.start.getValue("{Time}");
         if (time !== "") {
-            $html += "<div><b>Start time " + time + "</b></div>";
+            $html += "<div><b>Start time</b>: " + time + "</div>";
         }
         time = this.basics.getValue("{finishTime}");
         if (time !== "") {
-            $html += "<div><b>Estimated finish time " + time + "</b></div>";
+            $html += "<div><b>Estimated finish time</b>: " + time + "</div>";
+        }
+        if ($html === "") {
+            $html = "<div><b>Times</b>: Not provided</div>";
         }
         content.innerHTML = $html;
+        tag.appendChild(content);
+    };
+    this.addDescriptionBlock = function (tag) {
+        var content = document.createElement('div');
+        content.setAttribute('class', 'walkitem basics');
+        var $html = "";
+        if (this.basics.description !== "") {
+            $html += "<div class='description'> " + this.basics.descriptionHtml + "</div>";
+        }
+        if ($html === "") {
+            $html = "<div class='description'><b>Description</b>: Not provided</div>";
+        }
+        content.innerHTML = $html;
+        tag.appendChild(content);
+    };
+    this.addAdditionalNotesBlock = function (tag) {
+        var notesHtml = this.basics.additionalNotesWithoutWebsite();
+        if (notesHtml === "") {
+            return;
+        }
+        var content = document.createElement('div');
+        content.setAttribute('class', 'walkitem basics');
+        content.innerHTML = "<div class='additionalnotes'><b>Additional Notes</b>: " + notesHtml + "</div>";
         tag.appendChild(content);
     };
     this.addMapSection = function (tag) {
@@ -735,21 +808,50 @@ ra.event = function () {
 
     };
     this.addFooterSection = function (tag) {
+        // Links section
+        var linksContent = document.createElement('div');
+        linksContent.setAttribute('class', 'walkitem links');
+        var linksHtml = "<strong>Links</strong><br/>";
+        var extUrl = this.basics.external_url;
+        if (extUrl !== '') {
+            var host = '';
+            try {
+                host = new URL(extUrl).hostname.toLowerCase();
+            } catch (e) {
+                host = extUrl.toLowerCase();
+            }
+            var isMeetup = host.indexOf('meetup.com') !== -1 || host.indexOf('meetu.ps') !== -1;
+            var isEventGrade = this.getIntValue("walks", "_nationalGrade") === "Event";
+            var linkText = isMeetup
+                ? (isEventGrade ? "View this event on Meetup" : "View this walk on Meetup")
+                : "visit link at " + host;
+            var hrefAttr = encodeURI(extUrl);
+            if (isMeetup) {
+                linksHtml += "<div><span class=\"fab fa-meetup fa-lg\"></span> <a href=\"" + hrefAttr + "\" target='_blank' rel='noopener'>" + linkText + "</a></div>";
+            } else {
+                linksHtml += "<div><a href=\"" + hrefAttr + "\" target='_blank' rel='noopener'>" + linkText + "</a></div>";
+            }
+        }
+        if (this.admin.nationalUrl !== '') {
+            linksHtml += "<div><img src=\"" + ra.baseDirectory() + "media/lib_ramblers/images/ralogo.png\" alt=\"Ramblers\" width=\"17\" height=\"17\"> ";
+            linksHtml += "<a href='" + this.admin.nationalUrl + "' target='_blank' >View " + this.admin.eventType + " on Ramblers national web site</a></div>";
+        }
+        var text = escape(this.admin.localPopupUrl);
+        linksHtml += "<div>";
+        linksHtml += "<img src=\"" + ra.baseDirectory() + "media/lib_ramblers/leaflet/images/share.png\" alt=\"Share\" width=\"17\" height=\"17\"> ";
+        linksHtml += "<a href=\"javascript:ra.clipboard.set(\'" + text + "')\" >Copy url of this popup to clipboard</a>";
+        linksHtml += "</div>";
+        linksContent.innerHTML = linksHtml;
+        tag.appendChild(linksContent);
+
+        // Dates section
         var content = document.createElement('div');
         content.setAttribute('class', 'walkitem walkdates');
         var $html = "";
-        if (this.admin.nationalUrl !== '') {
-            $html += "<div><img src=\"" + ra.baseDirectory() + "media/lib_ramblers/images/ralogo.png\" alt=\"Ramblers\" width=\"17\" height=\"17\"> ";
-            $html += "<a href='" + this.admin.nationalUrl + "' target='_blank' >View " + this.admin.eventType + " on Ramblers national web site</a></div>";
-        }
-        var text = escape(this.admin.localPopupUrl);
-        $html += "<div>";
-        $html += "<img src=\"" + ra.baseDirectory() + "media/lib_ramblers/leaflet/images/share.png\" alt=\"Share\" width=\"17\" height=\"17\"> ";
-        $html += "<a href=\"javascript:ra.clipboard.set(\'" + text + "')\" >Copy url of this popup to clipboard</a>";
+        $html += "<div>Published: " + ra.date.dowShortddmmyyyy(this.admin.dateCreated) ;
+        $html += ", updated: " + ra.date.dowShortddmmyyyy(this.admin.dateUpdated) + "</div>";
         $html += "</div>";
-        $html += "<div>Last update: " + ra.date.dowShortddmmyyyy(this.admin.dateUpdated) + "</div>";
-        $html += "</div>";
-        $html += "<div>Event ID " + this.admin.id + "</div><hr";
+        $html += "<div>Event ID " + this.admin.id + "</div>";
         content.innerHTML = $html;
         tag.appendChild(content);
     };
@@ -772,25 +874,91 @@ ra.event = function () {
     this.walkDetailsDisplay = function (tag) {
 
         var content = document.createElement('div');
-        content.setAttribute('class', 'walkstdfulldetails stdfulldetails walk' + this.admin.status);
+        content.setAttribute('class', 'walkstdfulldetails stdfulldetails walk-modal-layout walk' + this.admin.status);
+        content.setAttribute('id', 'walkid' + this.admin.id);
         ra.html.insertAfter(tag, content);
-        // tag.appendChild(content);
-        this.addTitleSection(content);
-        this.addBasicSection(content);
-        this.bookings.addBookingsSection(content);
-        this.meeting.addSection(content, "meeting");
-        this.start.addSection(content, "start");
-        this.finish.addSection(content, "finish");
-        this.walks.addHtmlSection(content, "difficulty");
-        this.contacts.addHtmlSection(content, "contact");
+        var titleRow = document.createElement('div');
+        titleRow.classList.add("walk-modal-row", "walk-modal-row-title");
+        content.appendChild(titleRow);
+        this.addTitleBlock(titleRow);
+
+        var metaRow = document.createElement('div');
+        metaRow.classList.add("walk-modal-row", "walk-modal-row-meta");
+        content.appendChild(metaRow);
+        var timesCol = document.createElement('div');
+        timesCol.classList.add("walk-modal-col", "walk-modal-col-times");
+        metaRow.appendChild(timesCol);
+        this.addTimesBlock(timesCol);
+        var statsCol = document.createElement('div');
+        statsCol.classList.add("walk-modal-col", "walk-modal-col-stats");
+        metaRow.appendChild(statsCol);
+        this.walks.addHtmlSection(statsCol, "difficulty");
+        var difficultyEl = statsCol.querySelector(".walkitem.difficulty");
+        if (difficultyEl === null) {
+            metaRow.removeChild(statsCol);
+            metaRow.classList.add("walk-modal-row-meta--two");
+        } else {
+            var nationalGradeCSS = this.getIntValue("walks", "_nationalGradeCSS");
+            if (nationalGradeCSS !== "") {
+                statsCol.classList.add(nationalGradeCSS);
+            }
+        }
+        var contactCol = document.createElement('div');
+        contactCol.classList.add("walk-modal-col", "walk-modal-col-contact");
+        metaRow.appendChild(contactCol);
+        this.contacts.addHtmlSection(contactCol, "contact");
+
+        var descriptionRow = document.createElement('div');
+        descriptionRow.classList.add("walk-modal-row", "walk-modal-row-description");
+        content.appendChild(descriptionRow);
+        this.addDescriptionBlock(descriptionRow);
+
+        var logisticsRow = document.createElement('div');
+        logisticsRow.classList.add("walk-modal-row", "walk-modal-row-logistics");
+        content.appendChild(logisticsRow);
+        var logisticsLeft = document.createElement('div');
+        logisticsLeft.classList.add("walk-modal-col", "walk-modal-col-logistics-left");
+        logisticsRow.appendChild(logisticsLeft);
+        this.flags.addFlagsSection(logisticsLeft);
+        this.addFooterSection(logisticsLeft);
+        this.bookings.addBookingsSection(logisticsLeft);
+        var logisticsRight = document.createElement('div');
+        logisticsRight.classList.add("walk-modal-col", "walk-modal-col-logistics-right");
+        logisticsRow.appendChild(logisticsRight);
+        this.addAdditionalNotesBlock(logisticsRight);
+
+        var locationRow = document.createElement('div');
+        locationRow.classList.add("walk-modal-row", "walk-modal-row-locations");
+        content.appendChild(locationRow);
+        var locationsCol = document.createElement('div');
+        locationsCol.classList.add("walk-modal-col", "walk-modal-col-locations");
+        locationRow.appendChild(locationsCol);
+        this.meeting.addSection(locationsCol, "meeting");
+        this.start.addSection(locationsCol, "start");
+
+        var hasBothMeetingAndStart = this.meeting.items.length > 0 && this.start.items.length > 0;
+        
+        var rightCol = document.createElement('div');
+        rightCol.classList.add("walk-modal-col", "walk-modal-col-map-finish");
+        locationRow.appendChild(rightCol);
+        var mapCol = document.createElement('div');
+        mapCol.classList.add("walk-modal-col", "walk-modal-col-map");
+        rightCol.appendChild(mapCol);
+        
+        if (hasBothMeetingAndStart) {
+            this.finish.addSection(rightCol, "finish");
+        } else {
+            this.finish.addSection(locationsCol, "finish");
+        }
+
         if (!this.isCancelled()) {
-            this.addMapSection(content);
-            this.media.addMediaSection(content);
-            this.flags.addFlagsSection(content);
-            //  this.general.addSection(content);
+            this.addMapSection(mapCol);
+            var photoRow = document.createElement('div');
+            photoRow.classList.add("walk-modal-row", "walk-modal-row-photos");
+            content.appendChild(photoRow);
+            this.media.addMediaSection(photoRow);
             this.updatePostcodeInfo();
         }
-        this.addFooterSection(content);
         return;
     };
     this.updatePostcodeInfo = function () {
@@ -820,7 +988,7 @@ ra.event = function () {
     };
     this._addWalkLink = function ($text, $class = "") {
         if ($text !== '') {
-            return  "<span class='pointer " + $class + "' onclick=\"javascript:" + ra.walk.DisplayWalkFunction + "(event,'" + this.admin.id + "')\" title='Click to display walk details'>" + $text + "</span>";
+            return  "<a href='?walkid=" + this.admin.id + "' class='pointer " + $class + "' onclick=\"javascript:" + ra.walk.DisplayWalkFunction + "(event,'" + this.admin.id + "'); return false;\" title='Click to display walk details'>" + $text + "</a>";
         }
         return $text;
     };
@@ -962,17 +1130,29 @@ ra.event.basics = function () {
     this.description = '';
     this.descriptionHtml = '';
     this.additionalNotes = null;
+    this.external_url = '';
     this.convertPHPBasics = function (phpwalk) {
         var basics = phpwalk.basics;
         this.title = basics.title;
         this.description = ra.convert_mails(basics.description);
         this.descriptionHtml = ra.convert_mails(basics.descriptionHtml);
         this.additionalNotes = ra.convert_mails(basics.additionalNotes);
+        this.external_url = (basics.external_url !== undefined && basics.external_url !== null && basics.external_url !== '') ? basics.external_url : '';
         this.walkDate = ra.date.getDateTime(basics.walkDate.date);
         if (basics.finishDate !== null) {
             this.multiDate = basics.multiDate;
             this.finishDate = ra.date.getDateTime(basics.finishDate.date);
         }
+    };
+    this.additionalNotesWithoutWebsite = function () {
+        var notes = this.additionalNotes;
+        if (notes === null || notes === '' || typeof notes === 'undefined') {
+            return '';
+        }
+        if (this.external_url !== '') {
+            notes = notes.replace(/<div>\s*<b>Website:<\/b>\s*<a[^>]+>[\s\S]*?<\/a>\s*<br\s*\/?>\s*<\/div>/gi, '');
+        }
+        return notes.replace(/^\s+|\s+$/g, '');
     };
     this.getValue = function ($option) {
         var BR = '<br/>';
@@ -1249,24 +1429,39 @@ ra.event.walk = function () {
         var $html;
         var shape = this.getValue("{shape}");
         if (shape !== "") {
-            $html = "<b>" + shape + " Walk</b>";
+            var shapeIcon = "";
+            if (shape.includes("Circular")) {
+                shapeIcon = '<span class="fas fa-person-walking-arrow-loop-left fa-lg"></span> ';
+            } else if (shape.includes("Linear")) {
+                shapeIcon = '<span class="fas fa-person-walking-arrow-right fa-lg"></span> ';
+            }
+            $html = "<b>" + shapeIcon + shape + " Walk</b>";
         } else {
             $html = "<b>Walk</b>";
         }
 
         if (this.distanceMiles > 0) {
-            $html += ra.html.addDiv("distance", "<b>Distance</b>: " + this.distanceMiles + "mi / " + this.distanceKm + "km");
+            $html += ra.html.addDiv("distance", '<b>Distance </b><span class="fas fa-ruler fa-lg"></span> ' + this.distanceMiles + "mi / " + this.distanceKm + "km");
         }
-        $html += ra.html.addDiv("nationalgrade", "<b>National Grade</b>: " + this.nationalGrade.toText() + "  " + this.nationalGrade.disp('popup'));
+        var gradeIcon = "";
+        var gradeText = this.nationalGrade.toText();
+        if (["Easy Access", "Easy", "Leisurely"].includes(gradeText)) {
+            gradeIcon = '<span class="fas fa-temperature-quarter fa-lg"></span> ';
+        } else if (gradeText === "Moderate") {
+            gradeIcon = '<span class="fas fa-temperature-half fa-lg"></span> ';
+        } else if (["Strenuous", "Technical"].includes(gradeText)) {
+            gradeIcon = '<span class="fas fa-temperature-three-quarters fa-lg"></span> ';
+        }
+        $html += ra.html.addDiv("nationalgrade", "<b>Ramblers Grade </b>" + gradeIcon + this.nationalGrade.toText() + "  " + this.nationalGrade.disp('popup'));
         if (this.localGrade !== "") {
             $link = this.localGrade;
-            $html += ra.html.addDiv("localgrade", "<b>Local Grade</b>: " + $link);
+            $html += ra.html.addDiv("localgrade", "<b>Local Grade </b>" + $link);
         }
         if (this.pace !== "") {
             $html += ra.html.addDiv("pace", "<b>Pace</b>: " + this.pace);
         }
         if (this.ascent !== "") {
-            $html += ra.html.addDiv("ascent", "<b>Ascent</b>: " + this.ascent);
+            $html += ra.html.addDiv("ascent", '<b>Ascent </b><span class="fas fa-arrow-trend-up fa-lg"></span> ' + this.ascent);
         }
 
         return $html;
@@ -1343,9 +1538,9 @@ ra.event.timelocation = function () {
                 out = this.w3w;
                 break;
             case "{OSMap}":
-                //    var $lat = this.latitude;
-                //   var $long = this.longitude;
-                //   out = ra.link.getOSMap($lat, $long, "OS Map");
+            //    var $lat = this.latitude;
+             //   var $long = this.longitude;
+             //   out = ra.link.getOSMap($lat, $long, "OS Map");
                 break;
             case "{Directions}":
                 var $lat = this.latitude;
@@ -1474,7 +1669,7 @@ ra.event.timelocation = function () {
             $loc = $loc.replace("[long]", this.longitude);
             a.title = "You may need to adjust your 'Location' if you are not using a mobile device";
             a.setAttribute("href", $loc);
-            a.textContent = "[Google Directions]";
+            a.innerHTML = '<span class="fas fa-location-arrow fa-lg"></span> Directions';
             if (this.type !== "rough") {
                 this._addLocationExtras(contentTag, tag);
             }
@@ -1492,7 +1687,7 @@ ra.event.timelocation = function () {
         button.classList.add("pointer");
         button.title = "Click to see/hide additional location information";
         tag.appendChild(button);
-        button.textContent = "[Map Info+]";
+        button.innerHTML = '<span class="fas fa-map-marked-alt fa-lg"></span> Map Info+';
         var extras = document.createElement('div');
         extras.style.display = "none";
         extras.classList.add("mappopup");
@@ -1501,8 +1696,8 @@ ra.event.timelocation = function () {
         this._displayExtras(extras);
         button.addEventListener("click", e => {
             var element = e.target;
-            if (element.textContent === "[Map Info+]") {
-                element.textContent = "[Map Info-]";
+            if (element.textContent.includes("Map Info+")) {
+                element.innerHTML = '<span class="fas fa-map-marked-alt fa-lg"></span> Map Info-';
                 extras.style.display = "";
                 if (this.osmaps === null) {
                     ra.map.os.getOSMapsAtLoc(this.latitude, this.longitude, result => {
@@ -1518,7 +1713,7 @@ ra.event.timelocation = function () {
                     this._displayOsMaps(contentTag, this.osmaps);
                 }
             } else {
-                element.textContent = "[Map Info+]";
+                element.innerHTML = '<span class="fas fa-map-marked-alt fa-lg"></span> Map Info+';
                 extras.style.display = "none";
                 this._displayOsMaps(contentTag, []);
             }
@@ -1709,8 +1904,9 @@ ra.event.timelocation = function () {
         return;
     };
 };
-ra.event.contact = function (id) {
+ra.event.contact = function (id, groupName = "") {
     this.id = id;
+    this.groupName = groupName;
     this.isLeader = false;
     this.contactName = '';
     this.email = 'yes';
@@ -1784,7 +1980,7 @@ ra.event.contact = function (id) {
             case "{emaillink}":
                 if (this.email !== "") {
                     if (this.contactForm !== "") {
-                        out = "<span><b>Contact link: </b><a target='_blank' href='" + this.contactForm + "' title='Click to send an email to leader/contact or group'>Email contact</a></span>";
+                        out = "<span><b>Contact form <span class=\"fas fa-envelope-open-text fa-lg\"></span> </b><a target='_blank' href='" + this.contactForm + "' title='Click to send an email to leader/contact or group'>Email contact</a></span>";
                     } else {
                         var $gwemlink = "javascript:ra.walk.emailContact(\"" + this.id + "\")";
                         out = "<span><a href='" + $gwemlink + "' title='Click to send an email to leader/contact'>Email contact</a></span>";
@@ -1826,12 +2022,15 @@ ra.event.contact = function (id) {
         } else {
             $html += "<b>Contact Leader: </b>";
         }
-        $name = this.contactName !== "" ? "<b>Name</b>: " + this.contactName : "";
+        if (this.groupName !== "") {
+            $html += ra.html.addDiv("groupname", '<span class="fas fa-people-group fa-lg"></span> ' + this.groupName);
+        }
+        $name = this.contactName !== "" ? '<b>Name </b><span class="fas fa-person-hiking fa-lg"></span> ' + this.contactName : "";
         $html += ra.html.addDiv("contactname", $name);
         var anyContact = false;
         if (this.telephone1 !== "") {
             anyContact = true;
-            var $text = "<b>Telephone</b>: " + this.telephone1;
+            var $text = '<b>Phone </b><span class="fas fa-phone fa-lg"></span> ' + this.telephone1;
             if (this.telephone2 !== "") {
                 $text += ", " + this.telephone2;
             }
@@ -1840,7 +2039,11 @@ ra.event.contact = function (id) {
 
         if (this.email !== "") {
             anyContact = true;
-            $html += this.getValue("{emaillink}");
+            var emailLink = this.getValue("{emaillink}");
+            if (emailLink) {
+                emailLink = emailLink.replace('<b>Email</b>:', '<b>Contact </b><span class="fas fa-envelope-open-text fa-lg"></span> ');
+            }
+            $html += emailLink;
         }
         if (!anyContact) {
             $html += ra.html.addDiv("contactname", "<b>No contact details available</b>");
@@ -1865,24 +2068,42 @@ ra.event.flags = function () {
         if (this._flags.length === 0) {
             return;
         }
-        var lastSection = '';
         var content = document.createElement('div');
         content.setAttribute('class', 'walkitem flags');
-        var $html = "";
+        var $html = "<b>Additional Info</b> <ul class='walk-modal-flags-list'>";
         this._flags.forEach(flag => {
-            if (lastSection !== flag.section) {
-                if (lastSection !== '') {
-                    $html += "</ul>";
-                }
-                $html += "<b>" + flag.section + "</b>";
-                lastSection = flag.section;
-                $html += "<ul>";
+            var icon = "";
+            var name = flag.name;
+            if (name.includes("Refreshments")) {
+                icon = '<span class="fas fa-beer-mug-empty fa-lg"></span> ';
+            } else if (name.includes("Toilets")) {
+                icon = '<span class="fas fa-toilet fa-lg"></span> ';
+            } else if (name.includes("Accessible by public transport")) {
+                icon = '<span class="fas fa-bus fa-lg"></span> ';
+            } else if (name.includes("Car parking")) {
+                icon = '<span class="fas fa-parking fa-lg"></span> ';
+            } else if (name.includes("Car sharing")) {
+                icon = '<span class="fas fa-car-side fa-lg"></span> ';
+            } else if (name.includes("Coach trip")) {
+                icon = '<span class="fas fa-bus-side fa-lg"></span> ';
+            } else if (name.includes("Dog friendly")) {
+                icon = '<span class="fas fa-paw fa-lg"></span> ';
+            } else if (name.includes("Introductory walk")) {
+                icon = '<span class="fas fa-person-circle-plus fa-lg"></span> ';
+            } else if (name.includes("No car")) {
+                icon = '<span class="fas fa-car-tunnel fa-lg"></span> ';
+            } else if (name.includes("Pushchair")) {
+                icon = '<span class="fas fa-baby-carriage fa-lg"></span> ';
+            } else if (name.includes("No stiles")) {
+                icon = '<span class="fas fa-person-walking fa-lg"></span> ';
+            } else if (name.includes("Family friendly")) {
+                icon = '<span class="fas fa-user-group fa-lg"></span> ';
+            } else if (name.includes("Wheelchair")) {
+                icon = '<span class="fas fa-wheelchair-move fa-lg"></span> ';
             }
-            $html += "<li class='item'>" + flag.name + "</li>";
+            $html += "<li class='item'>" + icon + flag.name + "</li>";
         });
-        if ($html !== "") {
-            $html += "</ul>";
-        }
+        $html += "</ul>";
         content.innerHTML = $html;
         tag.appendChild(content);
     };
@@ -2234,7 +2455,24 @@ ra.walk = (function () {
     my.displayWalkID = function (event, id) {
         var walk = my.walks.getEvent(id);
         if (walk !== null) {
-            walk.displayInModal(event);
+            walk.displayInModal(event);  // Displays the walk details in a modal window
+            // Append the walk title to the page title (e.g., "Group Name - Our Walks - Walk Title").
+            if (walk.basics && walk.basics.title) {
+                // Extract the part of the title up to the second dash
+                var currentTitle = document.title;
+                var titleParts = currentTitle.split(' - '); // Split the title by dashes
+                
+                // Rebuild the title up to the second occurrence of a dash
+                var newTitle = titleParts[0];
+                if (titleParts.length > 1) {
+                    newTitle += ' - ' + titleParts[1];
+                }
+                // Append the walk title, replacing anything after the second dash
+                newTitle += ' - ' + walk.basics.title;
+                document.title = newTitle;
+                // Update the browser history with the walkid parameter without refreshing the page.
+     			history.pushState(null, '', '?walkid=' + id);
+            }
         } else {
             setTimeout(function () {
                 // wait for walk registration to complete
@@ -2318,3 +2556,4 @@ ra.walk = (function () {
     return my;
 }
 ());
+

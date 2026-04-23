@@ -1,0 +1,205 @@
+.walk-modal-content {
+    max-height: 85vh;
+}
+
+.walk-modal-content .modal-data {
+    overflow-y: auto;
+    max-height: calc(85vh - 52px);
+    padding-right: 4px;
+}
+
+.walk-modal-content .walk-modal-action-left {
+    justify-self: start;
+}
+
+.walk-modal-content .walk-modal-action-center {
+    justify-self: center;
+}
+
+.walk-modal-content .walk-modal-action-right {
+    justify-self: end;
+}
+
+.walkstdfulldetails.walk-modal-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    column-count: initial !important;
+    width: 100%;
+}
+
+.walkstdfulldetails.walk-modal-layout .walk-modal-row .walkitem {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.walk-modal-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    width: 100%;
+    background-color: #fff;
+}
+
+.walk-modal-row-locations {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    width: 100%;
+    background-color: #fff;
+}
+
+.walk-modal-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.walk-modal-col-logistics-left {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.walk-modal-row-photos .walkitem.media {
+    width: auto;
+}
+
+.walk-modal-col-map .walkitem.map {
+    height: 100%;
+    min-height: 260px;
+}
+
+.walk-modal-col-map .leaflet-container {
+    height: 100%;
+    min-height: 260px;
+}
+
+@media only screen and (max-width: 768px) {
+    .walk-modal-content .modal-print {
+        display: none !important;
+    }
+
+    .walk-modal-row-logistics .walk-modal-col-logistics-left,
+    .walk-modal-row-logistics .walk-modal-col-logistics-right {
+        width: 100%;
+    }
+
+    .walk-modal-row-locations {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .walk-modal-col-locations {
+        order: 1;
+    }
+
+    .walk-modal-col-map-finish {
+        order: 2;
+    }
+}
+
+@media only screen and (min-width: 769px) {
+    .walk-modal-row-meta {
+        grid-template-columns: 1fr 1fr 1fr;
+        align-items: stretch;
+    }
+
+    .walk-modal-row-meta.walk-modal-row-meta--two {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .walk-modal-row-logistics {
+        grid-template-columns: 1fr 1fr;
+        align-items: stretch;
+    }
+
+    .walk-modal-row-locations {
+        grid-template-columns: 1fr 1fr;
+        align-items: stretch;
+    }
+
+    .walk-modal-row-locations .walk-modal-col,
+    .walk-modal-row-logistics .walk-modal-col {
+        height: 100%;
+    }
+
+    .walk-modal-col-map .walkitem.map,
+    .walk-modal-col-map .leaflet-container {
+        min-height: 360px;
+    }
+}
+
+.walkitem.flags .walk-modal-flags-list li.item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    list-style: none;
+}
+
+div.walkstdfulldetails div h2  {
+    margin:0 0 0.2rem 0;
+}
+
+
+@media only screen and (max-width: 768px) {
+    div.walkstdfulldetails h2 span.walktitle {
+        font-size: 100%;
+    }
+}
+
+@media only screen and (max-width: 430px) {
+    .walkstdfulldetails h2.walktitle {
+        font-size: 80%;
+    }
+}
+
+div.paginatedList h3.ra.walk.month {
+    background-color: unset;
+}
+
+.walk-modal-content div.walkstdfulldetails div.walkitem {
+  background-color:unset;
+}
+
+div.walkitem.flags ul, div.walkitem.flags ul li{
+    margin:0 0 0 8px;
+}
+
+.walk-modal-col-map-finish {
+    display: flex;
+    flex-direction: column;
+}
+
+.walk-modal-col-map-finish .walk-modal-col-map {
+    flex: 1;
+    min-height: 360px;
+}
+
+.walkmodal li br + br {
+  display: none;
+}
+.walkmodal p > strong + br {
+  display: none;
+}
+
+.walkmodal p {
+    white-space: normal;
+}
+
+div.modal-master div.ra-modal-container div.js-modal.ramblers div button,
+div.ra.contentContainer button{
+background-color:#F9B104
+}
+
+.walk-modal-row-photos .walk-image, .walk-modal-row-photos .mediapopup {
+  display: inline-block;
+  max-width: 100%;
+}
+.walk-modal-row-photos .mediapopup .walkmedia 
+{
+    max-height:250px
+}

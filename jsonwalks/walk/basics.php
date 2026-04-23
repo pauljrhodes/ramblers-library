@@ -17,7 +17,7 @@ class RJsonwalksWalkBasics implements JsonSerializable {
     private $description = "";       // description of walk with html tags removed
     private $descriptionHtml = "";   // description of walk with html tags
     private $additionalNotes = "";   // the additional notes field as text
-    private $title = "";             // Title of the walk
+    private $title = "";             // Title of the walkad
     private $external_url;           // external url for link to popup of walk on group web site
 
     public function __construct($admin, DateTime $walkDate, ?DateTime $finishDate, string $title, string $descriptionHtml,
@@ -37,6 +37,7 @@ class RJsonwalksWalkBasics implements JsonSerializable {
         if ($external_url !== null && $external_url !== "") {
             $this->additionalNotes .= "<div> <b>Website:</b> <a href='" . $external_url . "' target='_blank'>" . $external_url . "</a><br/></div>";
         }
+        $this->external_url = $external_url;
         $this->checkCancelledStatus();
         $this->dayofweek = $this->walkDate->format('l');
         $this->month = $this->walkDate->format('F');

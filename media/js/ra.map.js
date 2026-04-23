@@ -467,19 +467,36 @@ ra.loc = (function () {
         return "<a class='mappopup' href='javascript:ra.loc.directions(" + $lat + "," + $long + ")' >[Directions]</a>";
     };
     loc.directions = function ($lat, $long) {
-        var page = -'';
+        var page = "";
+        var ua = navigator.userAgent.toLowerCase();
+        var isIOS = /iphone|ipad|ipod/.test(ua);
+        var isAndroid = /android/.test(ua);
+        var webFallback = "https://www.google.com/maps/dir/Current+Location/" + $lat.toString() + "," + $long.toString();
+        var openWebFallback = function () {
+            window.open(webFallback, "_blank", "scrollbars=yes,width=900,height=580,menubar=yes,resizable=yes,status=yes");
+        };
         if (ra.data.location.found) {
             var myloc = ra.data.location;
             if (ra.data.location.accuracy > 500) {
                 ra.showMsg("Unable to accurately obtain your location.\nYou may need to tell Google your true location.");
             }
-            page = "https://maps.google.com?saddr=" + myloc.latitude.toString() + "," + myloc.longitude.toString() + "&daddr=" + $lat.toString() + "," + $long.toString();
+            webFallback = "https://maps.google.com?saddr=" + myloc.latitude.toString() + "," + myloc.longitude.toString() + "&daddr=" + $lat.toString() + "," + $long.toString();
         } else {
             ra.showMsg("Sorry - Unable to find your location, we will ask Google to try");
-            page = "https://www.google.com/maps/dir/Current+Location/" + $lat.toString() + "," + $long.toString();
         }
-        // console.log(page);
-        window.open(page, "_blank", "scrollbars=yes,width=900,height=580,menubar=yes,resizable=yes,status=yes");
+        if (isIOS) {
+            page = "maps://?daddr=" + $lat.toString() + "," + $long.toString() + "&dirflg=d";
+            window.location.href = page;
+            setTimeout(openWebFallback, 900);
+            return;
+        }
+        if (isAndroid) {
+            page = "geo:0,0?q=" + $lat.toString() + "," + $long.toString();
+            window.location.href = page;
+            setTimeout(openWebFallback, 900);
+            return;
+        }
+        openWebFallback();
     };
     loc.setPosition = function (e) {
         ra.data.location.found = true;

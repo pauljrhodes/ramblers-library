@@ -1743,7 +1743,7 @@ ra.modal = function () {
             {name: 'print', parent: 'header', tag: 'button', attrs: {class: 'link-button granite tiny modal-print'}, textContent: 'Print'},
             {name: 'close', parent: 'header', tag: 'button', attrs: {class: 'link-button granite tiny modal-close'}, textContent: 'Close'},
             {parent: 'content', tag: 'div', style: {clear: 'right'}},
-            {name: 'data', parent: 'content', tag: 'div'}
+            {name: 'data', parent: 'content', tag: 'div', attrs: {class: 'modal-data'}}
         ];
         if (typeof this._content !== 'undefined') {
             this.elements.data.innerHTML = '';
