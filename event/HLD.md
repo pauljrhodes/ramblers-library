@@ -18,9 +18,9 @@ The `event` module aggregates walk data into event collections and provides iCal
 ```mermaid
 flowchart TB
     subgraph Event["Event Classes"]
-        EventFeed[REventFeed<br/>ICS output]
-        EventGroup[REventGroup<br/>Event collection]
-        EventDownload[REventDownload<br/>Download link]
+        EventFeed["REventFeed<br/>ICS output"]
+        EventGroup["REventGroup<br/>Event collection"]
+        EventDownload["REventDownload<br/>Download link"]
     end
 
     subgraph Domain["Domain Integration"]
@@ -30,12 +30,12 @@ flowchart TB
     end
 
     subgraph Export["Export Layer"]
-        IcsOutput[RIcsOutput<br/>RFC5545 generator]
+        IcsOutput["RIcsOutput<br/>RFC5545 generator"]
         IcsFile[RIcsFile]
     end
 
     subgraph Client["Client Integration"]
-        LeafletScript[RLeafletScript<br/>registerWalks()]
+        LeafletScript["RLeafletScript<br/>registerWalks()"]
     end
 
     EventFeed --> IcsOutput
@@ -186,15 +186,15 @@ sequenceDiagram
     participant Walk as RJsonwalksWalk
     participant LeafletScript as RLeafletScript
 
-    Feed->>EventGroup: addWalks(Feed)
-    EventGroup->>Feed: getWalks()
+    Feed->>EventGroup: "addWalks(Feed)"
+    EventGroup->>Feed: "getWalks()"
     Feed-->>EventGroup: Walks
-    EventGroup->>Walks: allWalks()
+    EventGroup->>Walks: "allWalks()"
     Walks-->>EventGroup: walk[]
     loop for each walk
         EventGroup->>EventGroup: add to arrayofevents
     end
-    EventGroup->>LeafletScript: registerWalks(walks)
+    EventGroup->>LeafletScript: "registerWalks(walks)"
 ```
 
 ### ICS Export Flow
@@ -205,11 +205,11 @@ sequenceDiagram
     participant Walk as RJsonwalksWalk
     participant IcsOutput as RIcsOutput
 
-    EventGroup->>IcsOutput: getIcalendarFile(IcsOutput)
+    EventGroup->>IcsOutput: "getIcalendarFile(IcsOutput)"
     loop for each event
-        EventGroup->>Walk: Event_ics(IcsOutput)
-        Walk->>IcsOutput: addRecord() for each field
-        Walk->>IcsOutput: addSequence() for updates
+        EventGroup->>Walk: "Event_ics(IcsOutput)"
+        Walk->>IcsOutput: "addRecord() for each field"
+        Walk->>IcsOutput: "addSequence() for updates"
     end
     IcsOutput-->>EventGroup: ICS text
 ```

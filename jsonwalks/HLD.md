@@ -18,19 +18,19 @@ The `jsonwalks` module is the core orchestration layer for walk data management 
 ```mermaid
 flowchart TB
     subgraph Sources["Data Sources"]
-        WM[RJsonwalksSourcewalksmanager<br/>Walk Manager]
-        WMArea[RJsonwalksSourcewalksmanagerarea<br/>Area-based WM]
-        Editor[RJsonwalksSourcewalkseditor<br/>Local editor]
+        WM["RJsonwalksSourcewalksmanager<br/>Walk Manager"]
+        WMArea["RJsonwalksSourcewalksmanagerarea<br/>Area-based WM"]
+        Editor["RJsonwalksSourcewalkseditor<br/>Local editor"]
     end
 
     subgraph Core["Core Orchestration"]
-        Feed[RJsonwalksFeed<br/>Main orchestrator]
-        FeedOpts[RJsonwalksFeedoptions<br/>Configuration]
-        Walks[RJsonwalksWalks<br/>Collection manager]
+        Feed["RJsonwalksFeed<br/>Main orchestrator"]
+        FeedOpts["RJsonwalksFeedoptions<br/>Configuration"]
+        Walks["RJsonwalksWalks<br/>Collection manager"]
     end
 
     subgraph Domain["Domain Model"]
-        Walk[RJsonwalksWalk<br/>Individual walk]
+        Walk["RJsonwalksWalk<br/>Individual walk"]
         Admin[RJsonwalksWalkAdmin]
         Basics[RJsonwalksWalkBasics]
         Items[RJsonwalksWalkItems]
@@ -40,7 +40,7 @@ flowchart TB
     end
 
     subgraph Display["Display Layer"]
-        Base[RJsonwalksDisplaybase<br/>Abstract base]
+        Base["RJsonwalksDisplaybase<br/>Abstract base"]
         Std[RJsonwalksStdDisplay]
         Simple[RJsonwalksStdSimplelist]
         Table[RJsonwalksStdWalktable]
@@ -49,7 +49,7 @@ flowchart TB
     end
 
     subgraph Integration["External Integration"]
-        Leaflet[RLeafletMap<br/>RLeafletScript]
+        Leaflet["RLeafletMap<br/>RLeafletScript"]
         Load[RLoad]
         Errors[RErrors]
     end
@@ -243,32 +243,32 @@ public function getWalkValue($option)
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Caller as Joomla Module/Page
+    participant Caller as "Joomla Module/Page"
     participant FeedOpts as RJsonwalksFeedoptions
     participant Feed as RJsonwalksFeed
     participant Source as RJsonwalksSourcewalksmanager
     participant Walks as RJsonwalksWalks
     participant Walk as RJsonwalksWalk
     participant Display as RJsonwalksDisplaybase subclass
-    participant Leaflet as RLeafletMap/Script
+    participant Leaflet as "RLeafletMap/Script"
 
-    Caller->>FeedOpts: new('BU51') or new(options)
-    FeedOpts->>Source: getWalks(Walks)
-    Source->>Walks: addWalk(walk) for each item
+    Caller->>FeedOpts: "new('BU51') or new(options)"
+    FeedOpts->>Source: "getWalks(Walks)"
+    Source->>Walks: "addWalk(walk) for each item"
     
-    Caller->>Feed: new(FeedOpts)
-    Feed->>Walks: setNewWalks(7)
-    Feed->>Walks: setBookings()
+    Caller->>Feed: "new(FeedOpts)"
+    Feed->>Walks: "setNewWalks(7)"
+    Feed->>Walks: "setBookings()"
     
-    Caller->>Feed: filter*() methods (optional)
-    Feed->>Walks: filter*() methods
+    Caller->>Feed: "filter*() methods (optional)"
+    Feed->>Walks: "filter*() methods"
     
-    Caller->>Display: new() + configure
-    Caller->>Feed: display(Display)
-    Feed->>Display: DisplayWalks(Walks)
-    Display->>Walks: allWalks()
-    Display->>Walk: getWalkValue(), Event*() methods
-    Display->>Leaflet: setCommand(), setDataObject()
+    Caller->>Display: "new() + configure"
+    Caller->>Feed: "display(Display)"
+    Feed->>Display: "DisplayWalks(Walks)"
+    Display->>Walks: "allWalks()"
+    Display->>Walk: "getWalkValue(), Event*() methods"
+    Display->>Leaflet: "setCommand(), setDataObject()"
     Display-->>Caller: HTML output
 ```
 
@@ -280,13 +280,13 @@ sequenceDiagram
     participant Walks as RJsonwalksWalks
     participant Walk as RJsonwalksWalk
 
-    Feed->>Walks: filterGroups(['BU51', 'DE01'])
-    Walks->>Walk: notInGroup(groups) for each
-    Walk-->>Walks: true/false
+    Feed->>Walks: "filterGroups(['BU51', 'DE01'])"
+    Walks->>Walk: "notInGroup(groups) for each"
+    Walk-->>Walks: "true/false"
     Walks->>Walks: remove non-matching walks
     
-    Feed->>Walks: filterDistanceFromLatLong(lat, lon, km)
-    Walks->>Walk: distanceFromLatLong(lat, lon) for each
+    Feed->>Walks: "filterDistanceFromLatLong(lat, lon, km)"
+    Walks->>Walk: "distanceFromLatLong(lat, lon) for each"
     Walk-->>Walks: distance in km
     Walks->>Walks: remove walks beyond threshold
 ```
@@ -328,16 +328,16 @@ sequenceDiagram
 ```mermaid
 flowchart LR
     Feed[RJsonwalksFeed]
-    DisplayClasses[RJsonwalksStdDisplay<br/>RJsonwalksStdSimplelist<br/>RJsonwalksStdWalktable]
+    DisplayClasses["RJsonwalksStdDisplay<br/>RJsonwalksStdSimplelist<br/>RJsonwalksStdWalktable"]
     LeafletMarker[RJsonwalksLeafletMapmarker]
     Loader[RLoad]
     Leaflet[RLeafletScript]
-    BaseJS[media/js<br/>ra.js<br/>ra.walk.js<br/>ra.tabs.js<br/>ra.paginatedDataList.js<br/>ra.feedhandler.js]
-    StdJS[media/jsonwalks/std/display.js]
-    Sr02JS[media/jsonwalks/sr02/display.js]
-    BuCss[media/jsonwalks/bu51/bu51style.css]
-    MlJS[media/jsonwalks/ml/script.js]
-    MapJS[media/jsonwalks/leaflet/mapmarker.js]
+    BaseJS["media/js<br/>ra.js<br/>ra.walk.js<br/>ra.tabs.js<br/>ra.paginatedDataList.js<br/>ra.feedhandler.js"]
+    StdJS["media/jsonwalks/std/display.js"]
+    Sr02JS["media/jsonwalks/sr02/display.js"]
+    BuCss["media/jsonwalks/bu51/bu51style.css"]
+    MlJS["media/jsonwalks/ml/script.js"]
+    MapJS["media/jsonwalks/leaflet/mapmarker.js"]
 
     Feed --> DisplayClasses
     DisplayClasses --> Loader
